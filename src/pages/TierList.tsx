@@ -81,8 +81,8 @@ const TierList = () => {
       .limit(1)
       .maybeSingle();
 
-    if (!error && data) {
-      setTiers(data.tiers as TiersType);
+    if (!error && data && data.tiers) {
+      setTiers(data.tiers as unknown as TiersType);
     }
   };
 
@@ -140,7 +140,7 @@ const TierList = () => {
         .from('tier_lists')
         .insert({
           name: 'My Tier List',
-          tiers: tiers,
+          tiers: tiers as any,
         });
 
       if (error) throw error;
