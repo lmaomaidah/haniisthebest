@@ -9,13 +9,15 @@ import { Link } from "react-router-dom";
 interface ImageType {
   id: string;
   name: string;
-  image_url: string;
+  image_url: string | null;
   created_at: string;
 }
 
 const Gallery = () => {
   const [images, setImages] = useState<ImageType[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [name, setName] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,14 +41,22 @@ const Gallery = () => {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const handleFileUpload = async () => {
+    if (!name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for your classmate!",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploading(true);
 
     try {
-      for (const file of Array.from(files)) {
+      let publicUrl = null;
+
+      if (file) {
         // Validate file type
         if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
           toast({
@@ -54,7 +64,8 @@ const Gallery = () => {
             description: "Only PNG, JPG, and WebP are allowed!",
             variant: "destructive",
           });
-          continue;
+          setUploading(false);
+          return;
         }
 
         // Upload to storage
@@ -66,26 +77,30 @@ const Gallery = () => {
         if (uploadError) throw uploadError;
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
+        const { data: { publicUrl: url } } = supabase.storage
           .from('classmate-images')
           .getPublicUrl(fileName);
 
-        // Save to database
-        const { error: dbError } = await supabase
-          .from('images')
-          .insert({
-            name: file.name,
-            image_url: publicUrl,
-          });
-
-        if (dbError) throw dbError;
+        publicUrl = url;
       }
 
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('images')
+        .insert({
+          name: name.trim(),
+          image_url: publicUrl,
+        });
+
+      if (dbError) throw dbError;
+
       toast({
-        title: "✨ Upload successful!",
-        description: "Your classmate pics are now in the chaos zone! 🎉",
+        title: file ? "✨ Upload successful!" : "✨ Classmate added!",
+        description: file ? "Your classmate pic is now in the chaos zone! 🎉" : "Name added to the roster! 🎉",
       });
 
+      setName("");
+      setFile(null);
       fetchImages();
     } catch (error: any) {
       toast({
@@ -98,12 +113,14 @@ const Gallery = () => {
     }
   };
 
-  const handleDelete = async (id: string, imageUrl: string) => {
+  const handleDelete = async (id: string, imageUrl: string | null) => {
     try {
-      // Extract file name from URL
-      const fileName = imageUrl.split('/').pop();
-      if (fileName) {
-        await supabase.storage.from('classmate-images').remove([fileName]);
+      // Extract file name from URL and delete from storage if exists
+      if (imageUrl) {
+        const fileName = imageUrl.split('/').pop();
+        if (fileName) {
+          await supabase.storage.from('classmate-images').remove([fileName]);
+        }
       }
 
       // Delete from database
@@ -113,7 +130,7 @@ const Gallery = () => {
 
       toast({
         title: "💥 Deleted!",
-        description: "Pic removed from the chaos! 🗑️",
+        description: "Removed from the chaos! 🗑️",
       });
 
       fetchImages();
@@ -144,25 +161,33 @@ const Gallery = () => {
 
         {/* Upload Section */}
         <div className="bg-card border-4 border-secondary rounded-3xl p-8 mb-8 shadow-bounce">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
+          <h2 className="text-3xl font-bold mb-6 text-center">📸 Add Classmates</h2>
+          <div className="space-y-4 max-w-2xl mx-auto">
+            <Input
+              type="text"
+              placeholder="Name your classmate..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="border-4 border-accent rounded-2xl text-lg p-4"
+            />
             <Input
               type="file"
-              multiple
               accept="image/png,image/jpeg,image/webp"
-              onChange={handleFileUpload}
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
               disabled={uploading}
               className="border-4 border-accent rounded-2xl text-lg p-4"
             />
             <Button
-              disabled={uploading}
-              className="gradient-pink-blue text-white text-xl px-8 py-6 rounded-2xl shadow-glow"
+              onClick={handleFileUpload}
+              disabled={uploading || !name.trim()}
+              className="w-full gradient-pink-blue text-white text-xl px-8 py-6 rounded-2xl shadow-glow"
             >
               <Upload className="mr-2" />
-              {uploading ? "Uploading... ✨" : "Upload Pics! 🚀"}
+              {uploading ? "Adding... ✨" : file ? "Upload with Photo 🚀" : "Add Name Only ✍️"}
             </Button>
           </div>
           <p className="text-center mt-4 text-muted-foreground text-lg">
-            PNG, JPG, or WebP only! Upload as many as you want! 🎨
+            Name is required! Photo is optional - just type a name if you prefer! 🎨
           </p>
         </div>
 
@@ -183,11 +208,19 @@ const Gallery = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="aspect-square relative">
-                  <img
-                    src={image.image_url}
-                    alt={image.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {image.image_url ? (
+                    <img
+                      src={image.image_url}
+                      alt={image.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                      <span className="text-6xl font-bold text-primary-foreground">
+                        {image.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2)}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className="p-4 space-y-3">
                   <p className="font-bold text-lg truncate">{image.name}</p>
