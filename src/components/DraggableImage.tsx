@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 interface ImageType {
   id: string;
   name: string;
-  image_url: string;
+  image_url: string | null;
 }
 
 interface DraggableImageProps {
@@ -21,6 +21,15 @@ export const DraggableImage = ({ image }: DraggableImageProps) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -29,11 +38,19 @@ export const DraggableImage = ({ image }: DraggableImageProps) => {
       {...attributes}
       className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-primary shadow-glow cursor-grab hover:scale-110 transition-transform active:cursor-grabbing"
     >
-      <img
-        src={image.image_url}
-        alt={image.name}
-        className="w-full h-full object-cover"
-      />
+      {image.image_url ? (
+        <img
+          src={image.image_url}
+          alt={image.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+          <span className="text-3xl font-bold text-primary-foreground">
+            {getInitials(image.name)}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

@@ -18,19 +18,19 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          image_url: string
+          image_url: string | null
           name: string
         }
         Insert: {
           created_at?: string | null
           id?: string
-          image_url: string
+          image_url?: string | null
           name: string
         }
         Update: {
           created_at?: string | null
           id?: string
-          image_url?: string
+          image_url?: string | null
           name?: string
         }
         Relationships: []
@@ -97,6 +97,33 @@ export type Database = {
           name?: string
           tiers?: Json
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      venn_diagrams: {
+        Row: {
+          circles: Json
+          created_at: string
+          id: string
+          name: string
+          placements: Json
+          updated_at: string
+        }
+        Insert: {
+          circles?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          placements?: Json
+          updated_at?: string
+        }
+        Update: {
+          circles?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          placements?: Json
+          updated_at?: string
         }
         Relationships: []
       }

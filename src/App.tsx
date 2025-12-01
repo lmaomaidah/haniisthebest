@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Gallery from "./pages/Gallery";
 import TierList from "./pages/TierList";
 import Ratings from "./pages/Ratings";
+import VennDiagram from "./pages/VennDiagram";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/tier-list" element={<TierList />} />
           <Route path="/ratings" element={<Ratings />} />
+          <Route path="/venn-diagram" element={<VennDiagram />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
