@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Star, Image, TrendingUp } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Theme Toggle */}
+      <div className="absolute top-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+      
       {/* Floating emoji decorations */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-10 left-10 text-6xl animate-float">✨</div>
