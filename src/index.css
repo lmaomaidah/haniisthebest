@@ -8,15 +8,15 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark Chaotic Theme */
-    --background: 280 40% 8%;
-    --foreground: 50 100% 95%;
+    /* Light Chaotic Theme */
+    --background: 50 100% 97%;
+    --foreground: 280 100% 20%;
 
-    --card: 280 35% 12%;
-    --card-foreground: 50 100% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 280 100% 20%;
 
-    --popover: 280 35% 12%;
-    --popover-foreground: 50 100% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 100% 20%;
 
     /* Hot Pink Primary */
     --primary: 328 100% 54%;
@@ -26,20 +26,20 @@ All colors MUST be HSL.
     --secondary: 190 100% 50%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Dark Muted */
-    --muted: 280 25% 18%;
-    --muted-foreground: 280 15% 65%;
+    /* Light Muted */
+    --muted: 75 100% 95%;
+    --muted-foreground: 75 60% 30%;
 
     /* Sunshine Yellow Accent */
     --accent: 45 100% 51%;
-    --accent-foreground: 280 100% 10%;
+    --accent-foreground: 280 100% 20%;
 
     /* Tangerine Orange Destructive */
     --destructive: 25 100% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 280 25% 22%;
-    --input: 280 25% 20%;
+    --border: 280 30% 85%;
+    --input: 280 30% 90%;
     --ring: 328 100% 54%;
 
     --radius: 1.5rem;
@@ -66,14 +66,15 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 280 50% 10%;
-    --foreground: 50 100% 97%;
+    /* Dark Chaotic Theme */
+    --background: 280 40% 8%;
+    --foreground: 50 100% 95%;
 
-    --card: 280 40% 15%;
-    --card-foreground: 50 100% 97%;
+    --card: 280 35% 12%;
+    --card-foreground: 50 100% 95%;
 
-    --popover: 280 40% 15%;
-    --popover-foreground: 50 100% 97%;
+    --popover: 280 35% 12%;
+    --popover-foreground: 50 100% 95%;
 
     --primary: 328 100% 54%;
     --primary-foreground: 0 0% 100%;
@@ -81,17 +82,17 @@ All colors MUST be HSL.
     --secondary: 190 100% 50%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 280 30% 20%;
-    --muted-foreground: 280 20% 70%;
+    --muted: 280 25% 18%;
+    --muted-foreground: 280 15% 65%;
 
     --accent: 45 100% 51%;
-    --accent-foreground: 280 100% 20%;
+    --accent-foreground: 280 100% 10%;
 
     --destructive: 25 100% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 280 30% 25%;
-    --input: 280 30% 25%;
+    --border: 280 25% 22%;
+    --input: 280 25% 20%;
     --ring: 328 100% 54%;
   }
 }
@@ -103,6 +104,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-fredoka;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  body:not(.dark) {
+    background: linear-gradient(135deg, hsl(50 100% 97%), hsl(190 100% 95%), hsl(328 100% 95%));
+    background-attachment: fixed;
+  }
+  
+  body.dark {
     background: linear-gradient(135deg, hsl(280 50% 8%), hsl(280 40% 12%), hsl(270 45% 10%));
     background-attachment: fixed;
   }
