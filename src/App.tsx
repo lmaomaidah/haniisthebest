@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import Gallery from "./pages/Gallery";
 import TierList from "./pages/TierList";
 import Ratings from "./pages/Ratings";
-import VennDiagram from "./pages/VennDiagram";
+import Classifications from "./pages/Classifications";
 import ShipOMeter from "./pages/ShipOMeter";
 import NotFound from "./pages/NotFound";
 
@@ -26,7 +26,7 @@ const App = () => (
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/tier-list" element={<TierList />} />
             <Route path="/ratings" element={<Ratings />} />
-            <Route path="/venn-diagram" element={<VennDiagram />} />
+            <Route path="/classifications" element={<Classifications />} />
             <Route path="/ship-o-meter" element={<ShipOMeter />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

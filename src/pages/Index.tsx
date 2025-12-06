@@ -56,14 +56,14 @@ const Index = () => {
                 Make Tier List ⭐
               </Button>
             </Link>
-            <Link to="/venn-diagram">
+            <Link to="/classifications">
               <Button 
                 size="lg"
                 className="gradient-chaos text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in"
                 style={{ animationDelay: "0.15s" }}
               >
                 <Sparkles className="mr-3 h-8 w-8" />
-                Venn Diagram 🔮
+                Classify 📊
               </Button>
             </Link>
             <Link to="/ratings">
