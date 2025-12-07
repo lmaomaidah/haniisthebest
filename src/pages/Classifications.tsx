@@ -204,10 +204,10 @@ export default function Classifications() {
     circles.forEach(c => {
       maxInAnyZone = Math.max(maxInAnyZone, getImagesInZone(c.id).length);
     });
-    // Base size + growth per item
-    const baseSize = 200;
-    const growth = Math.max(0, maxInAnyZone - 2) * 40;
-    return Math.min(500, baseSize + growth);
+    // Base size + aggressive growth per item
+    const baseSize = 220;
+    const growth = Math.max(0, maxInAnyZone - 1) * 50;
+    return Math.min(600, baseSize + growth);
   };
 
   return (
@@ -347,16 +347,19 @@ function VennDiagram({
 }
 
 function SingleCircle({ circle, getImagesInZone, size }: { circle: Circle; getImagesInZone: (id: string) => ImageType[]; size: number }) {
+  const images = getImagesInZone(circle.id);
+  const dynamicSize = Math.max(size, 180 + images.length * 35);
+  
   return (
     <div className="flex items-center justify-center py-8">
       <DropZone
         id={circle.id}
         label={circle.label}
         color={circle.color}
-        size={size}
+        size={dynamicSize}
       >
-        {getImagesInZone(circle.id).map(img => (
-          <DraggableImage key={img.id} image={img} />
+        {images.map(img => (
+          <DraggableImage key={img.id} image={img} small />
         ))}
       </DropZone>
     </div>
@@ -366,16 +369,23 @@ function SingleCircle({ circle, getImagesInZone, size }: { circle: Circle; getIm
 function TwoCircles({ circles, getImagesInZone, size }: { circles: Circle[]; getImagesInZone: (id: string) => ImageType[]; size: number }) {
   const [c1, c2] = circles;
   const overlapId = `overlap-${c1.id}-${c2.id}`;
-  const overlap = size * 0.35;
+  
+  const c1Images = getImagesInZone(c1.id);
+  const c2Images = getImagesInZone(c2.id);
   const overlapImages = getImagesInZone(overlapId);
-  const overlapSize = Math.max(size * 0.4, 100 + overlapImages.length * 30);
+  
+  const c1Size = Math.max(size, 180 + c1Images.length * 35);
+  const c2Size = Math.max(size, 180 + c2Images.length * 35);
+  const maxSize = Math.max(c1Size, c2Size);
+  const overlapSize = Math.max(maxSize * 0.45, 120 + overlapImages.length * 35);
+  const overlap = maxSize * 0.35;
 
   return (
     <div className="flex items-center justify-center py-8">
       <div className="relative flex items-center" style={{ gap: `-${overlap}px` }}>
-        <DropZone id={c1.id} label={c1.label} color={c1.color} size={size}>
-          {getImagesInZone(c1.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
+        <DropZone id={c1.id} label={c1.label} color={c1.color} size={c1Size}>
+          {c1Images.map(img => (
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
         
@@ -389,14 +399,14 @@ function TwoCircles({ circles, getImagesInZone, size }: { circles: Circle[]; get
             isOverlap
           >
             {overlapImages.map(img => (
-              <DraggableImage key={img.id} image={img} />
+              <DraggableImage key={img.id} image={img} small />
             ))}
           </DropZone>
         </div>
         
-        <DropZone id={c2.id} label={c2.label} color={c2.color} size={size}>
-          {getImagesInZone(c2.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
+        <DropZone id={c2.id} label={c2.label} color={c2.color} size={c2Size}>
+          {c2Images.map(img => (
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
@@ -411,71 +421,82 @@ function ThreeCircles({ circles, getImagesInZone, size }: { circles: Circle[]; g
   const overlap13 = `overlap-${c1.id}-${c3.id}`;
   const centerId = `center-${c1.id}-${c2.id}-${c3.id}`;
   
-  const overlapSize = Math.max(size * 0.35, 80);
-  const centerSize = Math.max(size * 0.3, 70 + getImagesInZone(centerId).length * 25);
-  const containerHeight = size * 1.5;
+  // Dynamic sizes based on content
+  const c1Images = getImagesInZone(c1.id);
+  const c2Images = getImagesInZone(c2.id);
+  const c3Images = getImagesInZone(c3.id);
+  const maxImages = Math.max(c1Images.length, c2Images.length, c3Images.length);
+  const dynamicSize = Math.max(size, 200 + maxImages * 40);
+  
+  const overlapSize = Math.max(dynamicSize * 0.4, 100 + Math.max(
+    getImagesInZone(overlap12).length,
+    getImagesInZone(overlap13).length,
+    getImagesInZone(overlap23).length
+  ) * 30);
+  const centerSize = Math.max(dynamicSize * 0.35, 90 + getImagesInZone(centerId).length * 30);
+  const containerHeight = dynamicSize * 1.6;
 
   return (
-    <div className="relative mx-auto py-8" style={{ height: containerHeight, width: size * 2 }}>
+    <div className="relative mx-auto py-8" style={{ height: containerHeight, width: dynamicSize * 2.2 }}>
       {/* Top Circle */}
       <div className="absolute left-1/2 -translate-x-1/2 top-0">
-        <DropZone id={c1.id} label={c1.label} color={c1.color} size={size}>
-          {getImagesInZone(c1.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
+        <DropZone id={c1.id} label={c1.label} color={c1.color} size={dynamicSize}>
+          {c1Images.map(img => (
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
 
       {/* Bottom Left Circle */}
-      <div className="absolute left-0" style={{ top: size * 0.5 }}>
-        <DropZone id={c2.id} label={c2.label} color={c2.color} size={size}>
-          {getImagesInZone(c2.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
+      <div className="absolute left-0" style={{ top: dynamicSize * 0.55 }}>
+        <DropZone id={c2.id} label={c2.label} color={c2.color} size={dynamicSize}>
+          {c2Images.map(img => (
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
 
       {/* Bottom Right Circle */}
-      <div className="absolute right-0" style={{ top: size * 0.5 }}>
-        <DropZone id={c3.id} label={c3.label} color={c3.color} size={size}>
-          {getImagesInZone(c3.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
+      <div className="absolute right-0" style={{ top: dynamicSize * 0.55 }}>
+        <DropZone id={c3.id} label={c3.label} color={c3.color} size={dynamicSize}>
+          {c3Images.map(img => (
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
 
       {/* Overlap 1-2 */}
-      <div className="absolute z-10" style={{ left: size * 0.35, top: size * 0.45 }}>
+      <div className="absolute z-10" style={{ left: dynamicSize * 0.4, top: dynamicSize * 0.5 }}>
         <DropZone id={overlap12} label="" color="rgba(200, 150, 200, 0.6)" size={overlapSize} isOverlap>
           {getImagesInZone(overlap12).map(img => (
-            <DraggableImage key={img.id} image={img} />
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
 
       {/* Overlap 1-3 */}
-      <div className="absolute z-10" style={{ right: size * 0.35, top: size * 0.45 }}>
+      <div className="absolute z-10" style={{ right: dynamicSize * 0.4, top: dynamicSize * 0.5 }}>
         <DropZone id={overlap13} label="" color="rgba(200, 200, 150, 0.6)" size={overlapSize} isOverlap>
           {getImagesInZone(overlap13).map(img => (
-            <DraggableImage key={img.id} image={img} />
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
 
       {/* Overlap 2-3 */}
-      <div className="absolute z-10 left-1/2 -translate-x-1/2" style={{ top: size * 1.0 }}>
+      <div className="absolute z-10 left-1/2 -translate-x-1/2" style={{ top: dynamicSize * 1.1 }}>
         <DropZone id={overlap23} label="" color="rgba(150, 200, 200, 0.6)" size={overlapSize} isOverlap>
           {getImagesInZone(overlap23).map(img => (
-            <DraggableImage key={img.id} image={img} />
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
 
       {/* Center (all three) */}
-      <div className="absolute z-20 left-1/2 -translate-x-1/2" style={{ top: size * 0.65 }}>
+      <div className="absolute z-20 left-1/2 -translate-x-1/2" style={{ top: dynamicSize * 0.7 }}>
         <DropZone id={centerId} label="All" color="rgba(255, 255, 255, 0.7)" size={centerSize} isOverlap>
           {getImagesInZone(centerId).map(img => (
-            <DraggableImage key={img.id} image={img} />
+            <DraggableImage key={img.id} image={img} small />
           ))}
         </DropZone>
       </div>
@@ -484,9 +505,12 @@ function ThreeCircles({ circles, getImagesInZone, size }: { circles: Circle[]; g
 }
 
 function ManyCircles({ circles, getImagesInZone, size }: { circles: Circle[]; getImagesInZone: (id: string) => ImageType[]; size: number }) {
-  // For 4+ circles: horizontal chain with overlaps between adjacent circles
-  const overlap = size * 0.3;
-  const spacing = size - overlap;
+  // Calculate dynamic size based on max content in any circle
+  const maxImages = Math.max(...circles.map(c => getImagesInZone(c.id).length));
+  const dynamicSize = Math.max(size, 200 + maxImages * 40);
+  
+  const overlap = dynamicSize * 0.3;
+  const spacing = dynamicSize - overlap;
   
   // Generate overlap zones between adjacent circles
   const overlaps: { id: string; index: number }[] = [];
@@ -506,9 +530,9 @@ function ManyCircles({ circles, getImagesInZone, size }: { circles: Circle[]; ge
             className="absolute"
             style={{ left: idx * spacing }}
           >
-            <DropZone id={circle.id} label={circle.label} color={circle.color} size={size}>
+            <DropZone id={circle.id} label={circle.label} color={circle.color} size={dynamicSize}>
               {getImagesInZone(circle.id).map(img => (
-                <DraggableImage key={img.id} image={img} />
+                <DraggableImage key={img.id} image={img} small />
               ))}
             </DropZone>
           </div>
@@ -517,13 +541,13 @@ function ManyCircles({ circles, getImagesInZone, size }: { circles: Circle[]; ge
         {/* Overlap zones between adjacent circles */}
         {overlaps.map(({ id, index }) => {
           const overlapImages = getImagesInZone(id);
-          const overlapSize = Math.max(size * 0.4, 80 + overlapImages.length * 25);
+          const overlapSize = Math.max(dynamicSize * 0.45, 100 + overlapImages.length * 30);
           return (
             <div
               key={id}
               className="absolute z-10"
               style={{ 
-                left: (index + 0.5) * spacing + size / 2 - overlapSize / 2,
+                left: (index + 0.5) * spacing + dynamicSize / 2 - overlapSize / 2,
                 top: '50%',
                 transform: 'translateY(-50%)'
               }}
@@ -536,7 +560,7 @@ function ManyCircles({ circles, getImagesInZone, size }: { circles: Circle[]; ge
                 isOverlap
               >
                 {overlapImages.map(img => (
-                  <DraggableImage key={img.id} image={img} />
+                  <DraggableImage key={img.id} image={img} small />
                 ))}
               </DropZone>
             </div>
@@ -545,7 +569,7 @@ function ManyCircles({ circles, getImagesInZone, size }: { circles: Circle[]; ge
       </div>
       
       {/* Container height spacer */}
-      <div style={{ height: size + 40 }} />
+      <div style={{ height: dynamicSize + 40 }} />
     </div>
   );
 }
@@ -587,7 +611,7 @@ function DropZone({
           {label}
         </span>
       )}
-      <div className="flex flex-wrap gap-1 justify-center items-center overflow-hidden max-h-[80%]">
+      <div className="flex flex-wrap gap-1 justify-center items-center overflow-auto max-h-[85%] max-w-[90%]">
         {children}
       </div>
     </div>
