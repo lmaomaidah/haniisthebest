@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,15 +23,18 @@ interface Circle {
 }
 
 interface Placements {
-  [imageId: string]: string; // zone id (circle-id or overlap-id)
+  [imageId: string]: string; // zone id (circle-id or combo like "circle1+circle2")
 }
 
 const CIRCLE_COLORS = [
-  "rgba(255, 100, 150, 0.4)",
-  "rgba(100, 200, 255, 0.4)",
-  "rgba(150, 255, 100, 0.4)",
-  "rgba(255, 200, 100, 0.4)",
-  "rgba(200, 100, 255, 0.4)",
+  "rgba(255, 100, 150, 0.5)",
+  "rgba(100, 200, 255, 0.5)",
+  "rgba(150, 255, 100, 0.5)",
+  "rgba(255, 200, 100, 0.5)",
+  "rgba(200, 100, 255, 0.5)",
+  "rgba(255, 150, 200, 0.5)",
+  "rgba(100, 255, 200, 0.5)",
+  "rgba(200, 255, 100, 0.5)",
 ];
 
 export default function Classifications() {
@@ -99,7 +102,7 @@ export default function Classifications() {
         const { error } = await supabase
           .from('venn_diagrams')
           .insert({
-            name: 'My Venn Diagram',
+            name: 'My Classifications',
             circles: circles as any,
             placements: placements as any,
           });
@@ -107,7 +110,7 @@ export default function Classifications() {
         if (error) throw error;
       }
 
-      toast.success("💾 Venn diagram saved!");
+      toast.success("💾 Classifications saved!");
     } catch (error) {
       console.error('Error saving:', error);
       toast.error("Failed to save");
@@ -115,16 +118,16 @@ export default function Classifications() {
   };
 
   const exportClassifications = async () => {
-    const element = document.getElementById('venn-board');
+    const element = document.getElementById('classification-board');
     if (!element) return;
 
     try {
       const canvas = await html2canvas(element);
       const link = document.createElement('a');
-      link.download = 'venn-diagram.png';
+      link.download = 'classifications.png';
       link.href = canvas.toDataURL();
       link.click();
-      toast.success("📸 Venn diagram exported!");
+      toast.success("📸 Classifications exported!");
     } catch (error) {
       console.error('Export error:', error);
       toast.error("Failed to export");
@@ -134,10 +137,6 @@ export default function Classifications() {
   const addCircle = () => {
     if (!newLabel.trim()) {
       toast.error("Please enter a label");
-      return;
-    }
-    if (circles.length >= 3) {
-      toast.error("Maximum 3 circles supported for overlap clarity");
       return;
     }
 
@@ -197,42 +196,34 @@ export default function Classifications() {
     return images.filter(img => !placements[img.id]);
   };
 
-  const activeImage = images.find(img => img.id === activeId);
-
-  // Generate zone IDs based on circles
-  const getZones = () => {
-    const zones: { id: string; label: string; circles: string[] }[] = [];
+  // Generate all possible combinations (2+ circles)
+  const combinations = useMemo(() => {
+    if (circles.length < 2) return [];
     
-    // Individual circles
-    circles.forEach(c => {
-      zones.push({ id: c.id, label: c.label, circles: [c.id] });
-    });
-
-    // Two-circle overlaps
-    if (circles.length >= 2) {
-      for (let i = 0; i < circles.length; i++) {
-        for (let j = i + 1; j < circles.length; j++) {
-          const id = `overlap-${circles[i].id}-${circles[j].id}`;
-          zones.push({
-            id,
-            label: `${circles[i].label} + ${circles[j].label}`,
-            circles: [circles[i].id, circles[j].id],
-          });
-        }
+    const combos: { id: string; label: string; circleIds: string[] }[] = [];
+    
+    // Generate all combinations of 2 or more circles
+    const generateCombinations = (start: number, current: string[]) => {
+      if (current.length >= 2) {
+        const sortedIds = [...current].sort();
+        const id = sortedIds.join('+');
+        const labels = sortedIds.map(cid => circles.find(c => c.id === cid)?.label || '').join(' + ');
+        combos.push({ id, label: labels, circleIds: sortedIds });
       }
-    }
+      
+      for (let i = start; i < circles.length; i++) {
+        generateCombinations(i + 1, [...current, circles[i].id]);
+      }
+    };
+    
+    generateCombinations(0, []);
+    return combos;
+  }, [circles]);
 
-    // Three-circle center overlap
-    if (circles.length === 3) {
-      zones.push({
-        id: `center-${circles.map(c => c.id).join('-')}`,
-        label: 'All Three',
-        circles: circles.map(c => c.id),
-      });
-    }
+  // Filter to only show combinations that have images
+  const activeCombinations = combinations.filter(combo => getImagesInZone(combo.id).length > 0);
 
-    return zones;
-  };
+  const activeImage = images.find(img => img.id === activeId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted p-4 md:p-8 animate-fade-in">
@@ -249,28 +240,28 @@ export default function Classifications() {
         </div>
 
         <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-primary animate-bounce-in">
-          🔵 Venn Diagram 🟣
+          🔵 Classify 🟣
         </h1>
 
         {/* Add Circle Section */}
         <div className="bg-card rounded-3xl p-6 border-4 border-primary shadow-bounce mb-6">
-          <h3 className="text-xl font-bold mb-4">➕ Add Circle (max 3)</h3>
+          <h3 className="text-xl font-bold mb-4">➕ Add Category</h3>
           <div className="flex gap-2 flex-wrap items-center">
             <Input
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
-              placeholder="Circle label..."
+              placeholder="Category label..."
               className="border-2 border-primary max-w-xs"
               onKeyDown={(e) => e.key === 'Enter' && addCircle()}
             />
-            <Button onClick={addCircle} className="gap-2" disabled={circles.length >= 3}>
-              <Plus className="w-4 h-4" /> Add Circle
+            <Button onClick={addCircle} className="gap-2">
+              <Plus className="w-4 h-4" /> Add
             </Button>
           </div>
           
           {/* Circle Labels */}
           <div className="flex flex-wrap gap-3 mt-4">
-            {circles.map((circle, idx) => (
+            {circles.map((circle) => (
               <div key={circle.id} className="flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2">
                 <div 
                   className="w-4 h-4 rounded-full border-2 border-foreground/50" 
@@ -294,11 +285,11 @@ export default function Classifications() {
           </div>
         </div>
 
-        {/* Unplaced Images */}
-        <div className="bg-card rounded-3xl p-6 border-4 border-secondary shadow-bounce mb-6">
-          <h3 className="text-2xl font-bold mb-4">🎯 Available Classmates</h3>
-          <p className="text-muted-foreground mb-4 text-sm">Drag classmates into circles or overlapping zones</p>
-          <DndContext onDragStart={(e) => setActiveId(e.active.id as string)} onDragEnd={handleDragEnd}>
+        <DndContext onDragStart={(e) => setActiveId(e.active.id as string)} onDragEnd={handleDragEnd}>
+          {/* Unplaced Images */}
+          <div className="bg-card rounded-3xl p-6 border-4 border-secondary shadow-bounce mb-6">
+            <h3 className="text-2xl font-bold mb-4">🎯 Available Classmates</h3>
+            <p className="text-muted-foreground mb-4 text-sm">Drag classmates into categories below</p>
             <div className="flex flex-wrap gap-4 min-h-[80px]">
               {getUnplacedImages().map(img => (
                 <DraggableImage key={img.id} image={img} />
@@ -307,23 +298,72 @@ export default function Classifications() {
                 <p className="text-muted-foreground italic">All classmates placed! 🎉</p>
               )}
             </div>
+          </div>
 
-            {/* Venn Diagram */}
-            <div id="venn-board" className="relative mt-8 mx-auto" style={{ height: circles.length === 3 ? 500 : 400, maxWidth: 700 }}>
-              <VennDiagram
-                circles={circles}
-                getImagesInZone={getImagesInZone}
-              />
+          {/* Classification Circles */}
+          <div id="classification-board" className="space-y-6">
+            {/* Individual Categories */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {circles.map((circle) => {
+                const imagesInZone = getImagesInZone(circle.id);
+                const minHeight = Math.max(150, 80 + imagesInZone.length * 25);
+                
+                return (
+                  <DropZone
+                    key={circle.id}
+                    id={circle.id}
+                    label={circle.label}
+                    color={circle.color}
+                    minHeight={minHeight}
+                  >
+                    {imagesInZone.map(img => (
+                      <DraggableImage key={img.id} image={img} />
+                    ))}
+                  </DropZone>
+                );
+              })}
             </div>
 
-            <DragOverlay>
-              {activeImage ? <DraggableImage image={activeImage} /> : null}
-            </DragOverlay>
-          </DndContext>
-        </div>
+            {/* Combination Zones */}
+            {circles.length >= 2 && (
+              <div className="bg-card/50 rounded-3xl p-6 border-4 border-dashed border-accent">
+                <h3 className="text-2xl font-bold mb-4 text-center">✨ Combinations (Overlaps)</h3>
+                <p className="text-muted-foreground text-center mb-4 text-sm">
+                  Drop here for classmates that fit multiple categories
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {combinations.map((combo) => {
+                    const imagesInZone = getImagesInZone(combo.id);
+                    const minHeight = Math.max(120, 60 + imagesInZone.length * 25);
+                    const isActive = imagesInZone.length > 0;
+                    
+                    return (
+                      <DropZone
+                        key={combo.id}
+                        id={combo.id}
+                        label={combo.label}
+                        color={isActive ? "rgba(255, 220, 100, 0.5)" : "rgba(150, 150, 150, 0.2)"}
+                        minHeight={minHeight}
+                        isCombo
+                      >
+                        {imagesInZone.map(img => (
+                          <DraggableImage key={img.id} image={img} />
+                        ))}
+                      </DropZone>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DragOverlay>
+            {activeImage ? <DraggableImage image={activeImage} /> : null}
+          </DragOverlay>
+        </DndContext>
 
         {/* Actions */}
-        <div className="flex gap-4 justify-center flex-wrap">
+        <div className="flex gap-4 justify-center flex-wrap mt-8">
           <Button onClick={saveClassifications} size="lg" className="text-lg gap-2 animate-pulse-glow">
             <Save className="w-5 h-5" /> Save
           </Button>
@@ -336,250 +376,46 @@ export default function Classifications() {
   );
 }
 
-function VennDiagram({ 
-  circles, 
-  getImagesInZone 
-}: { 
-  circles: Circle[];
-  getImagesInZone: (zoneId: string) => ImageType[];
-}) {
-  if (circles.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        Add circles to start creating your Venn diagram
-      </div>
-    );
-  }
-
-  if (circles.length === 1) {
-    return <SingleCircle circle={circles[0]} getImagesInZone={getImagesInZone} />;
-  }
-
-  if (circles.length === 2) {
-    return <TwoCircles circles={circles} getImagesInZone={getImagesInZone} />;
-  }
-
-  return <ThreeCircles circles={circles} getImagesInZone={getImagesInZone} />;
-}
-
-function SingleCircle({ circle, getImagesInZone }: { circle: Circle; getImagesInZone: (id: string) => ImageType[] }) {
-  return (
-    <div className="flex items-center justify-center h-full">
-      <DropZone
-        id={circle.id}
-        label={circle.label}
-        color={circle.color}
-        className="w-80 h-80 rounded-full"
-      >
-        {getImagesInZone(circle.id).map(img => (
-          <DraggableImage key={img.id} image={img} />
-        ))}
-      </DropZone>
-    </div>
-  );
-}
-
-function TwoCircles({ circles, getImagesInZone }: { circles: Circle[]; getImagesInZone: (id: string) => ImageType[] }) {
-  const [c1, c2] = circles;
-  const overlapId = `overlap-${c1.id}-${c2.id}`;
-
-  return (
-    <div className="relative h-full">
-      {/* Left Circle */}
-      <div className="absolute left-[10%] top-1/2 -translate-y-1/2">
-        <DropZone
-          id={c1.id}
-          label={c1.label}
-          color={c1.color}
-          className="w-64 h-64 md:w-72 md:h-72 rounded-full"
-        >
-          {getImagesInZone(c1.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Right Circle */}
-      <div className="absolute right-[10%] top-1/2 -translate-y-1/2">
-        <DropZone
-          id={c2.id}
-          label={c2.label}
-          color={c2.color}
-          className="w-64 h-64 md:w-72 md:h-72 rounded-full"
-        >
-          {getImagesInZone(c2.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Center Overlap */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-        <DropZone
-          id={overlapId}
-          label="Both"
-          color="rgba(200, 150, 255, 0.6)"
-          className="w-32 h-40 md:w-36 md:h-48"
-          style={{ borderRadius: '50%' }}
-        >
-          {getImagesInZone(overlapId).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-    </div>
-  );
-}
-
-function ThreeCircles({ circles, getImagesInZone }: { circles: Circle[]; getImagesInZone: (id: string) => ImageType[] }) {
-  const [c1, c2, c3] = circles;
-  const overlap12 = `overlap-${c1.id}-${c2.id}`;
-  const overlap23 = `overlap-${c2.id}-${c3.id}`;
-  const overlap13 = `overlap-${c1.id}-${c3.id}`;
-  const centerId = `center-${c1.id}-${c2.id}-${c3.id}`;
-
-  return (
-    <div className="relative h-full">
-      {/* Top Circle */}
-      <div className="absolute left-1/2 -translate-x-1/2 top-0">
-        <DropZone
-          id={c1.id}
-          label={c1.label}
-          color={c1.color}
-          className="w-56 h-56 md:w-64 md:h-64 rounded-full"
-        >
-          {getImagesInZone(c1.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Bottom Left Circle */}
-      <div className="absolute left-[5%] md:left-[15%] bottom-0">
-        <DropZone
-          id={c2.id}
-          label={c2.label}
-          color={c2.color}
-          className="w-56 h-56 md:w-64 md:h-64 rounded-full"
-        >
-          {getImagesInZone(c2.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Bottom Right Circle */}
-      <div className="absolute right-[5%] md:right-[15%] bottom-0">
-        <DropZone
-          id={c3.id}
-          label={c3.label}
-          color={c3.color}
-          className="w-56 h-56 md:w-64 md:h-64 rounded-full"
-        >
-          {getImagesInZone(c3.id).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Overlap 1-2 (Top-Left) */}
-      <div className="absolute left-[25%] top-[35%] z-10">
-        <DropZone
-          id={overlap12}
-          label=""
-          color="rgba(200, 150, 200, 0.5)"
-          className="w-20 h-24 md:w-24 md:h-28"
-          style={{ borderRadius: '50%' }}
-        >
-          {getImagesInZone(overlap12).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Overlap 1-3 (Top-Right) */}
-      <div className="absolute right-[25%] top-[35%] z-10">
-        <DropZone
-          id={overlap13}
-          label=""
-          color="rgba(200, 200, 150, 0.5)"
-          className="w-20 h-24 md:w-24 md:h-28"
-          style={{ borderRadius: '50%' }}
-        >
-          {getImagesInZone(overlap13).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Overlap 2-3 (Bottom) */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-[15%] z-10">
-        <DropZone
-          id={overlap23}
-          label=""
-          color="rgba(150, 200, 200, 0.5)"
-          className="w-20 h-24 md:w-24 md:h-28"
-          style={{ borderRadius: '50%' }}
-        >
-          {getImagesInZone(overlap23).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-
-      {/* Center (all three) */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-        <DropZone
-          id={centerId}
-          label="All"
-          color="rgba(255, 255, 255, 0.7)"
-          className="w-16 h-16 md:w-20 md:h-20 rounded-full"
-        >
-          {getImagesInZone(centerId).map(img => (
-            <DraggableImage key={img.id} image={img} />
-          ))}
-        </DropZone>
-      </div>
-    </div>
-  );
-}
-
 function DropZone({ 
   id, 
   label, 
   color, 
-  className, 
-  style,
+  minHeight,
+  isCombo,
   children 
 }: { 
   id: string; 
   label: string;
   color: string;
-  className?: string;
-  style?: React.CSSProperties;
+  minHeight: number;
+  isCombo?: boolean;
   children: React.ReactNode;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
+  const hasChildren = Array.isArray(children) ? children.length > 0 : !!children;
 
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col items-center justify-center p-2 transition-all border-4 ${
-        isOver ? 'scale-105 border-primary shadow-lg' : 'border-transparent'
-      } ${className}`}
+      className={`rounded-3xl p-4 transition-all border-4 ${
+        isOver ? 'scale-[1.02] border-primary shadow-xl ring-4 ring-primary/30' : 'border-foreground/20'
+      } ${isCombo ? 'border-dashed' : ''}`}
       style={{
         backgroundColor: color,
         backdropFilter: 'blur(4px)',
-        ...style,
+        minHeight: `${minHeight}px`,
       }}
     >
-      {label && (
-        <span className="font-bold text-xs md:text-sm text-foreground/80 mb-1 text-center drop-shadow-md">
-          {label}
-        </span>
-      )}
-      <div className="flex flex-wrap gap-1 justify-center items-center">
+      <h4 className="font-bold text-lg text-foreground mb-3 text-center drop-shadow-md">
+        {label}
+      </h4>
+      <div className="flex flex-wrap gap-2 justify-center items-start">
         {children}
+        {!hasChildren && (
+          <p className="text-foreground/50 text-sm italic text-center py-4">
+            Drop classmates here
+          </p>
+        )}
       </div>
     </div>
   );
