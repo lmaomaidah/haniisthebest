@@ -2,10 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Star, Image, TrendingUp, Heart } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen relative overflow-hidden">
+  return <div className="min-h-screen relative overflow-hidden">
       {/* Theme Toggle */}
       <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
@@ -24,12 +22,8 @@ const Index = () => {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="text-center space-y-8 animate-bounce-in">
-          <h1 className="text-7xl md:text-9xl font-bold text-gradient animate-pulse-glow">
-            Classmate Chaos Ranker
-          </h1>
-          <p className="text-3xl md:text-4xl font-bold text-foreground">
-            The MOST chaotic way to rank your friends! 🎉✨
-          </p>
+          <h1 className="text-7xl md:text-9xl font-bold text-gradient animate-pulse-glow">I be Stirring Shi Up</h1>
+          <p className="text-3xl md:text-4xl font-bold text-foreground">by the minion</p>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
             Upload pics, make tier lists, rate on vibes, and unleash the DRAMA! 
             It's giving main character energy! 💅
@@ -38,50 +32,39 @@ const Index = () => {
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-6 justify-center pt-8">
             <Link to="/gallery">
-              <Button 
-                size="lg" 
-                className="gradient-pink-blue text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in"
-              >
+              <Button size="lg" className="gradient-pink-blue text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in">
                 <Image className="mr-3 h-8 w-8" />
                 Upload Classmates 📸
               </Button>
             </Link>
             <Link to="/tier-list">
-              <Button 
-                size="lg"
-                className="gradient-chaos text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in"
-                style={{ animationDelay: "0.1s" }}
-              >
+              <Button size="lg" className="gradient-chaos text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in" style={{
+              animationDelay: "0.1s"
+            }}>
                 <Star className="mr-3 h-8 w-8" />
                 Make Tier List ⭐
               </Button>
             </Link>
             <Link to="/classifications">
-              <Button 
-                size="lg"
-                className="gradient-chaos text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in"
-                style={{ animationDelay: "0.15s" }}
-              >
+              <Button size="lg" className="gradient-chaos text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in" style={{
+              animationDelay: "0.15s"
+            }}>
                 <Sparkles className="mr-3 h-8 w-8" />
                 Classify 📊
               </Button>
             </Link>
             <Link to="/ratings">
-              <Button 
-                size="lg"
-                className="bg-neon-green text-foreground text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in"
-                style={{ animationDelay: "0.2s" }}
-              >
+              <Button size="lg" className="bg-neon-green text-foreground text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in" style={{
+              animationDelay: "0.2s"
+            }}>
                 <TrendingUp className="mr-3 h-8 w-8" />
                 Rate & Rank 🧠
               </Button>
             </Link>
             <Link to="/ship-o-meter">
-              <Button 
-                size="lg"
-                className="gradient-pink-blue text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in"
-                style={{ animationDelay: "0.25s" }}
-              >
+              <Button size="lg" className="gradient-pink-blue text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in" style={{
+              animationDelay: "0.25s"
+            }}>
                 <Heart className="mr-3 h-8 w-8" />
                 Ship-O-Meter 💕
               </Button>
@@ -117,8 +100,6 @@ const Index = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
