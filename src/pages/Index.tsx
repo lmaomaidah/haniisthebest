@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Star, Image, TrendingUp, Heart } from "lucide-react";
+import { Sparkles, Star, Image, TrendingUp, Heart, Brain } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 const Index = () => {
   return <div className="min-h-screen relative overflow-hidden">
@@ -67,6 +67,14 @@ const Index = () => {
             }}>
                 <Heart className="mr-3 h-8 w-8" />
                 Ship-O-Meter 💕
+              </Button>
+            </Link>
+            <Link to="/judgement-quiz">
+              <Button size="lg" className="bg-neon-green text-foreground text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in" style={{
+              animationDelay: "0.3s"
+            }}>
+                <Brain className="mr-3 h-8 w-8" />
+                The Judgement 🔮
               </Button>
             </Link>
           </div>
