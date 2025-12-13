@@ -211,35 +211,35 @@ export default function Classifications() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted p-4 md:p-8 animate-fade-in">
+    <div className="min-h-screen p-4 md:p-8 animate-fade-in">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <Button
             onClick={() => navigate("/")}
             variant="outline"
-            className="border-2 border-primary gap-2"
+            className="border-2 border-primary gap-2 bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]"
           >
             <Home className="w-4 h-4" /> Home
           </Button>
           <ThemeToggle />
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-primary animate-bounce-in">
+        <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-primary animate-bounce-in drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
           🔵 Venn Diagram 🟣
         </h1>
 
         {/* Add Circle Section */}
-        <div className="bg-card rounded-3xl p-6 border-4 border-primary shadow-bounce mb-6">
-          <h3 className="text-xl font-bold mb-4">➕ Add Circle</h3>
+        <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm rounded-3xl p-6 border-4 border-primary shadow-bounce mb-6 dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">
+          <h3 className="text-xl font-bold mb-4 text-foreground">➕ Add Circle</h3>
           <div className="flex gap-2 flex-wrap items-center">
             <Input
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
               placeholder="Circle label..."
-              className="border-2 border-primary max-w-xs"
+              className="border-2 border-primary max-w-xs bg-background/80 dark:bg-background/50"
               onKeyDown={(e) => e.key === 'Enter' && addCircle()}
             />
-            <Button onClick={addCircle} className="gap-2">
+            <Button onClick={addCircle} className="gap-2 dark:shadow-[0_0_15px_rgba(255,100,150,0.4)]">
               <Plus className="w-4 h-4" /> Add Circle
             </Button>
           </div>
@@ -247,15 +247,15 @@ export default function Classifications() {
           {/* Circle Labels */}
           <div className="flex flex-wrap gap-3 mt-4">
             {circles.map((circle) => (
-              <div key={circle.id} className="flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2">
+              <div key={circle.id} className="flex items-center gap-2 bg-muted/50 dark:bg-muted/30 rounded-full px-4 py-2 backdrop-blur-sm">
                 <div 
-                  className="w-4 h-4 rounded-full border-2 border-foreground/50" 
+                  className="w-4 h-4 rounded-full border-2 border-foreground/50 shadow-[0_0_10px_rgba(255,255,255,0.3)]" 
                   style={{ backgroundColor: circle.color }}
                 />
                 <Input
                   value={circle.label}
                   onChange={(e) => updateCircleLabel(circle.id, e.target.value)}
-                  className="border-none bg-transparent font-bold w-32 p-0 h-auto"
+                  className="border-none bg-transparent font-bold w-32 p-0 h-auto text-foreground"
                 />
                 <Button
                   variant="ghost"
@@ -271,9 +271,9 @@ export default function Classifications() {
         </div>
 
         {/* Unplaced Images */}
-        <div className="bg-card rounded-3xl p-6 border-4 border-secondary shadow-bounce mb-6">
-          <h3 className="text-2xl font-bold mb-4">🎯 Available Classmates</h3>
-          <p className="text-muted-foreground mb-4 text-sm">Drag classmates into circles or overlapping zones</p>
+        <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm rounded-3xl p-6 border-4 border-secondary shadow-bounce mb-6 dark:shadow-[0_0_25px_rgba(100,200,255,0.3)]">
+          <h3 className="text-2xl font-bold mb-4 text-foreground">🎯 Available Classmates</h3>
+          <p className="text-muted-foreground dark:text-foreground/70 mb-4 text-sm">Drag classmates into circles or overlapping zones</p>
           <DndContext onDragStart={(e) => setActiveId(e.active.id as string)} onDragEnd={handleDragEnd}>
             <div className="flex flex-wrap gap-4 min-h-[80px]">
               {getUnplacedImages().map(img => (

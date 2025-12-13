@@ -164,11 +164,11 @@ const Ratings = () => {
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in">
+          <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(200,100,255,0.5)]">
             🧠 Rate & Rank
           </h1>
           <Link to="/">
-            <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl">
+            <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]">
               <Home className="mr-2" />
               Home
             </Button>
@@ -178,14 +178,14 @@ const Ratings = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Rating Panel */}
           <div className="space-y-6">
-            <div className="bg-card border-4 border-secondary rounded-3xl p-8 shadow-bounce">
-              <h2 className="text-3xl font-bold mb-6 text-center">
+            <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-secondary rounded-3xl p-8 shadow-bounce dark:shadow-[0_0_25px_rgba(100,200,255,0.3)]">
+              <h2 className="text-3xl font-bold mb-6 text-center text-foreground">
                 {selectedImage ? "Rate This Classmate! 💯" : "Select a Classmate to Rate 👇"}
               </h2>
 
               {selectedImage && (
                 <div className="space-y-6">
-                  <div className="aspect-square rounded-3xl overflow-hidden border-4 border-primary">
+                  <div className="aspect-square rounded-3xl overflow-hidden border-4 border-primary dark:shadow-[0_0_20px_rgba(255,100,150,0.4)]">
                     <img
                       src={selectedImage.image_url}
                       alt={selectedImage.name}
@@ -195,7 +195,7 @@ const Ratings = () => {
 
                   <div className="space-y-6">
                     <div>
-                      <label className="text-xl font-bold mb-2 block">
+                      <label className="text-xl font-bold mb-2 block text-foreground">
                         😍 Sex Appeal: {ratings.sex_appeal}/10
                       </label>
                       <Slider
@@ -208,7 +208,7 @@ const Ratings = () => {
                     </div>
 
                     <div>
-                      <label className="text-xl font-bold mb-2 block">
+                      <label className="text-xl font-bold mb-2 block text-foreground">
                         🎨 Character Design: {ratings.character_design}/10
                       </label>
                       <Slider
@@ -221,7 +221,7 @@ const Ratings = () => {
                     </div>
 
                     <div>
-                      <label className="text-xl font-bold mb-2 block">
+                      <label className="text-xl font-bold mb-2 block text-foreground">
                         🧠 IQ: {ratings.iq}/10
                       </label>
                       <Slider
@@ -234,7 +234,7 @@ const Ratings = () => {
                     </div>
 
                     <div>
-                      <label className="text-xl font-bold mb-2 block">
+                      <label className="text-xl font-bold mb-2 block text-foreground">
                         💖 EQ: {ratings.eq}/10
                       </label>
                       <Slider
@@ -247,17 +247,17 @@ const Ratings = () => {
                     </div>
 
                     <div className="text-center">
-                      <p className="text-3xl font-bold mb-4">
+                      <p className="text-3xl font-bold mb-4 text-foreground">
                         Total: {ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq}/40
                       </p>
-                      <Badge className={`text-xl px-6 py-2 ${getBadge(ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq).color}`}>
+                      <Badge className={`text-xl px-6 py-2 ${getBadge(ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq).color} dark:shadow-[0_0_15px_rgba(255,100,150,0.5)]`}>
                         {getBadge(ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq).name}
                       </Badge>
                     </div>
 
                     <Button
                       onClick={saveRating}
-                      className="w-full gradient-pink-blue text-white text-xl py-6 rounded-2xl shadow-glow"
+                      className="w-full gradient-pink-blue text-white text-xl py-6 rounded-2xl shadow-glow dark:shadow-[0_0_25px_rgba(255,100,150,0.5)]"
                     >
                       <Save className="mr-2" />
                       Save Rating
@@ -270,14 +270,14 @@ const Ratings = () => {
 
           {/* Rankings List */}
           <div className="space-y-6">
-            <div className="bg-card border-4 border-accent rounded-3xl p-8 shadow-bounce">
-              <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center">
+            <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-accent rounded-3xl p-8 shadow-bounce dark:shadow-[0_0_25px_rgba(255,200,100,0.3)]">
+              <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center text-foreground">
                 <TrendingUp className="mr-3" />
                 Rankings 🏆
               </h2>
 
               {sortedImages.length === 0 ? (
-                <p className="text-center text-xl text-muted-foreground">
+                <p className="text-center text-xl text-muted-foreground dark:text-foreground/70">
                   No ratings yet! Start judging your classmates! 👀
                 </p>
               ) : (
@@ -286,11 +286,11 @@ const Ratings = () => {
                     <div
                       key={image.id}
                       onClick={() => handleSelectImage(image)}
-                      className={`flex items-center gap-4 p-4 rounded-2xl border-4 cursor-pointer transition-transform hover:scale-105 ${
-                        selectedImage?.id === image.id ? 'border-primary bg-muted' : 'border-border'
+                      className={`flex items-center gap-4 p-4 rounded-2xl border-4 cursor-pointer transition-transform hover:scale-105 bg-background/50 dark:bg-background/30 ${
+                        selectedImage?.id === image.id ? 'border-primary bg-muted dark:shadow-[0_0_15px_rgba(255,100,150,0.4)]' : 'border-border'
                       }`}
                     >
-                      <div className="text-3xl font-bold w-12 text-center">
+                      <div className="text-3xl font-bold w-12 text-center drop-shadow-[0_0_10px_rgba(255,200,100,0.6)]">
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                       </div>
                       <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-primary">
@@ -301,10 +301,10 @@ const Ratings = () => {
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-lg truncate">{image.name}</p>
-                        <p className="text-sm text-muted-foreground">Score: {image.total}/40</p>
+                        <p className="font-bold text-lg truncate text-foreground">{image.name}</p>
+                        <p className="text-sm text-muted-foreground dark:text-foreground/60">Score: {image.total}/40</p>
                       </div>
-                      <Badge className={`${getBadge(image.total).color} text-sm`}>
+                      <Badge className={`${getBadge(image.total).color} text-sm dark:shadow-[0_0_10px_rgba(255,100,150,0.4)]`}>
                         {getBadge(image.total).name}
                       </Badge>
                     </div>
