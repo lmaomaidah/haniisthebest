@@ -193,20 +193,20 @@ const TierList = () => {
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in">
+          <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(255,200,100,0.5)]">
             ⭐ Tier List Maker
           </h1>
           <div className="flex gap-4">
-            <Button onClick={saveTierList} className="gradient-pink-blue text-white rounded-2xl">
+            <Button onClick={saveTierList} className="gradient-pink-blue text-white rounded-2xl dark:shadow-[0_0_20px_rgba(255,100,150,0.5)]">
               <Save className="mr-2" />
               Save
             </Button>
-            <Button onClick={exportAsImage} className="bg-neon-green text-foreground rounded-2xl">
+            <Button onClick={exportAsImage} className="bg-lime-green text-background dark:text-background rounded-2xl dark:shadow-[0_0_20px_rgba(150,255,100,0.5)]">
               <Download className="mr-2" />
               Export
             </Button>
             <Link to="/">
-              <Button variant="outline" className="border-4 border-primary rounded-2xl">
+              <Button variant="outline" className="border-4 border-primary rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]">
                 <Home className="mr-2" />
                 Home
               </Button>
@@ -215,8 +215,8 @@ const TierList = () => {
         </div>
 
         {/* Instructions */}
-        <div className="bg-card border-4 border-accent rounded-3xl p-6 mb-8 text-center">
-          <p className="text-xl font-bold">
+        <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-accent rounded-3xl p-6 mb-8 text-center dark:shadow-[0_0_25px_rgba(255,200,100,0.3)]">
+          <p className="text-xl font-bold text-foreground">
             🎯 Drag and drop your classmates into tiers! S = Iconic, D = NPC Energy 💅
           </p>
         </div>

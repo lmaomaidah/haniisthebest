@@ -148,11 +148,11 @@ const Gallery = () => {
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in">
+          <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
             📸 Classmate Gallery
           </h1>
           <Link to="/">
-            <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl">
+            <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]">
               <Home className="mr-2" />
               Home
             </Button>
@@ -160,33 +160,33 @@ const Gallery = () => {
         </div>
 
         {/* Upload Section */}
-        <div className="bg-card border-4 border-secondary rounded-3xl p-8 mb-8 shadow-bounce">
-          <h2 className="text-3xl font-bold mb-6 text-center">📸 Add Classmates</h2>
+        <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-secondary rounded-3xl p-8 mb-8 shadow-bounce dark:shadow-[0_0_25px_rgba(100,200,255,0.3)]">
+          <h2 className="text-3xl font-bold mb-6 text-center text-foreground drop-shadow-[0_0_10px_rgba(100,200,255,0.4)]">📸 Add Classmates</h2>
           <div className="space-y-4 max-w-2xl mx-auto">
             <Input
               type="text"
               placeholder="Name your classmate..."
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border-4 border-accent rounded-2xl text-lg p-4"
+              className="border-4 border-accent rounded-2xl text-lg p-4 bg-background/80 dark:bg-background/50"
             />
             <Input
               type="file"
               accept="image/png,image/jpeg,image/webp"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               disabled={uploading}
-              className="border-4 border-accent rounded-2xl text-lg p-4"
+              className="border-4 border-accent rounded-2xl text-lg p-4 bg-background/80 dark:bg-background/50"
             />
             <Button
               onClick={handleFileUpload}
               disabled={uploading || !name.trim()}
-              className="w-full gradient-pink-blue text-white text-xl px-8 py-6 rounded-2xl shadow-glow"
+              className="w-full gradient-pink-blue text-white text-xl px-8 py-6 rounded-2xl shadow-glow dark:shadow-[0_0_25px_rgba(255,100,150,0.5)]"
             >
               <Upload className="mr-2" />
               {uploading ? "Adding... ✨" : file ? "Upload with Photo 🚀" : "Add Name Only ✍️"}
             </Button>
           </div>
-          <p className="text-center mt-4 text-muted-foreground text-lg">
+          <p className="text-center mt-4 text-muted-foreground dark:text-foreground/70 text-lg">
             Name is required! Photo is optional - just type a name if you prefer! 🎨
           </p>
         </div>
@@ -194,8 +194,8 @@ const Gallery = () => {
         {/* Gallery Grid */}
         {images.length === 0 ? (
           <div className="text-center py-20">
-            <Sparkles className="h-24 w-24 mx-auto mb-4 text-primary animate-spin-slow" />
-            <p className="text-3xl font-bold text-muted-foreground">
+            <Sparkles className="h-24 w-24 mx-auto mb-4 text-primary animate-spin-slow drop-shadow-[0_0_20px_rgba(255,100,150,0.8)]" />
+            <p className="text-3xl font-bold text-muted-foreground dark:text-foreground/70">
               No classmates yet! Upload some pics to get started! 📸
             </p>
           </div>
@@ -204,7 +204,7 @@ const Gallery = () => {
             {images.map((image, index) => (
               <div
                 key={image.id}
-                className="bg-card border-4 border-primary rounded-3xl overflow-hidden shadow-bounce hover:scale-105 transition-transform animate-bounce-in"
+                className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-primary rounded-3xl overflow-hidden shadow-bounce hover:scale-105 transition-transform animate-bounce-in dark:shadow-[0_0_20px_rgba(255,100,150,0.3)]"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="aspect-square relative">
@@ -216,19 +216,19 @@ const Gallery = () => {
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                      <span className="text-6xl font-bold text-primary-foreground">
+                      <span className="text-6xl font-bold text-primary-foreground drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">
                         {image.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2)}
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="p-4 space-y-3">
-                  <p className="font-bold text-lg truncate">{image.name}</p>
+                  <p className="font-bold text-lg truncate text-foreground">{image.name}</p>
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDelete(image.id, image.image_url)}
-                    className="w-full rounded-xl"
+                    className="w-full rounded-xl dark:shadow-[0_0_15px_rgba(255,100,100,0.4)]"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
