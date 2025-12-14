@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Home, Save, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
 import { TierRow } from "@/components/TierRow";
 import { ImagePool } from "@/components/ImagePool";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/UserMenu";
 import html2canvas from "html2canvas";
 
 interface ImageType {
@@ -44,6 +47,7 @@ const TierList = () => {
   });
   const [activeId, setActiveId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { logActivity } = useAuth();
 
   useEffect(() => {
     fetchImages();
@@ -145,6 +149,8 @@ const TierList = () => {
 
       if (error) throw error;
 
+      await logActivity('tier_list_save', { tierCounts: { S: tiers.S.length, A: tiers.A.length, B: tiers.B.length, C: tiers.C.length, D: tiers.D.length } });
+
       toast({
         title: "✨ Tier list saved!",
         description: "Your rankings are locked in! 🎉",
@@ -190,6 +196,12 @@ const TierList = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
+      {/* Top Bar */}
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <UserMenu />
+        <ThemeToggle />
+      </div>
+      
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">

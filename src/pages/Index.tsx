@@ -2,10 +2,14 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Star, Image, TrendingUp, Heart, Brain } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/UserMenu";
+
 const Index = () => {
-  return <div className="min-h-screen relative overflow-hidden">
-      {/* Theme Toggle */}
-      <div className="absolute top-6 right-6 z-50">
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Top Bar */}
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <UserMenu />
         <ThemeToggle />
       </div>
       
@@ -108,6 +112,8 @@ const Index = () => {
           </p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
