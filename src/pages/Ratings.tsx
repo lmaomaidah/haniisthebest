@@ -3,9 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Home, Save, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/UserMenu";
 
 interface ImageType {
   id: string;
@@ -50,6 +53,7 @@ const Ratings = () => {
     eq: 5,
   });
   const { toast } = useToast();
+  const { logActivity } = useAuth();
 
   useEffect(() => {
     fetchImagesWithRatings();
@@ -141,6 +145,8 @@ const Ratings = () => {
         if (error) throw error;
       }
 
+      await logActivity('rating_save', { imageName: selectedImage.name, total: ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq });
+
       toast({
         title: "✨ Rating saved!",
         description: "Your judgment is FINAL! 💅",
@@ -161,6 +167,12 @@ const Ratings = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
+      {/* Top Bar */}
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <UserMenu />
+        <ThemeToggle />
+      </div>
+      
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">

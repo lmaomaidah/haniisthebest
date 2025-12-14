@@ -3,8 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Upload, Trash2, Home, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/UserMenu";
 
 interface ImageType {
   id: string;
@@ -19,6 +22,7 @@ const Gallery = () => {
   const [name, setName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const { logActivity } = useAuth();
 
   useEffect(() => {
     fetchImages();
@@ -94,6 +98,8 @@ const Gallery = () => {
 
       if (dbError) throw dbError;
 
+      await logActivity('image_upload', { name: name.trim(), hasImage: !!file });
+
       toast({
         title: file ? "✨ Upload successful!" : "✨ Classmate added!",
         description: file ? "Your classmate pic is now in the chaos zone! 🎉" : "Name added to the roster! 🎉",
@@ -145,6 +151,12 @@ const Gallery = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
+      {/* Top Bar */}
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <UserMenu />
+        <ThemeToggle />
+      </div>
+      
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
