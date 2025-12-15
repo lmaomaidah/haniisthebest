@@ -58,23 +58,31 @@ const AdminDashboard = () => {
     setLoadingData(true);
     try {
       // Fetch all activity logs with profile info
-      const { data: activityData } = await supabase
+      const { data: activityData, error: activityError } = await supabase
         .from('activity_logs')
         .select(`
           *,
-          profiles!activity_logs_user_id_fkey(username)
+          profiles(username)
         `)
         .order('created_at', { ascending: false })
         .limit(100);
+      
+      if (activityError) {
+        console.error('Error fetching activities:', activityError);
+      }
 
       // Fetch all users with their roles
-      const { data: usersData } = await supabase
+      const { data: usersData, error: usersError } = await supabase
         .from('profiles')
         .select(`
           *,
-          user_roles!user_roles_user_id_fkey(role)
+          user_roles(role)
         `)
         .order('created_at', { ascending: false });
+      
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+      }
 
       if (activityData) {
         setActivities(activityData as unknown as ActivityLog[]);

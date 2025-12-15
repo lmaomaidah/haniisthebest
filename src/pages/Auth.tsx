@@ -15,7 +15,7 @@ const usernameSchema = z.string()
   .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores');
 
 const passcodeSchema = z.string()
-  .min(4, 'Passcode must be at least 4 characters')
+  .min(6, 'Passcode must be at least 6 characters')
   .max(20, 'Passcode must be less than 20 characters');
 
 const Auth = () => {
