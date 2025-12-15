@@ -56,9 +56,9 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/ratings">
-              <Button size="lg" className="bg-lime-green text-background dark:text-background text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in dark:shadow-[0_0_30px_rgba(150,255,100,0.6)]" style={{
+              <Button size="lg" style={{
               animationDelay: "0.2s"
-            }}>
+            }} className="bg-lime-green text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in dark:shadow-[0_0_30px_rgba(150,255,100,0.6)] text-gray-900">
                 <TrendingUp className="mr-3 h-8 w-8" />
                 Rate & Rank 🧠
               </Button>
@@ -96,7 +96,7 @@ const Index = () => {
             <p className="text-lg text-foreground/90">Drag and drop your friends into S, A, B, C, or D tier. No mercy! 😈</p>
           </div>
           
-          <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-accent rounded-3xl p-8 shadow-bounce hover:scale-105 transition-transform dark:shadow-[0_0_25px_rgba(255,200,100,0.3)]">
+          <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 rounded-3xl p-8 shadow-bounce hover:scale-105 transition-transform dark:shadow-[0_0_25px_rgba(255,200,100,0.3)] border-pink-700">
             <div className="text-6xl mb-4 drop-shadow-[0_0_15px_rgba(255,200,100,0.8)]">🧠</div>
             <h3 className="text-2xl font-bold mb-3 text-accent dark:drop-shadow-[0_0_10px_rgba(255,200,100,0.6)]">Rate Everything</h3>
             <p className="text-lg text-foreground/90">Sex Appeal, Character Design, IQ, EQ - rate it all and see who's truly iconic! 💯</p>
@@ -105,7 +105,7 @@ const Index = () => {
 
         {/* Fun Facts */}
         <div className="mt-20 text-center space-y-4">
-          <p className="text-2xl font-bold gradient-rainbow text-transparent bg-clip-text p-4 rounded-3xl inline-block dark:drop-shadow-[0_0_20px_rgba(255,100,150,0.5)]">
+          <p className="text-2xl font-bold gradient-rainbow bg-clip-text p-4 rounded-3xl inline-block dark:drop-shadow-[0_0_20px_rgba(255,100,150,0.5)] text-gray-900 bg-neon-blue">
             ✨ Fully secure • Wildly fun • Zero drama (maybe) ✨
           </p>
         </div>
