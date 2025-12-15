@@ -20,7 +20,7 @@ export default {
   				'sans-serif'
   			],
   			sans: [
-  				'Work Sans',
+  				'Space Grotesk',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -42,7 +42,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Inconsolata',
+  				'Space Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
@@ -142,7 +142,7 @@ export default {
   					opacity: '1'
   				}
   			},
-  			'wiggle': {
+  			wiggle: {
   				'0%, 100%': {
   					transform: 'rotate(-3deg)'
   				},
@@ -150,7 +150,7 @@ export default {
   					transform: 'rotate(3deg)'
   				}
   			},
-  			'float': {
+  			float: {
   				'0%, 100%': {
   					transform: 'translateY(0px)'
   				},
@@ -176,7 +176,7 @@ export default {
   					transform: 'scale(1.05)'
   				}
   			},
-  			'shake': {
+  			shake: {
   				'0%, 100%': {
   					transform: 'translateX(0)'
   				},
@@ -192,11 +192,11 @@ export default {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
   			'bounce-in': 'bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-  			'wiggle': 'wiggle 1s ease-in-out infinite',
-  			'float': 'float 3s ease-in-out infinite',
+  			wiggle: 'wiggle 1s ease-in-out infinite',
+  			float: 'float 3s ease-in-out infinite',
   			'spin-slow': 'spin-slow 8s linear infinite',
   			'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-  			'shake': 'shake 0.5s ease-in-out'
+  			shake: 'shake 0.5s ease-in-out'
   		},
   		boxShadow: {
   			'2xs': 'var(--shadow-2xs)',
