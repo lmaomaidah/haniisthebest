@@ -198,7 +198,7 @@ const ShipOMeter = () => {
     setValues: (v: number[]) => void;
   }) => <div className="bg-card/30 rounded-2xl p-4 space-y-3">
       <p className="text-sm font-bold text-center">{label}</p>
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4 justify-center text-muted bg-background">
         {[0, 1].map(i => <div key={i} className="flex flex-col items-center gap-2">
             <span className="text-xs text-muted-foreground">P{i + 1}</span>
             <div className="h-32 w-8 bg-muted rounded-full overflow-hidden relative">
