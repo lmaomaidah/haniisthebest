@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Star, Image, TrendingUp, Heart, Brain } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen relative overflow-hidden">
+  return <div className="min-h-screen relative overflow-hidden">
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
@@ -74,9 +72,9 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/judgement-quiz">
-              <Button size="lg" className="bg-lime-green text-background dark:text-background text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in dark:shadow-[0_0_30px_rgba(150,255,100,0.6)]" style={{
+              <Button size="lg" style={{
               animationDelay: "0.3s"
-            }}>
+            }} className="bg-lime-green text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in dark:shadow-[0_0_30px_rgba(150,255,100,0.6)] text-gray-900">
                 <Brain className="mr-3 h-8 w-8" />
                 The Judgement 🔮
               </Button>
@@ -112,8 +110,6 @@ const Index = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
