@@ -99,37 +99,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (username: string, password: string) => {
-    // First find the email associated with the username
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('user_id')
-      .eq('username', username)
-      .maybeSingle();
+  const email = `${username}@classmates.app`;
 
-    if (profileError || !profileData) {
-      return { error: new Error('Username not found. Check your spelling or register a new account.') };
-    }
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
-    // Get user email from auth - we need to use the email they signed up with
-    // Since we can't query auth.users directly, we'll use a workaround:
-    // The user must provide a valid email format for login
-    // We'll construct a pseudo-email from username
-    const email = `${username}@classmates.app`;
+  if (error) {
+    return {
+      error: new Error('Invalid username or passcode.')
+    };
+  }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+  // auth succeeded — profile will be fetched by onAuthStateChange
+  await logActivity('login', { username });
 
-    if (error) {
-      return { error: new Error('Invalid username or passcode. Try again, bestie.') };
-    }
+  return { error: null };
+};
 
-    // Log login activity
-    await logActivity('login', { username });
-
-    return { error: null };
-  };
 
   const signOut = async () => {
     if (user) {
