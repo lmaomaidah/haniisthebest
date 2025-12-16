@@ -61,7 +61,8 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await signIn(username, passcode);
+        const email = `${username}@classmates.app`;
+        const { error } = await signIn(email, passcode);
         if (error) {
           toast({
             title: "Login Failed 😭",
