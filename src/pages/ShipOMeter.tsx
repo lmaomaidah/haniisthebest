@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavLink } from "@/components/NavLink";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Heart, Sparkles, ArrowLeft } from "lucide-react";
 interface ImageType {
   id: string;
@@ -79,6 +80,7 @@ const defaultTraits: TraitSlider[] = [{
   value: 50
 }];
 const ShipOMeter = () => {
+  const { logActivity } = useAuth();
   const [images, setImages] = useState<ImageType[]>([]);
   const [person1, setPerson1] = useState<ImageType | null>(null);
   const [person2, setPerson2] = useState<ImageType | null>(null);
@@ -124,6 +126,12 @@ const ShipOMeter = () => {
     const compatPercent = Math.round(100 - avgDiff);
     setCompatibility(compatPercent);
     setShowResult(true);
+
+    void logActivity('ship_calculate', {
+      person1: person1?.name,
+      person2: person2?.name,
+      score: compatPercent,
+    });
   };
   const getCompatibilityMessage = (score: number) => {
     if (score >= 90) return {
@@ -252,7 +260,7 @@ const ShipOMeter = () => {
 
         {person1 && person2 && <>
             {/* Trait Sliders */}
-            <div className="backdrop-blur border-4 border-secondary/30 rounded-3xl p-6 mb-8 bg-slate-400">
+            <div className="backdrop-blur border-4 border-secondary/30 rounded-3xl p-6 mb-8 bg-card/50">
               <h2 className="text-2xl font-bold text-center mb-6 text-secondary">
                 ✨ Personality Traits ✨
               </h2>
@@ -272,7 +280,7 @@ const ShipOMeter = () => {
                     
                     {/* Person 2 slider */}
                     <div className="flex items-center gap-3">
-                      <span className="text-xs w-6 text-[#074692]">P2</span>
+                      <span className="text-xs w-6 text-accent">P2</span>
                       <Slider value={[person2Traits.find(t => t.id === trait.id)?.value || 50]} onValueChange={([v]) => updateTrait(2, trait.id, v)} max={100} step={1} className="flex-1" />
                     </div>
                   </div>)}

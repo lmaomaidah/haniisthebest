@@ -81,8 +81,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, username: string) => {
+  const normalizeUsername = (value: string) => value.trim().toLowerCase();
+
+  const insertActivity = async (userId: string, actionType: string, actionDetails: object = {}) => {
+    try {
+      await supabase.from('activity_logs').insert([
+        {
+          user_id: userId,
+          action_type: actionType,
+          action_details: JSON.parse(JSON.stringify(actionDetails)),
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to log activity:', error);
+    }
+  };
+
+  const signUp = async (_email: string, password: string, username: string) => {
     const redirectUrl = `${window.location.origin}/`;
+    const normalizedUsername = normalizeUsername(username);
+    const email = `${normalizedUsername}@classmates.app`;
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -90,35 +108,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          username: username
-        }
-      }
+          username: normalizedUsername,
+        },
+      },
     });
 
     return { error: error as Error | null };
   };
 
   const signIn = async (username: string, password: string) => {
-  const email = `${username}@classmates.app`;
+    const normalizedUsername = normalizeUsername(username);
+    const email = `${normalizedUsername}@classmates.app`;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) {
-    return {
-      error: new Error('Invalid username or passcode.')
-    };
-  }
+    if (error) {
+      return {
+        error: new Error('Invalid username or passcode.'),
+      };
+    }
 
-  // auth succeeded — profile will be fetched by onAuthStateChange
-  await logActivity('login', { username });
+    if (data.user) {
+      await insertActivity(data.user.id, 'login', { username: normalizedUsername });
+    }
 
-  return { error: null };
-};
-
-
+    return { error: null };
+  };
   const signOut = async () => {
     if (user) {
       await logActivity('logout', {});
@@ -132,16 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logActivity = async (actionType: string, actionDetails: object = {}) => {
     if (!user) return;
-
-    try {
-      await supabase.from('activity_logs').insert([{
-        user_id: user.id,
-        action_type: actionType,
-        action_details: JSON.parse(JSON.stringify(actionDetails))
-      }]);
-    } catch (error) {
-      console.error('Failed to log activity:', error);
-    }
+    await insertActivity(user.id, actionType, actionDetails);
   };
 
   return (
