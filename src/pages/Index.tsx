@@ -103,7 +103,7 @@ const Index = () => {
         {/* Fun Facts */}
         <div className="mt-20 text-center space-y-4">
           <p className="text-2xl font-bold gradient-rainbow bg-clip-text p-4 rounded-3xl inline-block dark:drop-shadow-[0_0_20px_rgba(255,100,150,0.5)] text-gray-900 bg-neon-blue">
-            ✨ Fully secure • Wildly fun • Zero drama (maybe) ✨
+            Liquor before beer, never fear- don’t do heroin
           </p>
         </div>
       </div>
