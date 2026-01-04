@@ -26,10 +26,7 @@ const Index = () => {
         <div className="text-center space-y-8 animate-bounce-in">
           <h1 className="text-7xl md:text-9xl font-bold text-gradient animate-pulse-glow drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">I be Stirring Shi Up</h1>
           <p className="text-3xl md:text-4xl font-bold text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">by the minion</p>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto dark:text-foreground/80">
-            Upload pics, make tier lists, rate on vibes, and unleash the DRAMA! 
-            It's giving main character energy! 💅
-          </p>
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto dark:text-foreground/80">The universe is a cruel, uncaring void. The key to being happy isn't a search for meaning; it's to keep yourself busy with unimportant nonsense, and eventually you'll be dead.</p>
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-6 justify-center pt-8">
