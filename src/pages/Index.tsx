@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Star, Image, TrendingUp, Heart, Brain } from "lucide-react";
+import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
+
 const Index = () => {
   return <div className="min-h-screen relative overflow-hidden">
       {/* Top Bar */}
@@ -74,6 +75,14 @@ const Index = () => {
             }} className="bg-lime-green text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in dark:shadow-[0_0_30px_rgba(150,255,100,0.6)] text-gray-900">
                 <Brain className="mr-3 h-8 w-8" />
                 The Judgement 🔮
+              </Button>
+            </Link>
+            <Link to="/polls">
+              <Button size="lg" style={{
+              animationDelay: "0.35s"
+            }} className="gradient-chaos text-white text-2xl px-8 py-8 rounded-3xl shadow-glow hover:scale-110 transition-transform animate-bounce-in dark:shadow-[0_0_30px_rgba(255,150,100,0.6)]">
+                <Vote className="mr-3 h-8 w-8" />
+                Crowd Verdicts 🗳️
               </Button>
             </Link>
           </div>

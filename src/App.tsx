@@ -15,6 +15,9 @@ import ShipOMeter from "./pages/ShipOMeter";
 import JudgementQuiz from "./pages/JudgementQuiz";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
+import Polls from "./pages/Polls";
+import PollEdit from "./pages/PollEdit";
+import PollVote from "./pages/PollVote";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +40,9 @@ const App = () => (
               <Route path="/ship-o-meter" element={<ProtectedRoute><ShipOMeter /></ProtectedRoute>} />
               <Route path="/judgement-quiz" element={<ProtectedRoute><JudgementQuiz /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/polls" element={<ProtectedRoute><Polls /></ProtectedRoute>} />
+              <Route path="/polls/:id" element={<ProtectedRoute><PollVote /></ProtectedRoute>} />
+              <Route path="/polls/:id/edit" element={<ProtectedRoute><PollEdit /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
