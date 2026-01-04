@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable } from "@dnd-kit/core";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ const CIRCLE_RADIUS = 150;
 
 export default function VennDiagram() {
   const navigate = useNavigate();
+  const { logActivity } = useAuth();
   const [images, setImages] = useState<ImageType[]>([]);
   const [circles, setCircles] = useState<Circle[]>([
     { id: 'A', label: 'Circle A', x: 250, y: 250 },
@@ -99,6 +101,11 @@ export default function VennDiagram() {
 
         if (error) throw error;
       }
+
+      await logActivity('venn_save', {
+        circles: circles.length,
+        placed: Object.keys(placements).length,
+      });
 
       toast.success("💾 Venn diagram saved!");
     } catch (error) {

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ const CIRCLE_COLORS = [
 
 export default function Classifications() {
   const navigate = useNavigate();
+  const { logActivity } = useAuth();
   const [images, setImages] = useState<ImageType[]>([]);
   const [circles, setCircles] = useState<Circle[]>([
     { id: 'circle-1', label: 'Circle 1', color: CIRCLE_COLORS[0] },
@@ -109,6 +111,11 @@ export default function Classifications() {
 
         if (error) throw error;
       }
+
+      await logActivity('classification_save', {
+        circles: circles.length,
+        placed: Object.keys(placements).length,
+      });
 
       toast.success("💾 Venn diagram saved!");
     } catch (error) {

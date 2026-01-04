@@ -35,10 +35,13 @@ const Auth = () => {
     }
   }, [user, authLoading, navigate]);
 
+  const normalizeUsername = (value: string) => value.trim().toLowerCase();
+
   const validateForm = () => {
     const newErrors: { username?: string; passcode?: string } = {};
-    
-    const usernameResult = usernameSchema.safeParse(username);
+
+    const usernameNormalized = normalizeUsername(username);
+    const usernameResult = usernameSchema.safeParse(usernameNormalized);
     if (!usernameResult.success) {
       newErrors.username = usernameResult.error.errors[0].message;
     }
@@ -60,9 +63,10 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      const normalizedUsername = normalizeUsername(username);
+
       if (isLogin) {
-        const email = `${username}@classmates.app`;
-        const { error } = await signIn(email, passcode);
+        const { error } = await signIn(normalizedUsername, passcode);
         if (error) {
           toast({
             title: "Login Failed 😭",
@@ -78,9 +82,9 @@ const Auth = () => {
         }
       } else {
         // For signup, create a pseudo-email from username
-        const email = `${username}@classmates.app`;
-        const { error } = await signUp(email, passcode, username);
-        
+        const email = `${normalizedUsername}@classmates.app`;
+        const { error } = await signUp(email, passcode, normalizedUsername);
+
         if (error) {
           if (error.message.includes('already registered')) {
             toast({

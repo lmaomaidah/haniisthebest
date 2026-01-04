@@ -1,11 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Henny+Penny&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,82 +12,99 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Light Chaotic Theme */
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    /* Retro-psychedelic (light) */
+    --background: 48 100% 95%;
+    --foreground: 240 10% 10%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 48 100% 97%;
+    --card-foreground: 240 10% 10%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 48 100% 96%;
+    --popover-foreground: 240 10% 10%;
 
-    /* Hot Pink Primary */
-    --primary: 243 75% 58%;
-    --primary-foreground: 225 100% 96%;
+    /* Tangerine primary */
+    --primary: 25 95% 60%;
+    --primary-foreground: 48 100% 96%;
 
-    /* Electric Cyan Secondary */
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
+    /* Bubblegum secondary */
+    --secondary: 330 85% 62%;
+    --secondary-foreground: 48 100% 96%;
 
-    /* Light Muted */
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    --muted: 48 30% 86%;
+    --muted-foreground: 240 10% 25%;
 
-    /* Sunshine Yellow Accent */
-    --accent: 250 100% 97%;
-    --accent-foreground: 258 89% 66%;
+    /* Sky accent */
+    --accent: 200 90% 60%;
+    --accent-foreground: 240 10% 10%;
 
-    /* Tangerine Orange Destructive */
     --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive-foreground: 48 100% 96%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 243 75% 58%;
+    --border: 240 12% 78%;
+    --input: 240 12% 78%;
+    --ring: 25 95% 60%;
 
-    --radius: 1.25rem;
+    --radius: 1.5rem;
 
-    /* Custom chaos colors */
-    --neon-pink: 328 100% 54%;
-    --electric-blue: 190 100% 50%;
-    --lime-green: 75 100% 50%;
-    --sunshine-yellow: 45 100% 51%;
-    --tangerine: 25 100% 55%;
-    --hot-purple: 280 100% 60%;
-    --neon-orange: 25 100% 55%;
-    --neon-yellow: 45 100% 51%;
-    --neon-blue: 190 100% 50%;
-    --neon-green: 75 100% 50%;
-    --neon-purple: 280 100% 60%;
+    /* Custom palette */
+    --neon-pink: 330 85% 62%;
+    --electric-blue: 200 90% 60%;
+    --lime-green: 98 70% 55%;
+    --sunshine-yellow: 45 100% 60%;
+    --tangerine: 25 95% 60%;
+    --hot-purple: 265 80% 66%;
+    --neon-orange: 25 95% 60%;
+    --neon-yellow: 45 100% 60%;
+    --neon-blue: 200 90% 60%;
+    --neon-green: 98 70% 55%;
+    --neon-purple: 265 80% 66%;
 
     /* Gradients */
-    --gradient-chaos: linear-gradient(135deg, hsl(328 100% 54%), hsl(280 100% 60%), hsl(190 100% 50%), hsl(75 100% 50%), hsl(45 100% 51%));
-    --gradient-pink-blue: linear-gradient(135deg, hsl(328 100% 54%), hsl(190 100% 50%));
-    --gradient-rainbow: linear-gradient(90deg, hsl(328 100% 54%), hsl(280 100% 60%), hsl(190 100% 50%), hsl(75 100% 50%), hsl(45 100% 51%), hsl(25 100% 55%));
+    --gradient-chaos: linear-gradient(
+      135deg,
+      hsl(25 95% 60%),
+      hsl(45 100% 60%),
+      hsl(330 85% 62%),
+      hsl(265 80% 66%),
+      hsl(200 90% 60%)
+    );
+    --gradient-pink-blue: linear-gradient(135deg, hsl(330 85% 62%), hsl(200 90% 60%));
+    --gradient-rainbow: linear-gradient(
+      90deg,
+      hsl(25 95% 60%),
+      hsl(45 100% 60%),
+      hsl(330 85% 62%),
+      hsl(265 80% 66%),
+      hsl(200 90% 60%),
+      hsl(98 70% 55%)
+    );
 
     /* Shadows */
-    --shadow-glow: 0 0 30px hsl(328 100% 54% / 0.5);
-    --shadow-bounce: 0 10px 40px hsl(328 100% 54% / 0.3);
+    --shadow-glow: 0 0 30px hsl(330 85% 62% / 0.35);
+    --shadow-bounce: 0 14px 0 hsl(240 10% 10% / 0.5), 0 26px 60px hsl(330 85% 62% / 0.2);
 
     /* Animations */
     --transition-bouncy: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --chart-1: 234 89% 73%;
-    --chart-2: 255 91% 76%;
-    --chart-3: 270 95% 75%;
-    --chart-4: 238 83% 66%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 243 75% 58%;
-    --sidebar-primary-foreground: 225 100% 96%;
-    --sidebar-accent: 0 0% 32%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 83%;
-    --sidebar-ring: 243 75% 58%;
-    --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-serif: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+    --chart-1: 25 95% 60%;
+    --chart-2: 330 85% 62%;
+    --chart-3: 200 90% 60%;
+    --chart-4: 265 80% 66%;
+    --chart-5: 98 70% 55%;
+
+    --sidebar: 48 100% 97%;
+    --sidebar-foreground: 240 10% 10%;
+    --sidebar-primary: 25 95% 60%;
+    --sidebar-primary-foreground: 48 100% 96%;
+    --sidebar-accent: 330 85% 62%;
+    --sidebar-accent-foreground: 48 100% 96%;
+    --sidebar-border: 240 12% 78%;
+    --sidebar-ring: 25 95% 60%;
+
+    --font-sans: 'Schoolbell', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-serif: 'Henny Penny', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
@@ -105,47 +118,50 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark Chaotic Theme */
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
+    /* Retro-psychedelic (dark) */
+    --background: 240 7% 12%;
+    --foreground: 48 100% 94%;
 
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
+    --card: 240 8% 16%;
+    --card-foreground: 48 100% 94%;
 
-    --popover: 0 0% 25%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 240 8% 18%;
+    --popover-foreground: 48 100% 94%;
 
-    --primary: 234 89% 73%;
-    --primary-foreground: 243 47% 20%;
+    --primary: 25 95% 65%;
+    --primary-foreground: 240 10% 10%;
 
-    --secondary: 0 0% 45%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 330 85% 70%;
+    --secondary-foreground: 240 10% 10%;
 
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
+    --muted: 240 7% 24%;
+    --muted-foreground: 48 35% 80%;
 
-    --accent: 261 72% 22%;
-    --accent-foreground: 255 91% 76%;
+    --accent: 200 90% 68%;
+    --accent-foreground: 240 10% 10%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive-foreground: 48 100% 96%;
 
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
-    --ring: 234 89% 73%;
-    --chart-1: 229 93% 81%;
-    --chart-2: 252 94% 85%;
-    --chart-3: 269 97% 85%;
-    --chart-4: 234 89% 73%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 234 89% 73%;
-    --sidebar-primary-foreground: 243 47% 20%;
-    --sidebar-accent: 255 91% 76%;
-    --sidebar-accent-foreground: 261 72% 22%;
-    --sidebar-border: 0 0% 32%;
-    --sidebar-ring: 234 89% 73%;
+    --border: 240 7% 26%;
+    --input: 240 7% 26%;
+    --ring: 25 95% 65%;
+
+    --chart-1: 25 95% 65%;
+    --chart-2: 330 85% 70%;
+    --chart-3: 200 90% 68%;
+    --chart-4: 265 80% 70%;
+    --chart-5: 98 70% 58%;
+
+    --sidebar: 240 8% 16%;
+    --sidebar-foreground: 48 100% 94%;
+    --sidebar-primary: 25 95% 65%;
+    --sidebar-primary-foreground: 240 10% 10%;
+    --sidebar-accent: 330 85% 70%;
+    --sidebar-accent-foreground: 240 10% 10%;
+    --sidebar-border: 240 7% 26%;
+    --sidebar-ring: 25 95% 65%;
+
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
@@ -154,7 +170,8 @@ All colors MUST be HSL.
     --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
     --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
-    --radius: 0rem;
+
+    --radius: 1.5rem;
   }
 }
 
@@ -164,17 +181,25 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-fredoka;
+    @apply bg-background text-foreground font-body;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
+  h1, h2, h3 {
+    @apply font-display;
+    letter-spacing: 0.01em;
+  }
+
   body:not(.dark) {
-    background: linear-gradient(135deg, hsl(50 100% 97%), hsl(190 100% 95%), hsl(328 100% 95%));
+    background: linear-gradient(135deg, hsl(48 100% 96%), hsl(200 90% 92%), hsl(330 85% 93%));
     background-attachment: fixed;
   }
 
   body.dark {
-    background: linear-gradient(135deg, hsl(280 50% 8%), hsl(280 40% 12%), hsl(270 45% 10%));
+    background: radial-gradient(1200px 900px at 20% 10%, hsl(330 85% 70% / 0.12), transparent 60%),
+      radial-gradient(1200px 900px at 80% 20%, hsl(200 90% 68% / 0.12), transparent 60%),
+      radial-gradient(1200px 900px at 60% 90%, hsl(25 95% 65% / 0.12), transparent 60%),
+      linear-gradient(135deg, hsl(240 7% 10%), hsl(240 7% 12%));
     background-attachment: fixed;
   }
 }

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Brain } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
 
 type Category = "niche" | "weird" | "performative";
 
@@ -208,6 +209,7 @@ const resultTexts = {
 };
 
 export default function JudgementQuiz() {
+  const { logActivity } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [scores, setScores] = useState<Record<Category, number>>({
     niche: 0,
@@ -265,6 +267,12 @@ export default function JudgementQuiz() {
     if (percentages.weird >= percentages.niche && percentages.weird >= percentages.performative) return "weird";
     return "performative";
   };
+
+  useEffect(() => {
+    if (!showResults) return;
+    const highestCategory = getHighestCategory();
+    void logActivity('quiz_complete', { result: highestCategory });
+  }, [showResults, scores, logActivity]);
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 

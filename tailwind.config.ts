@@ -12,47 +12,45 @@ export default {
   			'2xl': '1400px'
   		}
   	},
-  	extend: {
-  		fontFamily: {
-  			fredoka: [
-  				'Fredoka',
-  				'system-ui',
-  				'sans-serif'
-  			],
-  			sans: [
-  				'Lato',
-  				'ui-sans-serif',
-  				'system-ui',
-  				'-apple-system',
-  				'BlinkMacSystemFont',
-  				'Segoe UI',
-  				'Roboto',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
-  				'sans-serif'
-  			],
-  			serif: [
-  				'EB Garamond',
-  				'ui-serif',
-  				'Georgia',
-  				'Cambria',
-  				'Times New Roman',
-  				'Times',
-  				'serif'
-  			],
-  			mono: [
-  				'Fira Code',
-  				'ui-monospace',
-  				'SFMono-Regular',
-  				'Menlo',
-  				'Monaco',
-  				'Consolas',
-  				'Liberation Mono',
-  				'Courier New',
-  				'monospace'
-  			]
-  		},
+		extend: {
+			fontFamily: {
+				display: ['"Luckiest Guy"', 'cursive'],
+				body: ['Schoolbell', 'cursive'],
+				fredoka: ['Fredoka', 'system-ui', 'sans-serif'],
+				sans: [
+					'Schoolbell',
+					'ui-sans-serif',
+					'system-ui',
+					'-apple-system',
+					'BlinkMacSystemFont',
+					'Segoe UI',
+					'Roboto',
+					'Helvetica Neue',
+					'Arial',
+					'Noto Sans',
+					'sans-serif'
+				],
+				serif: [
+					'EB Garamond',
+					'ui-serif',
+					'Georgia',
+					'Cambria',
+					'Times New Roman',
+					'Times',
+					'serif'
+				],
+				mono: [
+					'Fira Code',
+					'ui-monospace',
+					'SFMono-Regular',
+					'Menlo',
+					'Monaco',
+					'Consolas',
+					'Liberation Mono',
+					'Courier New',
+					'monospace'
+				]
+			},
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
