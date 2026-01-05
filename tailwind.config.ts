@@ -85,6 +85,7 @@ export default {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
+  			// Retro rainbow palette
   			'neon-pink': 'hsl(var(--neon-pink))',
   			'neon-blue': 'hsl(var(--neon-blue))',
   			'neon-green': 'hsl(var(--neon-green))',
@@ -93,6 +94,10 @@ export default {
   			'neon-purple': 'hsl(var(--neon-purple))',
   			'lime-green': 'hsl(var(--lime-green))',
   			'electric-blue': 'hsl(var(--electric-blue))',
+  			'sky-blue': 'hsl(var(--sky-blue))',
+  			'coral': 'hsl(var(--coral))',
+  			'lavender': 'hsl(var(--lavender))',
+  			'peach': 'hsl(var(--peach))',
   			neon: {
   				pink: 'hsl(var(--neon-pink))',
   				blue: 'hsl(var(--electric-blue))',
@@ -100,6 +105,14 @@ export default {
   				yellow: 'hsl(var(--sunshine-yellow))',
   				orange: 'hsl(var(--tangerine))',
   				purple: 'hsl(var(--hot-purple))'
+  			},
+  			retro: {
+  				orange: 'hsl(var(--tangerine))',
+  				pink: 'hsl(var(--neon-pink))',
+  				blue: 'hsl(var(--electric-blue))',
+  				purple: 'hsl(var(--hot-purple))',
+  				yellow: 'hsl(var(--sunshine-yellow))',
+  				green: 'hsl(var(--lime-green))'
   			}
   		},
   		borderRadius: {

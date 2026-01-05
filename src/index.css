@@ -1,7 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Henny+Penny&display=swap");
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Henny+Penny&family=Lobster&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,97 +9,112 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Retro-psychedelic (light) */
-    --background: 48 100% 95%;
-    --foreground: 240 10% 10%;
+    /* Warm cream/beige background inspired by reference */
+    --background: 35 60% 94%;
+    --foreground: 20 10% 15%;
 
-    --card: 48 100% 97%;
-    --card-foreground: 240 10% 10%;
+    --card: 35 50% 97%;
+    --card-foreground: 20 10% 15%;
 
-    --popover: 48 100% 96%;
-    --popover-foreground: 240 10% 10%;
+    --popover: 35 50% 96%;
+    --popover-foreground: 20 10% 15%;
 
-    /* Tangerine primary */
-    --primary: 25 95% 60%;
-    --primary-foreground: 48 100% 96%;
+    /* Tangerine/orange primary */
+    --primary: 25 95% 55%;
+    --primary-foreground: 35 60% 97%;
 
-    /* Bubblegum secondary */
-    --secondary: 330 85% 62%;
-    --secondary-foreground: 48 100% 96%;
+    /* Hot pink secondary */
+    --secondary: 340 85% 58%;
+    --secondary-foreground: 35 60% 97%;
 
-    --muted: 48 30% 86%;
-    --muted-foreground: 240 10% 25%;
+    --muted: 35 30% 88%;
+    --muted-foreground: 20 10% 35%;
 
-    /* Sky accent */
-    --accent: 200 90% 60%;
-    --accent-foreground: 240 10% 10%;
+    /* Royal blue accent */
+    --accent: 225 80% 55%;
+    --accent-foreground: 35 60% 97%;
 
     --destructive: 0 72% 50%;
-    --destructive-foreground: 48 100% 96%;
+    --destructive-foreground: 35 60% 97%;
 
-    --border: 240 12% 78%;
-    --input: 240 12% 78%;
-    --ring: 25 95% 60%;
+    --border: 25 30% 80%;
+    --input: 25 30% 80%;
+    --ring: 25 95% 55%;
 
     --radius: 1.5rem;
 
-    /* Custom palette */
-    --neon-pink: 330 85% 62%;
-    --electric-blue: 200 90% 60%;
-    --lime-green: 98 70% 55%;
-    --sunshine-yellow: 45 100% 60%;
-    --tangerine: 25 95% 60%;
-    --hot-purple: 265 80% 66%;
-    --neon-orange: 25 95% 60%;
-    --neon-yellow: 45 100% 60%;
-    --neon-blue: 200 90% 60%;
-    --neon-green: 98 70% 55%;
-    --neon-purple: 265 80% 66%;
+    /* Retro rainbow palette */
+    --neon-pink: 340 85% 58%;
+    --electric-blue: 225 80% 55%;
+    --lime-green: 145 60% 45%;
+    --sunshine-yellow: 45 100% 55%;
+    --tangerine: 25 95% 55%;
+    --hot-purple: 275 70% 55%;
+    --coral: 12 90% 65%;
+    --sky-blue: 200 85% 60%;
+    --lavender: 280 60% 70%;
+    --peach: 20 80% 75%;
 
-    /* Gradients */
+    /* Legacy neon aliases */
+    --neon-orange: 25 95% 55%;
+    --neon-yellow: 45 100% 55%;
+    --neon-blue: 225 80% 55%;
+    --neon-green: 145 60% 45%;
+    --neon-purple: 275 70% 55%;
+
+    /* Bold retro gradients */
     --gradient-chaos: linear-gradient(
       135deg,
-      hsl(25 95% 60%),
-      hsl(45 100% 60%),
-      hsl(330 85% 62%),
-      hsl(265 80% 66%),
-      hsl(200 90% 60%)
+      hsl(225 80% 55%),
+      hsl(275 70% 55%),
+      hsl(340 85% 58%),
+      hsl(25 95% 55%),
+      hsl(45 100% 55%)
     );
-    --gradient-pink-blue: linear-gradient(135deg, hsl(330 85% 62%), hsl(200 90% 60%));
+    --gradient-pink-blue: linear-gradient(135deg, hsl(340 85% 58%), hsl(275 70% 55%), hsl(225 80% 55%));
     --gradient-rainbow: linear-gradient(
       90deg,
-      hsl(25 95% 60%),
-      hsl(45 100% 60%),
-      hsl(330 85% 62%),
-      hsl(265 80% 66%),
-      hsl(200 90% 60%),
-      hsl(98 70% 55%)
+      hsl(225 80% 55%),
+      hsl(275 70% 55%),
+      hsl(340 85% 58%),
+      hsl(25 95% 55%),
+      hsl(45 100% 55%),
+      hsl(145 60% 45%)
+    );
+    --gradient-retro-swirl: linear-gradient(
+      180deg,
+      hsl(225 80% 55%) 0%,
+      hsl(275 70% 55%) 20%,
+      hsl(340 85% 58%) 40%,
+      hsl(25 95% 55%) 60%,
+      hsl(45 100% 55%) 80%
     );
 
-    /* Shadows */
-    --shadow-glow: 0 0 30px hsl(330 85% 62% / 0.35);
-    --shadow-bounce: 0 14px 0 hsl(240 10% 10% / 0.5), 0 26px 60px hsl(330 85% 62% / 0.2);
+    /* Shadows with warm tones */
+    --shadow-glow: 0 0 40px hsl(25 95% 55% / 0.35);
+    --shadow-bounce: 0 10px 0 hsl(20 10% 15% / 0.25), 0 20px 50px hsl(340 85% 58% / 0.15);
+    --shadow-retro: 4px 4px 0 hsl(20 10% 15%);
 
     /* Animations */
     --transition-bouncy: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --chart-1: 25 95% 60%;
-    --chart-2: 330 85% 62%;
-    --chart-3: 200 90% 60%;
-    --chart-4: 265 80% 66%;
-    --chart-5: 98 70% 55%;
+    --chart-1: 25 95% 55%;
+    --chart-2: 340 85% 58%;
+    --chart-3: 225 80% 55%;
+    --chart-4: 275 70% 55%;
+    --chart-5: 145 60% 45%;
 
-    --sidebar: 48 100% 97%;
-    --sidebar-foreground: 240 10% 10%;
-    --sidebar-primary: 25 95% 60%;
-    --sidebar-primary-foreground: 48 100% 96%;
-    --sidebar-accent: 330 85% 62%;
-    --sidebar-accent-foreground: 48 100% 96%;
-    --sidebar-border: 240 12% 78%;
-    --sidebar-ring: 25 95% 60%;
+    --sidebar: 35 50% 97%;
+    --sidebar-foreground: 20 10% 15%;
+    --sidebar-primary: 25 95% 55%;
+    --sidebar-primary-foreground: 35 60% 97%;
+    --sidebar-accent: 340 85% 58%;
+    --sidebar-accent-foreground: 35 60% 97%;
+    --sidebar-border: 25 30% 80%;
+    --sidebar-ring: 25 95% 55%;
 
     --font-sans: 'Schoolbell', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-serif: 'Henny Penny', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-serif: 'Lobster', 'Henny Penny', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
@@ -118,58 +130,58 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Retro-psychedelic (dark) */
-    --background: 240 7% 12%;
-    --foreground: 48 100% 94%;
+    /* Deep charcoal dark mode inspired by reference */
+    --background: 30 10% 10%;
+    --foreground: 35 60% 95%;
 
-    --card: 240 8% 16%;
-    --card-foreground: 48 100% 94%;
+    --card: 30 12% 15%;
+    --card-foreground: 35 60% 95%;
 
-    --popover: 240 8% 18%;
-    --popover-foreground: 48 100% 94%;
+    --popover: 30 12% 18%;
+    --popover-foreground: 35 60% 95%;
 
-    --primary: 25 95% 65%;
-    --primary-foreground: 240 10% 10%;
+    --primary: 25 95% 60%;
+    --primary-foreground: 30 10% 10%;
 
-    --secondary: 330 85% 70%;
-    --secondary-foreground: 240 10% 10%;
+    --secondary: 340 85% 65%;
+    --secondary-foreground: 30 10% 10%;
 
-    --muted: 240 7% 24%;
-    --muted-foreground: 48 35% 80%;
+    --muted: 30 10% 22%;
+    --muted-foreground: 35 40% 75%;
 
-    --accent: 200 90% 68%;
-    --accent-foreground: 240 10% 10%;
+    --accent: 225 80% 62%;
+    --accent-foreground: 30 10% 10%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 48 100% 96%;
+    --destructive-foreground: 35 60% 97%;
 
-    --border: 240 7% 26%;
-    --input: 240 7% 26%;
-    --ring: 25 95% 65%;
+    --border: 30 12% 25%;
+    --input: 30 12% 25%;
+    --ring: 25 95% 60%;
 
-    --chart-1: 25 95% 65%;
-    --chart-2: 330 85% 70%;
-    --chart-3: 200 90% 68%;
-    --chart-4: 265 80% 70%;
-    --chart-5: 98 70% 58%;
+    --chart-1: 25 95% 60%;
+    --chart-2: 340 85% 65%;
+    --chart-3: 225 80% 62%;
+    --chart-4: 275 70% 60%;
+    --chart-5: 145 60% 50%;
 
-    --sidebar: 240 8% 16%;
-    --sidebar-foreground: 48 100% 94%;
-    --sidebar-primary: 25 95% 65%;
-    --sidebar-primary-foreground: 240 10% 10%;
-    --sidebar-accent: 330 85% 70%;
-    --sidebar-accent-foreground: 240 10% 10%;
-    --sidebar-border: 240 7% 26%;
-    --sidebar-ring: 25 95% 65%;
+    --sidebar: 30 12% 15%;
+    --sidebar-foreground: 35 60% 95%;
+    --sidebar-primary: 25 95% 60%;
+    --sidebar-primary-foreground: 30 10% 10%;
+    --sidebar-accent: 340 85% 65%;
+    --sidebar-accent-foreground: 30 10% 10%;
+    --sidebar-border: 30 12% 25%;
+    --sidebar-ring: 25 95% 60%;
 
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.15);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.15);
+    --shadow-sm: 0 2px 4px 0px hsl(0 0% 0% / 0.2), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
+    --shadow: 0 2px 4px 0px hsl(0 0% 0% / 0.2), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px 0px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 8px 12px 0px hsl(0 0% 0% / 0.2), 0 4px 6px -1px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 12px 20px 0px hsl(0 0% 0% / 0.25), 0 8px 10px -1px hsl(0 0% 0% / 0.2);
+    --shadow-2xl: 0 16px 30px 0px hsl(0 0% 0% / 0.35);
 
     --radius: 1.5rem;
   }
@@ -187,19 +199,22 @@ All colors MUST be HSL.
 
   h1, h2, h3 {
     @apply font-display;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
   }
 
+  /* Warm cream background for light mode */
   body:not(.dark) {
-    background: linear-gradient(135deg, hsl(48 100% 96%), hsl(200 90% 92%), hsl(330 85% 93%));
+    background: hsl(35 60% 94%);
     background-attachment: fixed;
   }
 
+  /* Deep charcoal for dark mode with subtle warm glow spots */
   body.dark {
-    background: radial-gradient(1200px 900px at 20% 10%, hsl(330 85% 70% / 0.12), transparent 60%),
-      radial-gradient(1200px 900px at 80% 20%, hsl(200 90% 68% / 0.12), transparent 60%),
-      radial-gradient(1200px 900px at 60% 90%, hsl(25 95% 65% / 0.12), transparent 60%),
-      linear-gradient(135deg, hsl(240 7% 10%), hsl(240 7% 12%));
+    background: 
+      radial-gradient(ellipse 800px 600px at 10% 20%, hsl(340 85% 65% / 0.08), transparent 60%),
+      radial-gradient(ellipse 900px 700px at 90% 30%, hsl(225 80% 62% / 0.08), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 50% 80%, hsl(25 95% 60% / 0.06), transparent 50%),
+      hsl(30 10% 10%);
     background-attachment: fixed;
   }
 }
@@ -217,6 +232,10 @@ All colors MUST be HSL.
     background: var(--gradient-rainbow);
   }
 
+  .gradient-retro-swirl {
+    background: var(--gradient-retro-swirl);
+  }
+
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
@@ -225,10 +244,37 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-bounce);
   }
 
+  .shadow-retro {
+    box-shadow: var(--shadow-retro);
+  }
+
   .text-gradient {
     background: var(--gradient-rainbow);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Retro text shadow effect */
+  .text-retro-shadow {
+    text-shadow: 
+      3px 3px 0 hsl(var(--primary)),
+      6px 6px 0 hsl(var(--secondary)),
+      9px 9px 0 hsl(var(--accent));
+  }
+
+  /* Rainbow underline effect */
+  .rainbow-underline {
+    position: relative;
+  }
+  .rainbow-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-rainbow);
+    border-radius: 2px;
   }
 }
