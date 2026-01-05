@@ -4,10 +4,8 @@ import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote } from "lucide-re
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen relative overflow-hidden">
+  return <div className="min-h-screen relative overflow-hidden">
       {/* Whimsical background with swirls, clouds, and stars */}
       <WhimsicalBackground />
 
@@ -27,9 +25,11 @@ const Index = () => {
           
           {/* Main Title - Retro style like reference */}
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-bold leading-tight">
-            <span className="text-gradient">Pure</span>
+            <span className="text-gradient">Kingstop
+Fanclub
+          </span>
             <br />
-            <span className="italic text-foreground">Imagination</span>
+            
           </h1>
           
           {/* Tagline */}
@@ -45,64 +45,43 @@ const Index = () => {
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4 justify-center pt-10">
             <Link to="/gallery">
-              <Button 
-                size="lg" 
-                className="bg-card hover:bg-card/80 text-foreground border-2 border-foreground/20 text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="bg-card hover:bg-card/80 text-foreground border-2 border-foreground/20 text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Image className="mr-2 h-5 w-5" />
                 Upload Classmates
               </Button>
             </Link>
             <Link to="/tier-list">
-              <Button 
-                size="lg" 
-                className="gradient-chaos text-card-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="gradient-chaos text-card-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Star className="mr-2 h-5 w-5" />
                 Make Tier List
               </Button>
             </Link>
             <Link to="/classifications">
-              <Button 
-                size="lg" 
-                className="gradient-pink-blue text-card-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="gradient-pink-blue text-card-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Sparkles className="mr-2 h-5 w-5" />
                 Classify
               </Button>
             </Link>
             <Link to="/ratings">
-              <Button 
-                size="lg" 
-                className="bg-lime-green hover:bg-lime-green/90 text-background text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="bg-lime-green hover:bg-lime-green/90 text-background text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <TrendingUp className="mr-2 h-5 w-5" />
                 Rate & Rank
               </Button>
             </Link>
             <Link to="/ship-o-meter">
-              <Button 
-                size="lg" 
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Heart className="mr-2 h-5 w-5" />
                 Ship-O-Meter
               </Button>
             </Link>
             <Link to="/judgement-quiz">
-              <Button 
-                size="lg" 
-                className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Brain className="mr-2 h-5 w-5" />
                 The Judgement
               </Button>
             </Link>
             <Link to="/polls">
-              <Button 
-                size="lg" 
-                className="bg-neon-purple hover:bg-neon-purple/90 text-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
+              <Button size="lg" className="bg-neon-purple hover:bg-neon-purple/90 text-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Vote className="mr-2 h-5 w-5" />
                 Crowd Verdicts
               </Button>
@@ -146,8 +125,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
