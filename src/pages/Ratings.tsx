@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Save, TrendingUp } from "lucide-react";
+import { Home, Save, TrendingUp, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 
 interface ImageType {
   id: string;
@@ -63,7 +64,8 @@ const Ratings = () => {
     const { data: imagesData, error: imagesError } = await supabase
       .from('images')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(10000);
 
     if (imagesError) {
       toast({
@@ -76,7 +78,8 @@ const Ratings = () => {
 
     const { data: ratingsData, error: ratingsError } = await supabase
       .from('ratings')
-      .select('*');
+      .select('*')
+      .limit(10000);
 
     if (ratingsError) {
       toast({
@@ -163,28 +166,49 @@ const Ratings = () => {
     }
   };
 
+  const resetRatings = () => {
+    setSelectedImage(null);
+    setRatings({
+      sex_appeal: 5,
+      character_design: 5,
+      iq: 5,
+      eq: 5,
+    });
+    toast({
+      title: "🔄 Selection cleared!",
+      description: "Pick a new classmate to rate!",
+    });
+  };
+
   const sortedImages = [...images].sort((a, b) => b.total - a.total);
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8 relative">
+      <WhimsicalBackground />
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
         <ThemeToggle />
       </div>
       
-      <div className="container mx-auto">
+      <div className="container mx-auto relative z-10">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(200,100,255,0.5)]">
             🧠 Rate & Rank
           </h1>
-          <Link to="/">
-            <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]">
-              <Home className="mr-2" />
-              Home
+          <div className="flex gap-4">
+            <Button onClick={resetRatings} variant="outline" className="border-4 border-destructive rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm">
+              <RotateCcw className="mr-2" />
+              Reset
             </Button>
-          </Link>
+            <Link to="/">
+              <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]">
+                <Home className="mr-2" />
+                Home
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">

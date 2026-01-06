@@ -9,8 +9,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Plus, Trash2, Save, Eye, Lock, Unlock, Sparkles, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Eye, Lock, Unlock, Sparkles, GripVertical, UserPlus, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 
 interface Question {
   id: string;
@@ -32,6 +33,12 @@ interface Form {
   is_published: boolean;
   results_revealed: boolean;
   creator_id: string;
+}
+
+interface Editor {
+  id: string;
+  user_id: string;
+  username?: string;
 }
 
 const PollEdit = () => {
@@ -232,13 +239,14 @@ const PollEdit = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-20">
+      <WhimsicalBackground />
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
         <ThemeToggle />
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link to="/polls">

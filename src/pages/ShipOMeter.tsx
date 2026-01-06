@@ -6,7 +6,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavLink } from "@/components/NavLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Heart, Sparkles, ArrowLeft } from "lucide-react";
+import { Heart, Sparkles, ArrowLeft, RotateCcw } from "lucide-react";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
+
 interface ImageType {
   id: string;
   name: string;
@@ -101,8 +103,20 @@ const ShipOMeter = () => {
       data
     } = await supabase.from("images").select("*").order("created_at", {
       ascending: false
-    });
+    }).limit(10000);
     if (data) setImages(data);
+  };
+
+  const resetShipOMeter = () => {
+    setPerson1(null);
+    setPerson2(null);
+    setPerson1Traits(defaultTraits);
+    setPerson2Traits(defaultTraits);
+    setPhysicalAffection([50, 50]);
+    setGiftGiving([50, 50]);
+    setAdventurousness([50, 50]);
+    setCompatibility(null);
+    setShowResult(false);
   };
   const calculateCompatibility = () => {
     let totalDiff = 0;
@@ -222,13 +236,14 @@ const ShipOMeter = () => {
           </div>)}
       </div>
     </div>;
-  return <div className="min-h-screen py-8 px-4">
+  return <div className="min-h-screen py-8 px-4 relative">
+      <WhimsicalBackground />
       {/* Header */}
       <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
       </div>
 
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto max-w-6xl relative z-10">
         {/* Navigation */}
         <div className="flex flex-wrap items-center gap-4 mb-8">
           <Link to="/">
@@ -236,6 +251,9 @@ const ShipOMeter = () => {
               <ArrowLeft className="mr-2 h-4 w-4" /> Home
             </Button>
           </Link>
+          <Button onClick={resetShipOMeter} variant="outline" className="rounded-2xl border-destructive">
+            <RotateCcw className="mr-2 h-4 w-4" /> Reset
+          </Button>
           <NavLink to="/gallery">Gallery</NavLink>
           <NavLink to="/tier-list">Tier List</NavLink>
           <NavLink to="/ratings">Ratings</NavLink>
