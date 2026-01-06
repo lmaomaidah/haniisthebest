@@ -3,13 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Save, Download } from "lucide-react";
+import { Home, Save, Download, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
 import { TierRow } from "@/components/TierRow";
 import { ImagePool } from "@/components/ImagePool";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 import html2canvas from "html2canvas";
 
 interface ImageType {
@@ -50,15 +51,16 @@ const TierList = () => {
   const { logActivity } = useAuth();
 
   useEffect(() => {
-    fetchImages();
-    loadTierList();
+    fetchImagesAndLoadTierList();
   }, []);
 
-  const fetchImages = async () => {
-    const { data, error } = await supabase
+  const fetchImagesAndLoadTierList = async () => {
+    // Fetch ALL images without limit
+    const { data: imagesData, error } = await supabase
       .from('images')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(10000); // Explicitly set high limit
 
     if (error) {
       toast({
@@ -66,29 +68,63 @@ const TierList = () => {
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      setImages(data || []);
-      if (data && data.length > 0) {
-        setTiers(prev => ({
-          ...prev,
-          pool: data.map(img => img.id),
-        }));
-      }
+      return;
     }
-  };
 
-  const loadTierList = async () => {
-    const { data, error } = await supabase
+    setImages(imagesData || []);
+    const allImageIds = (imagesData || []).map(img => img.id);
+
+    // Load saved tier list
+    const { data: tierData } = await supabase
       .from('tier_lists')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (!error && data && data.tiers) {
-      setTiers(data.tiers as unknown as TiersType);
+    if (tierData && tierData.tiers) {
+      const savedTiers = tierData.tiers as unknown as TiersType;
+      // Get all image IDs that are in the saved tiers
+      const placedIds = new Set([
+        ...savedTiers.S,
+        ...savedTiers.A,
+        ...savedTiers.B,
+        ...savedTiers.C,
+        ...savedTiers.D,
+        ...savedTiers.pool,
+      ]);
+      // Find new images that aren't in the saved tier list
+      const newImageIds = allImageIds.filter(id => !placedIds.has(id));
+      // Merge: keep saved positions, add new images to pool
+      setTiers({
+        ...savedTiers,
+        pool: [...savedTiers.pool, ...newImageIds],
+      });
+    } else {
+      // No saved tier list, put all in pool
+      setTiers(prev => ({
+        ...prev,
+        pool: allImageIds,
+      }));
     }
   };
+
+  const resetTierList = () => {
+    const allImageIds = images.map(img => img.id);
+    setTiers({
+      S: [],
+      A: [],
+      B: [],
+      C: [],
+      D: [],
+      pool: allImageIds,
+    });
+    toast({
+      title: "🔄 Reset complete!",
+      description: "All rankings cleared. Start fresh!",
+    });
+  };
+
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -195,20 +231,25 @@ const TierList = () => {
   const activeImage = activeId ? images.find(img => img.id === activeId) : null;
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8 relative">
+      <WhimsicalBackground />
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
         <ThemeToggle />
       </div>
       
-      <div className="container mx-auto">
+      <div className="container mx-auto relative z-10">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(255,200,100,0.5)]">
             ⭐ Tier List Maker
           </h1>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
+            <Button onClick={resetTierList} variant="outline" className="border-4 border-destructive rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm">
+              <RotateCcw className="mr-2" />
+              Reset
+            </Button>
             <Button onClick={saveTierList} className="gradient-pink-blue text-white rounded-2xl dark:shadow-[0_0_20px_rgba(255,100,150,0.5)]">
               <Save className="mr-2" />
               Save

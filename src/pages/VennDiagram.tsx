@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { DraggableImage } from "@/components/DraggableImage";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
+import { RotateCcw } from "lucide-react";
 
 interface ImageType {
   id: string;
@@ -49,7 +51,8 @@ export default function VennDiagram() {
     const { data, error } = await supabase
       .from('images')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(10000);
 
     if (!error && data) {
       setImages(data);
@@ -150,6 +153,15 @@ export default function VennDiagram() {
     toast.success(`✨ Added ${newLabel}!`);
   };
 
+  const resetVennDiagram = () => {
+    setCircles([
+      { id: 'A', label: 'Circle A', x: 250, y: 250 },
+      { id: 'B', label: 'Circle B', x: 400, y: 250 },
+    ]);
+    setPlacements({});
+    toast.success("🔄 Venn diagram reset!");
+  };
+
   const updateCircleLabel = (id: string, label: string) => {
     setCircles(circles.map(c => c.id === id ? { ...c, label } : c));
   };
@@ -211,15 +223,26 @@ export default function VennDiagram() {
     : circles.map(c => ({ id: c.id, label: c.label, style: { left: c.x, top: c.y } }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent to-secondary p-8 animate-fade-in">
-      <div className="max-w-7xl mx-auto">
-        <Button
-          onClick={() => navigate("/")}
-          variant="outline"
-          className="mb-6 border-4 border-primary"
-        >
-          🏠 Back to Home
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent to-secondary p-8 animate-fade-in relative">
+      <WhimsicalBackground />
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="flex gap-4 mb-6">
+          <Button
+            onClick={() => navigate("/")}
+            variant="outline"
+            className="border-4 border-primary"
+          >
+            🏠 Back to Home
+          </Button>
+          <Button
+            onClick={resetVennDiagram}
+            variant="outline"
+            className="border-4 border-destructive"
+          >
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Reset
+          </Button>
+        </div>
 
         <h1 className="text-6xl font-bold text-center mb-8 text-primary animate-bounce-in">
           🔮 Venn Diagram Sorter 🔮

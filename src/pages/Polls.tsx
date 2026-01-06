@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, ArrowLeft, Lock, Unlock, Users, Calendar, Trash2, Edit2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 
 interface Form {
   id: string;
@@ -78,13 +79,14 @@ const Polls = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      <WhimsicalBackground />
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
         <ThemeToggle />
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link to="/">

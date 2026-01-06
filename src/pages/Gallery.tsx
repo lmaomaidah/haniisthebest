@@ -8,6 +8,7 @@ import { Upload, Trash2, Home, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 
 interface ImageType {
   id: string;
@@ -150,14 +151,15 @@ const Gallery = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8 relative">
+      <WhimsicalBackground />
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
         <ThemeToggle />
       </div>
       
-      <div className="container mx-auto">
+      <div className="container mx-auto relative z-10">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
