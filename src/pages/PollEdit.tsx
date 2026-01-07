@@ -50,13 +50,110 @@ const PollEdit = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
   const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
+  
+  // Collaboration state
+  const [editors, setEditors] = useState<Editor[]>([]);
+  const [newEditorUsername, setNewEditorUsername] = useState("");
+  const [addingEditor, setAddingEditor] = useState(false);
+  const [showCollabPanel, setShowCollabPanel] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchForm();
+      fetchEditors();
       logActivity("poll_edit_view", { form_id: id });
     }
   }, [id]);
+
+  const fetchEditors = async () => {
+    if (!id) return;
+    
+    const { data: editorsData } = await supabase
+      .from("form_editors")
+      .select("id, user_id")
+      .eq("form_id", id);
+    
+    if (editorsData && editorsData.length > 0) {
+      // Fetch usernames for editors
+      const userIds = editorsData.map(e => e.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, username")
+        .in("user_id", userIds);
+      
+      const editorsWithUsernames = editorsData.map(e => ({
+        ...e,
+        username: profiles?.find(p => p.user_id === e.user_id)?.username || "Unknown"
+      }));
+      
+      setEditors(editorsWithUsernames);
+    } else {
+      setEditors([]);
+    }
+  };
+
+  const addEditor = async () => {
+    if (!id || !newEditorUsername.trim()) return;
+    setAddingEditor(true);
+    
+    // Find user by username
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("user_id, username")
+      .eq("username", newEditorUsername.trim())
+      .single();
+    
+    if (profileError || !profile) {
+      toast({ title: "User not found", description: "No user with that username exists.", variant: "destructive" });
+      setAddingEditor(false);
+      return;
+    }
+    
+    // Check if already an editor
+    if (editors.some(e => e.user_id === profile.user_id)) {
+      toast({ title: "Already an editor", description: "This user is already a collaborator.", variant: "destructive" });
+      setAddingEditor(false);
+      return;
+    }
+    
+    // Check if it's the creator
+    if (form?.creator_id === profile.user_id) {
+      toast({ title: "That's you!", description: "You're already the creator of this poll.", variant: "destructive" });
+      setAddingEditor(false);
+      return;
+    }
+    
+    const { data, error } = await supabase
+      .from("form_editors")
+      .insert({ form_id: id, user_id: profile.user_id })
+      .select()
+      .single();
+    
+    if (error) {
+      toast({ title: "Error adding editor", description: error.message, variant: "destructive" });
+    } else if (data) {
+      setEditors([...editors, { ...data, username: profile.username }]);
+      setNewEditorUsername("");
+      toast({ title: "Collaborator added! 🎉", description: `${profile.username} can now edit this poll.` });
+      logActivity("poll_editor_added", { form_id: id, editor_user_id: profile.user_id });
+    }
+    
+    setAddingEditor(false);
+  };
+
+  const removeEditor = async (editorId: string, editorUsername?: string) => {
+    const { error } = await supabase
+      .from("form_editors")
+      .delete()
+      .eq("id", editorId);
+    
+    if (error) {
+      toast({ title: "Error removing editor", description: error.message, variant: "destructive" });
+    } else {
+      setEditors(editors.filter(e => e.id !== editorId));
+      toast({ title: "Collaborator removed", description: `${editorUsername || "User"} can no longer edit this poll.` });
+    }
+  };
 
   const fetchForm = async () => {
     if (!id) return;
@@ -325,7 +422,76 @@ const PollEdit = () => {
                   </Button>
                 </Link>
               )}
+
+              {/* Collaboration Toggle - Only for creators */}
+              {user?.id === form.creator_id && (
+                <Button
+                  onClick={() => setShowCollabPanel(!showCollabPanel)}
+                  variant={showCollabPanel ? "default" : "outline"}
+                  className="rounded-2xl border-2"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" /> 
+                  Collaborators {editors.length > 0 && `(${editors.length})`}
+                </Button>
+              )}
             </div>
+
+            {/* Collaboration Panel */}
+            {showCollabPanel && user?.id === form.creator_id && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                  <UserPlus className="h-5 w-5 text-primary" />
+                  Manage Collaborators
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add collaborators who can edit this poll with you.
+                </p>
+
+                {/* Add Editor Form */}
+                <div className="flex gap-2 mb-4">
+                  <Input
+                    value={newEditorUsername}
+                    onChange={(e) => setNewEditorUsername(e.target.value)}
+                    placeholder="Enter username..."
+                    className="flex-1 border-2 rounded-xl"
+                    onKeyDown={(e) => e.key === "Enter" && addEditor()}
+                  />
+                  <Button 
+                    onClick={addEditor} 
+                    disabled={addingEditor || !newEditorUsername.trim()}
+                    className="bg-lime-green text-foreground rounded-xl"
+                  >
+                    {addingEditor ? "Adding..." : "Add"}
+                  </Button>
+                </div>
+
+                {/* Editors List */}
+                {editors.length > 0 ? (
+                  <div className="space-y-2">
+                    {editors.map((editor) => (
+                      <div
+                        key={editor.id}
+                        className="flex items-center justify-between p-3 bg-secondary/20 rounded-xl border-2 border-secondary/30"
+                      >
+                        <span className="font-medium">@{editor.username}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => removeEditor(editor.id, editor.username)}
+                        >
+                          <X className="h-4 w-4 mr-1" /> Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    No collaborators yet. Add someone by their username!
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </Card>
 
