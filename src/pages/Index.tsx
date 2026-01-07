@@ -4,8 +4,13 @@ import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote } from "lucide-re
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
+import Marquee from "@/components/Marquee";
+
 const Index = () => {
   return <div className="min-h-screen relative overflow-hidden">
+      {/* Scrolling marquee ticker */}
+      <Marquee />
+      
       {/* Whimsical background with swirls, clouds, and stars */}
       <WhimsicalBackground />
 

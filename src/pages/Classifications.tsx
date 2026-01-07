@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { DraggableImage } from "@/components/DraggableImage";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { Plus, Trash2, Save, Download, Home } from "lucide-react";
 
 interface ImageType {
@@ -218,8 +219,9 @@ export default function Classifications() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 animate-fade-in">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen p-4 md:p-8 animate-fade-in relative overflow-hidden">
+      <WhimsicalBackground />
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex justify-between items-center mb-6">
           <Button
             onClick={() => navigate("/")}

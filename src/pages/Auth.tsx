@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import WhimsicalBackground from '@/components/WhimsicalBackground';
 import { z } from 'zod';
 
 const usernameSchema = z.string()
@@ -122,13 +123,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
+      <WhimsicalBackground />
+      
       {/* Theme Toggle */}
       <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
       </div>
 
-      {/* Floating decorations */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Extra floating decorations for auth page */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
         <div className="absolute top-10 left-10 text-6xl animate-float drop-shadow-[0_0_20px_rgba(255,100,150,0.8)]">🔐</div>
         <div className="absolute top-20 right-20 text-5xl animate-wiggle drop-shadow-[0_0_20px_rgba(100,200,255,0.8)]">✨</div>
         <div className="absolute bottom-20 left-20 text-6xl animate-spin-slow drop-shadow-[0_0_20px_rgba(150,255,100,0.8)]">🎭</div>
