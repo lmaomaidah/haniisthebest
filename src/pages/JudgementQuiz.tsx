@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, Brain } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
-
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 type Category = "niche" | "weird" | "performative";
 
 interface Question {
@@ -278,12 +278,13 @@ export default function JudgementQuiz() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8 relative overflow-hidden">
+        <WhimsicalBackground />
         <div className="absolute top-6 right-6 z-50">
           <ThemeToggle />
         </div>
 
-        <div className="max-w-2xl mx-auto pt-16">
+        <div className="max-w-2xl mx-auto pt-16 relative z-10">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8">
             <ArrowLeft className="w-5 h-5" />
             Back to Home
@@ -334,12 +335,13 @@ export default function JudgementQuiz() {
     const result = resultTexts[highestCategory];
 
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8 relative overflow-hidden">
+        <WhimsicalBackground />
         <div className="absolute top-6 right-6 z-50">
           <ThemeToggle />
         </div>
 
-        <div className="max-w-2xl mx-auto pt-8">
+        <div className="max-w-2xl mx-auto pt-8 relative z-10">
           <div className="text-center space-y-8 animate-bounce-in">
             <div className="text-8xl">{result.emoji}</div>
             <h1 className="text-3xl md:text-5xl font-bold text-foreground">Your Cultural Profile</h1>
@@ -406,12 +408,13 @@ export default function JudgementQuiz() {
   const question = questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8 relative overflow-hidden">
+      <WhimsicalBackground />
       <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
       </div>
 
-      <div className="max-w-2xl mx-auto pt-8">
+      <div className="max-w-2xl mx-auto pt-8 relative z-10">
         <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6">
           <ArrowLeft className="w-5 h-5" />
           Flee

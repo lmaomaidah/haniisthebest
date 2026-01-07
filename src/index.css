@@ -275,4 +275,14 @@ All colors MUST be HSL.
     background: var(--gradient-rainbow);
     border-radius: 2px;
   }
+
+  /* Marquee animation */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
+  }
 }
