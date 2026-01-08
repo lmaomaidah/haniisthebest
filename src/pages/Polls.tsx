@@ -26,11 +26,17 @@ const Polls = () => {
   const { user, isAdmin, logActivity } = useAuth();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editorFormIds, setEditorFormIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     logActivity("page_view", { page: "polls" });
     fetchForms();
   }, []);
+
+  useEffect(() => {
+    if (user) fetchEditorAssignments();
+    else setEditorFormIds(new Set());
+  }, [user]);
 
   const fetchForms = async () => {
     setLoading(true);
@@ -45,6 +51,18 @@ const Polls = () => {
       setForms(data || []);
     }
     setLoading(false);
+  };
+
+  const fetchEditorAssignments = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("form_editors")
+      .select("form_id")
+      .eq("user_id", user.id);
+
+    if (error) return;
+    setEditorFormIds(new Set((data || []).map((r) => r.form_id)));
   };
 
   const createNewForm = async () => {
@@ -75,7 +93,8 @@ const Polls = () => {
     }
   };
 
-  const canManage = (form: Form) => user?.id === form.creator_id || isAdmin;
+  const canEdit = (form: Form) => user?.id === form.creator_id || isAdmin || editorFormIds.has(form.id);
+  const canDelete = (form: Form) => user?.id === form.creator_id || isAdmin;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -180,22 +199,22 @@ const Polls = () => {
                       </Button>
                     </Link>
                   )}
-                  {canManage(form) && (
-                    <>
-                      <Link to={`/polls/${form.id}/edit`}>
-                        <Button variant="outline" className="rounded-2xl text-sm border-2">
-                          <Edit2 className="mr-1 h-4 w-4" /> Edit
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="rounded-2xl"
-                        onClick={() => deleteForm(form.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
+                  {canEdit(form) && (
+                    <Link to={`/polls/${form.id}/edit`}>
+                      <Button variant="outline" className="rounded-2xl text-sm border-2">
+                        <Edit2 className="mr-1 h-4 w-4" /> Edit
                       </Button>
-                    </>
+                    </Link>
+                  )}
+                  {canDelete(form) && (
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="rounded-2xl"
+                      onClick={() => deleteForm(form.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   )}
                 </div>
               </Card>
