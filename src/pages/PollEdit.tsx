@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,10 +8,13 @@ import { Switch } from "@/components/ui/switch";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import { useAuth } from "@/hooks/useAuth";
+import { useRealtimePresence } from "@/hooks/useRealtimePresence";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Plus, Trash2, Save, Eye, Lock, Unlock, Sparkles, GripVertical, UserPlus, X } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Eye, Lock, Unlock, Sparkles, GripVertical, UserPlus, X, Link as LinkIcon, Copy, RefreshCw, Users } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Question {
   id: string;
@@ -33,6 +36,8 @@ interface Form {
   is_published: boolean;
   results_revealed: boolean;
   creator_id: string;
+  invite_token?: string;
+  invite_enabled?: boolean;
 }
 
 interface Editor {
@@ -41,10 +46,27 @@ interface Editor {
   username?: string;
 }
 
+const AVATAR_COLORS = [
+  "bg-pink-500",
+  "bg-purple-500",
+  "bg-blue-500",
+  "bg-green-500",
+  "bg-yellow-500",
+  "bg-orange-500",
+  "bg-red-500",
+  "bg-teal-500",
+];
+
+const getAvatarColor = (username: string) => {
+  const hash = username.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+};
+
 const PollEdit = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, logActivity } = useAuth();
+  const { user, profile, logActivity } = useAuth();
 
   const [form, setForm] = useState<Form | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -56,6 +78,73 @@ const PollEdit = () => {
   const [newEditorUsername, setNewEditorUsername] = useState("");
   const [addingEditor, setAddingEditor] = useState(false);
   const [showCollabPanel, setShowCollabPanel] = useState(false);
+
+  // Realtime presence
+  const { onlineUsers } = useRealtimePresence({
+    channelName: id ? `poll-edit:${id}` : "",
+    userId: user?.id,
+    username: profile?.username,
+  });
+
+  // Handle invite token from URL
+  useEffect(() => {
+    const inviteToken = searchParams.get('invite');
+    if (inviteToken && user && id) {
+      handleInviteToken(inviteToken);
+    }
+  }, [searchParams, user, id]);
+
+  const handleInviteToken = async (token: string) => {
+    if (!user || !id) return;
+
+    // Check if the form exists with this invite token and invite is enabled
+    const { data: formData, error: formError } = await supabase
+      .from("forms")
+      .select("id, creator_id, invite_token, invite_enabled")
+      .eq("id", id)
+      .eq("invite_token", token)
+      .eq("invite_enabled", true)
+      .single();
+
+    if (formError || !formData) {
+      toast({ title: "Invalid invite link", description: "This invite link is invalid or has been revoked.", variant: "destructive" });
+      return;
+    }
+
+    // Check if already creator
+    if (formData.creator_id === user.id) {
+      toast({ title: "You're the creator!", description: "You already have full access to this poll." });
+      return;
+    }
+
+    // Check if already an editor
+    const { data: existingEditor } = await supabase
+      .from("form_editors")
+      .select("id")
+      .eq("form_id", id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (existingEditor) {
+      toast({ title: "Already a collaborator", description: "You already have edit access to this poll." });
+      return;
+    }
+
+    // Add as editor
+    const { error } = await supabase
+      .from("form_editors")
+      .insert({ form_id: id, user_id: user.id });
+
+    if (error) {
+      toast({ title: "Error joining", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "You're now a collaborator! 🎉", description: "You can now edit this poll." });
+      logActivity("poll_joined_via_invite", { form_id: id });
+      fetchEditors();
+      // Remove invite token from URL
+      navigate(`/polls/${id}/edit`, { replace: true });
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -74,7 +163,6 @@ const PollEdit = () => {
       .eq("form_id", id);
     
     if (editorsData && editorsData.length > 0) {
-      // Fetch usernames for editors
       const userIds = editorsData.map(e => e.user_id);
       const { data: profiles } = await supabase
         .from("profiles")
@@ -96,46 +184,43 @@ const PollEdit = () => {
     if (!id || !newEditorUsername.trim()) return;
     setAddingEditor(true);
     
-    // Find user by username
-    const { data: profile, error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("user_id, username")
       .eq("username", newEditorUsername.trim())
       .single();
     
-    if (profileError || !profile) {
+    if (profileError || !profileData) {
       toast({ title: "User not found", description: "No user with that username exists.", variant: "destructive" });
       setAddingEditor(false);
       return;
     }
     
-    // Check if already an editor
-    if (editors.some(e => e.user_id === profile.user_id)) {
+    if (editors.some(e => e.user_id === profileData.user_id)) {
       toast({ title: "Already an editor", description: "This user is already a collaborator.", variant: "destructive" });
       setAddingEditor(false);
       return;
     }
     
-    // Check if it's the creator
-    if (form?.creator_id === profile.user_id) {
-      toast({ title: "That's you!", description: "You're already the creator of this poll.", variant: "destructive" });
+    if (form?.creator_id === profileData.user_id) {
+      toast({ title: "That's the creator!", description: "The creator already has full access.", variant: "destructive" });
       setAddingEditor(false);
       return;
     }
     
     const { data, error } = await supabase
       .from("form_editors")
-      .insert({ form_id: id, user_id: profile.user_id })
+      .insert({ form_id: id, user_id: profileData.user_id })
       .select()
       .single();
     
     if (error) {
       toast({ title: "Error adding editor", description: error.message, variant: "destructive" });
     } else if (data) {
-      setEditors([...editors, { ...data, username: profile.username }]);
+      setEditors([...editors, { ...data, username: profileData.username }]);
       setNewEditorUsername("");
-      toast({ title: "Collaborator added! 🎉", description: `${profile.username} can now edit this poll.` });
-      logActivity("poll_editor_added", { form_id: id, editor_user_id: profile.user_id });
+      toast({ title: "Collaborator added! 🎉", description: `${profileData.username} can now edit this poll.` });
+      logActivity("poll_editor_added", { form_id: id, editor_user_id: profileData.user_id });
     }
     
     setAddingEditor(false);
@@ -155,6 +240,48 @@ const PollEdit = () => {
     }
   };
 
+  const toggleInviteLink = async () => {
+    if (!form || !id) return;
+    
+    const newEnabled = !form.invite_enabled;
+    const { error } = await supabase
+      .from("forms")
+      .update({ invite_enabled: newEnabled })
+      .eq("id", id);
+
+    if (error) {
+      toast({ title: "Error updating invite settings", description: error.message, variant: "destructive" });
+    } else {
+      setForm({ ...form, invite_enabled: newEnabled });
+      toast({ title: newEnabled ? "Invite link enabled! 🔗" : "Invite link disabled 🔒" });
+    }
+  };
+
+  const regenerateInviteToken = async () => {
+    if (!form || !id) return;
+    
+    const { data, error } = await supabase
+      .from("forms")
+      .update({ invite_token: crypto.randomUUID() })
+      .eq("id", id)
+      .select("invite_token")
+      .single();
+
+    if (error) {
+      toast({ title: "Error regenerating link", description: error.message, variant: "destructive" });
+    } else if (data) {
+      setForm({ ...form, invite_token: data.invite_token });
+      toast({ title: "Invite link regenerated! 🔄", description: "Previous links are now invalid." });
+    }
+  };
+
+  const copyInviteLink = () => {
+    if (!form?.invite_token) return;
+    const inviteUrl = `${window.location.origin}/polls/${id}/edit?invite=${form.invite_token}`;
+    navigator.clipboard.writeText(inviteUrl);
+    toast({ title: "Link copied! 📋", description: "Share this link with collaborators." });
+  };
+
   const fetchForm = async () => {
     if (!id) return;
 
@@ -172,7 +299,6 @@ const PollEdit = () => {
 
     setForm(formData);
 
-    // Fetch questions with options
     const { data: questionsData } = await supabase
       .from("form_questions")
       .select("*, form_options(*)")
@@ -205,7 +331,6 @@ const PollEdit = () => {
     if (!form || !id) return;
     setSaving(true);
 
-    // Update form
     await supabase.from("forms").update({
       title: form.title,
       description: form.description,
@@ -214,7 +339,6 @@ const PollEdit = () => {
       results_revealed_at: form.results_revealed ? new Date().toISOString() : null,
     }).eq("id", id);
 
-    // Update questions and options
     for (const q of questions) {
       await supabase.from("form_questions").upsert({
         id: q.id,
@@ -326,6 +450,8 @@ const PollEdit = () => {
     toast({ title: newVal ? "Results revealed! 🎉" : "Results hidden 🔒" });
   };
 
+  const isCreator = user?.id === form?.creator_id;
+
   if (!form) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -337,6 +463,42 @@ const PollEdit = () => {
   return (
     <div className="min-h-screen relative overflow-hidden pb-20">
       <WhimsicalBackground />
+      
+      {/* Realtime presence indicator */}
+      {onlineUsers.length > 0 && (
+        <div className="fixed bottom-6 left-6 z-50 bg-card/90 backdrop-blur-sm border-2 border-primary/30 rounded-2xl p-3 shadow-lg">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">Editing now:</span>
+            <TooltipProvider>
+              <div className="flex -space-x-2">
+                {onlineUsers.slice(0, 5).map((u) => (
+                  <Tooltip key={u.id}>
+                    <TooltipTrigger>
+                      <Avatar className={`h-7 w-7 border-2 border-card ${getAvatarColor(u.username)}`}>
+                        <AvatarFallback className="text-white text-xs font-bold">
+                          {u.username.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>@{u.username}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+                {onlineUsers.length > 5 && (
+                  <Avatar className="h-7 w-7 border-2 border-card bg-muted">
+                    <AvatarFallback className="text-xs font-bold">
+                      +{onlineUsers.length - 5}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            </TooltipProvider>
+          </div>
+        </div>
+      )}
+
       {/* Top Bar */}
       <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
         <UserMenu />
@@ -424,7 +586,7 @@ const PollEdit = () => {
               )}
 
               {/* Collaboration Toggle - Only for creators */}
-              {user?.id === form.creator_id && (
+              {isCreator && (
                 <Button
                   onClick={() => setShowCollabPanel(!showCollabPanel)}
                   variant={showCollabPanel ? "default" : "outline"}
@@ -437,59 +599,109 @@ const PollEdit = () => {
             </div>
 
             {/* Collaboration Panel */}
-            {showCollabPanel && user?.id === form.creator_id && (
-              <div className="mt-4 pt-4 border-t border-border">
-                <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                  <UserPlus className="h-5 w-5 text-primary" />
-                  Manage Collaborators
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Add collaborators who can edit this poll with you.
-                </p>
-
-                {/* Add Editor Form */}
-                <div className="flex gap-2 mb-4">
-                  <Input
-                    value={newEditorUsername}
-                    onChange={(e) => setNewEditorUsername(e.target.value)}
-                    placeholder="Enter username..."
-                    className="flex-1 border-2 rounded-xl"
-                    onKeyDown={(e) => e.key === "Enter" && addEditor()}
-                  />
-                  <Button 
-                    onClick={addEditor} 
-                    disabled={addingEditor || !newEditorUsername.trim()}
-                    className="bg-lime-green text-foreground rounded-xl"
-                  >
-                    {addingEditor ? "Adding..." : "Add"}
-                  </Button>
+            {showCollabPanel && isCreator && (
+              <div className="mt-4 pt-4 border-t border-border space-y-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <UserPlus className="h-5 w-5 text-primary" />
+                    Invite by Username
+                  </h3>
+                  <div className="flex gap-2 mb-4">
+                    <Input
+                      value={newEditorUsername}
+                      onChange={(e) => setNewEditorUsername(e.target.value)}
+                      placeholder="Enter username..."
+                      className="flex-1 border-2 rounded-xl"
+                      onKeyDown={(e) => e.key === "Enter" && addEditor()}
+                    />
+                    <Button 
+                      onClick={addEditor} 
+                      disabled={addingEditor || !newEditorUsername.trim()}
+                      className="bg-lime-green text-foreground rounded-xl"
+                    >
+                      {addingEditor ? "Adding..." : "Add"}
+                    </Button>
+                  </div>
                 </div>
 
-                {/* Editors List */}
-                {editors.length > 0 ? (
-                  <div className="space-y-2">
-                    {editors.map((editor) => (
-                      <div
-                        key={editor.id}
-                        className="flex items-center justify-between p-3 bg-secondary/20 rounded-xl border-2 border-secondary/30"
-                      >
-                        <span className="font-medium">@{editor.username}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:bg-destructive/10"
-                          onClick={() => removeEditor(editor.id, editor.username)}
-                        >
-                          <X className="h-4 w-4 mr-1" /> Remove
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">
-                    No collaborators yet. Add someone by their username!
+                {/* Invite Link Section */}
+                <div className="p-4 bg-secondary/10 rounded-2xl border-2 border-secondary/30">
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <LinkIcon className="h-5 w-5 text-secondary" />
+                    Invite by Link
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Anyone with this link can become a collaborator.
                   </p>
-                )}
+                  
+                  <div className="flex items-center gap-3 mb-3">
+                    <Switch
+                      checked={form.invite_enabled || false}
+                      onCheckedChange={toggleInviteLink}
+                    />
+                    <span className="font-medium">
+                      {form.invite_enabled ? "🔗 Link Active" : "🔒 Link Disabled"}
+                    </span>
+                  </div>
+
+                  {form.invite_enabled && (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={copyInviteLink}
+                        variant="outline"
+                        className="flex-1 rounded-xl border-2"
+                      >
+                        <Copy className="mr-2 h-4 w-4" /> Copy Link
+                      </Button>
+                      <Button
+                        onClick={regenerateInviteToken}
+                        variant="outline"
+                        className="rounded-xl border-2"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Current Editors */}
+                <div>
+                  <h4 className="font-bold text-sm text-muted-foreground mb-2">Current Collaborators</h4>
+                  {editors.length > 0 ? (
+                    <div className="space-y-2">
+                      {editors.map((editor) => (
+                        <div
+                          key={editor.id}
+                          className="flex items-center justify-between p-3 bg-secondary/20 rounded-xl border-2 border-secondary/30"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Avatar className={`h-8 w-8 ${getAvatarColor(editor.username || "")}`}>
+                              <AvatarFallback className="text-white text-xs font-bold">
+                                {(editor.username || "U").slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium">@{editor.username}</span>
+                            {onlineUsers.some(u => u.id === editor.user_id) && (
+                              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Online now" />
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={() => removeEditor(editor.id, editor.username)}
+                          >
+                            <X className="h-4 w-4 mr-1" /> Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">
+                      No collaborators yet. Add someone by username or share the invite link!
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>

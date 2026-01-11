@@ -184,6 +184,8 @@ export type Database = {
           creator_id: string
           description: string | null
           id: string
+          invite_enabled: boolean | null
+          invite_token: string | null
           is_published: boolean
           results_revealed: boolean
           results_revealed_at: string | null
@@ -195,6 +197,8 @@ export type Database = {
           creator_id: string
           description?: string | null
           id?: string
+          invite_enabled?: boolean | null
+          invite_token?: string | null
           is_published?: boolean
           results_revealed?: boolean
           results_revealed_at?: string | null
@@ -206,6 +210,8 @@ export type Database = {
           creator_id?: string
           description?: string | null
           id?: string
+          invite_enabled?: boolean | null
+          invite_token?: string | null
           is_published?: boolean
           results_revealed?: boolean
           results_revealed_at?: string | null
@@ -396,6 +402,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_form_creator: {
+        Args: { _form_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_form_editor: {
+        Args: { _form_id: string; _user_id: string }
         Returns: boolean
       }
     }
