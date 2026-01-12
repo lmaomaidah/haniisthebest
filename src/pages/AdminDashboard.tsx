@@ -122,29 +122,24 @@ const AdminDashboard = () => {
     }
 
     try {
-      // First delete user roles
-      const { error: rolesError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userProfile.user_id);
+      // Call edge function to completely delete user (including auth.users record)
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: userProfile.user_id }
+      });
 
-      if (rolesError) {
-        console.error('Error deleting user roles:', rolesError);
-      }
-
-      // Then delete the profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userProfile.user_id);
-
-      if (profileError) {
-        toast.error('Failed to delete user profile');
-        console.error('Error deleting profile:', profileError);
+      if (error) {
+        console.error('Error invoking delete-user function:', error);
+        toast.error('Failed to delete user');
         return;
       }
 
-      toast.success(`User "${userProfile.username}" has been deleted`);
+      if (data?.error) {
+        console.error('Delete user error:', data.error);
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success(`User "${userProfile.username}" has been completely deleted`);
       fetchData();
     } catch (error) {
       console.error('Error deleting user:', error);
