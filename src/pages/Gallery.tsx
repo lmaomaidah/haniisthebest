@@ -42,7 +42,23 @@ const Gallery = () => {
         variant: "destructive",
       });
     } else {
-      setImages(data || []);
+      // For images with URLs, generate signed URLs for private bucket access
+      const imagesWithSignedUrls = await Promise.all(
+        (data || []).map(async (image) => {
+          if (image.image_url) {
+            // Extract filename from the stored URL
+            const fileName = image.image_url.split('/').pop();
+            if (fileName) {
+              const { data: signedData } = await supabase.storage
+                .from('classmate-images')
+                .createSignedUrl(fileName, 3600); // 1 hour expiry
+              return { ...image, image_url: signedData?.signedUrl || null };
+            }
+          }
+          return image;
+        })
+      );
+      setImages(imagesWithSignedUrls);
     }
   };
 
