@@ -1,311 +1,460 @@
 const WhimsicalBackground = () => {
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Elegant thin rainbow swirl - top right flowing down */}
-      <svg
-        className="absolute -top-20 -right-32 w-[900px] h-[1000px] opacity-85"
-        viewBox="0 0 400 500"
-        fill="none"
-      >
+      {/* Shared gradients */}
+      <svg className="absolute w-0 h-0">
         <defs>
-          <linearGradient id="rainbow-swirl-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(225, 80%, 58%)" />
-            <stop offset="20%" stopColor="hsl(275, 75%, 58%)" />
-            <stop offset="40%" stopColor="hsl(340, 85%, 62%)" />
-            <stop offset="60%" stopColor="hsl(25, 95%, 58%)" />
-            <stop offset="80%" stopColor="hsl(45, 100%, 58%)" />
-            <stop offset="100%" stopColor="hsl(340, 80%, 65%)" />
+          <linearGradient id="grad-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(340, 85%, 62%)" />
+            <stop offset="100%" stopColor="hsl(320, 80%, 55%)" />
           </linearGradient>
-          <linearGradient id="rainbow-swirl-2" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="hsl(140, 70%, 50%)" />
-            <stop offset="30%" stopColor="hsl(180, 65%, 55%)" />
-            <stop offset="60%" stopColor="hsl(275, 75%, 58%)" />
-            <stop offset="100%" stopColor="hsl(340, 85%, 62%)" />
-          </linearGradient>
-          <linearGradient id="rainbow-swirl-3" x1="0%" y1="100%" x2="100%" y2="0%">
+          <linearGradient id="grad-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="hsl(45, 100%, 58%)" />
-            <stop offset="35%" stopColor="hsl(25, 95%, 60%)" />
-            <stop offset="70%" stopColor="hsl(340, 80%, 65%)" />
-            <stop offset="100%" stopColor="hsl(275, 70%, 60%)" />
+            <stop offset="100%" stopColor="hsl(35, 95%, 55%)" />
           </linearGradient>
-          <linearGradient id="rainbow-line-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(340, 85%, 65%)" />
-            <stop offset="50%" stopColor="hsl(275, 75%, 60%)" />
-            <stop offset="100%" stopColor="hsl(225, 80%, 58%)" />
+          <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(140, 70%, 50%)" />
+            <stop offset="100%" stopColor="hsl(160, 65%, 45%)" />
           </linearGradient>
-          <linearGradient id="rainbow-line-2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(45, 100%, 60%)" />
-            <stop offset="50%" stopColor="hsl(25, 90%, 55%)" />
-            <stop offset="100%" stopColor="hsl(340, 85%, 62%)" />
+          <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(275, 75%, 58%)" />
+            <stop offset="100%" stopColor="hsl(290, 70%, 50%)" />
           </linearGradient>
-          <linearGradient id="rainbow-line-3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(140, 65%, 55%)" />
-            <stop offset="50%" stopColor="hsl(180, 70%, 50%)" />
-            <stop offset="100%" stopColor="hsl(225, 75%, 60%)" />
+          <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(25, 95%, 58%)" />
+            <stop offset="100%" stopColor="hsl(15, 90%, 52%)" />
+          </linearGradient>
+          <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(200, 85%, 55%)" />
+            <stop offset="100%" stopColor="hsl(220, 80%, 50%)" />
           </linearGradient>
         </defs>
-        {/* Thin elegant curved lines */}
+      </svg>
+
+      {/* === TOP AREA DOODLES === */}
+      
+      {/* Squiggle line - green - top left */}
+      <svg className="absolute top-[3%] left-[5%] w-20 h-12 opacity-85" viewBox="0 0 80 45" fill="none">
         <path
-          d="M 380 20 Q 300 80 280 180 Q 260 280 180 350 Q 100 420 20 480"
-          stroke="url(#rainbow-swirl-1)"
-          strokeWidth="4"
+          d="M5 30 Q20 10 35 25 Q50 40 65 20 Q75 8 78 15"
+          stroke="url(#grad-green)"
+          strokeWidth="3.5"
           fill="none"
           strokeLinecap="round"
-        />
-        <path
-          d="M 395 35 Q 315 95 295 195 Q 275 295 195 365 Q 115 435 35 495"
-          stroke="url(#rainbow-swirl-1)"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.8"
-        />
-        <path
-          d="M 410 50 Q 330 110 310 210 Q 290 310 210 380 Q 130 450 50 510"
-          stroke="url(#rainbow-swirl-1)"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.6"
         />
       </svg>
 
-      {/* Thin swirl - bottom left flowing up */}
+      {/* Loopy squiggle - pink */}
+      <svg className="absolute top-[2%] left-[18%] w-16 h-16 opacity-80" viewBox="0 0 50 50" fill="none">
+        <path
+          d="M8 25 Q8 8 20 15 Q32 22 25 35 Q18 48 35 40"
+          stroke="url(#grad-pink)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Zigzag - purple */}
+      <svg className="absolute top-[8%] left-[30%] w-16 h-12 opacity-80" viewBox="0 0 60 40" fill="none">
+        <path
+          d="M5 35 L15 8 L25 32 L35 8 L45 32 L55 8"
+          stroke="url(#grad-purple)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* Triangle outline - purple */}
+      <svg className="absolute top-[4%] left-[48%] w-10 h-10 opacity-75" viewBox="0 0 40 40" fill="none">
+        <path
+          d="M20 5 L35 35 L5 35 Z"
+          stroke="url(#grad-purple)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* Small triangle - pink filled */}
+      <svg className="absolute top-[12%] left-[42%] w-6 h-6 opacity-75" viewBox="0 0 25 25" fill="none">
+        <path d="M12 3 L22 22 L2 22 Z" fill="hsl(340, 85%, 62%)" />
+      </svg>
+
+      {/* Curly U shape - pink */}
+      <svg className="absolute top-[5%] left-[58%] w-12 h-14 opacity-80" viewBox="0 0 40 50" fill="none">
+        <path
+          d="M8 8 Q8 42 20 42 Q32 42 32 8"
+          stroke="url(#grad-pink)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Plus sign - purple */}
+      <svg className="absolute top-[3%] right-[28%] w-8 h-8 opacity-75" viewBox="0 0 30 30" fill="none">
+        <path d="M15 5 L15 25 M5 15 L25 15" stroke="url(#grad-purple)" strokeWidth="3.5" strokeLinecap="round" />
+      </svg>
+
+      {/* Small plus - green */}
+      <svg className="absolute top-[10%] right-[22%] w-5 h-5 opacity-70" viewBox="0 0 20 20" fill="none">
+        <path d="M10 3 L10 17 M3 10 L17 10" stroke="url(#grad-green)" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+
+      {/* Wavy S - yellow */}
+      <svg className="absolute top-[2%] right-[15%] w-10 h-16 opacity-85" viewBox="0 0 35 55" fill="none">
+        <path
+          d="M8 8 Q28 15 18 28 Q8 41 28 48"
+          stroke="url(#grad-yellow)"
+          strokeWidth="3.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Circle outline - green */}
+      <svg className="absolute top-[6%] right-[5%] w-12 h-12 opacity-75" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="15" stroke="url(#grad-green)" strokeWidth="3" fill="none" />
+      </svg>
+
+      {/* === MIDDLE-TOP DOODLES === */}
+
+      {/* Curly loop - green */}
+      <svg className="absolute top-[15%] left-[3%] w-14 h-14 opacity-75" viewBox="0 0 50 50" fill="none">
+        <path
+          d="M10 25 Q10 10 25 10 Q40 10 40 25 Q40 40 25 40 Q15 40 18 30"
+          stroke="url(#grad-green)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Small dots cluster - pink */}
+      <div className="absolute top-[14%] left-[14%] flex gap-1 opacity-70">
+        <div className="w-2 h-2 rounded-full bg-pink-400" />
+        <div className="w-2 h-2 rounded-full bg-pink-400" />
+      </div>
+
+      {/* Heart outline - yellow */}
+      <svg className="absolute top-[18%] left-[20%] w-10 h-10 opacity-80" viewBox="0 0 40 40" fill="none">
+        <path
+          d="M20 35 C5 22 5 10 12 8 C17 6 20 10 20 10 C20 10 23 6 28 8 C35 10 35 22 20 35"
+          stroke="url(#grad-yellow)"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Wavy double line - pink */}
+      <svg className="absolute top-[22%] left-[8%] w-20 h-10 opacity-75" viewBox="0 0 70 35" fill="none">
+        <path d="M5 18 Q20 5 35 18 Q50 31 65 18" stroke="url(#grad-pink)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M5 25 Q20 12 35 25 Q50 38 65 25" stroke="url(#grad-pink)" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6" />
+      </svg>
+
+      {/* Star outline - purple */}
+      <svg className="absolute top-[16%] right-[35%] w-10 h-10 opacity-70" viewBox="0 0 40 40" fill="none">
+        <path
+          d="M20 5 L23 15 L33 15 L25 22 L28 32 L20 26 L12 32 L15 22 L7 15 L17 15 Z"
+          stroke="url(#grad-purple)"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* X marks - orange */}
+      <svg className="absolute top-[12%] right-[8%] w-8 h-8 opacity-70" viewBox="0 0 30 30" fill="none">
+        <path d="M8 8 L22 22 M22 8 L8 22" stroke="url(#grad-orange)" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+      <svg className="absolute top-[15%] right-[4%] w-6 h-6 opacity-60" viewBox="0 0 25 25" fill="none">
+        <path d="M6 6 L19 19 M19 6 L6 19" stroke="url(#grad-orange)" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+
+      {/* === MIDDLE AREA DOODLES === */}
+
+      {/* Arrow pointing up - green */}
+      <svg className="absolute top-[30%] left-[5%] w-10 h-14 opacity-75" viewBox="0 0 35 50" fill="none">
+        <path d="M17 45 L17 10 M7 20 L17 8 L27 20" stroke="url(#grad-green)" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+
+      {/* Spiral - yellow */}
+      <svg className="absolute top-[35%] left-[15%] w-14 h-14 opacity-75" viewBox="0 0 50 50" fill="none">
+        <path
+          d="M25 25 Q30 25 30 20 Q30 12 22 12 Q12 12 12 25 Q12 40 28 40 Q45 40 45 22"
+          stroke="url(#grad-yellow)"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Squiggle wave - green */}
+      <svg className="absolute top-[42%] left-[2%] w-24 h-8 opacity-70" viewBox="0 0 90 30" fill="none">
+        <path
+          d="M5 15 Q15 5 25 15 Q35 25 45 15 Q55 5 65 15 Q75 25 85 15"
+          stroke="url(#grad-green)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Plus signs cluster - right side */}
+      <svg className="absolute top-[28%] right-[6%] w-12 h-12 opacity-70" viewBox="0 0 45 45" fill="none">
+        <path d="M15 5 L15 20 M7 12 L23 12" stroke="url(#grad-purple)" strokeWidth="3" strokeLinecap="round" />
+        <path d="M32 25 L32 40 M25 32 L40 32" stroke="url(#grad-pink)" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+
+      {/* Small circle - yellow filled */}
+      <svg className="absolute top-[38%] right-[15%] w-6 h-6 opacity-75" viewBox="0 0 25 25" fill="none">
+        <circle cx="12" cy="12" r="8" fill="hsl(45, 100%, 58%)" />
+      </svg>
+
+      {/* Arc/rainbow - orange */}
+      <svg className="absolute top-[32%] right-[25%] w-14 h-10 opacity-70" viewBox="0 0 50 35" fill="none">
+        <path d="M5 32 Q25 0 45 32" stroke="url(#grad-orange)" strokeWidth="3" fill="none" strokeLinecap="round" />
+      </svg>
+
+      {/* === BOTTOM-MIDDLE DOODLES === */}
+
+      {/* Curvy line - orange */}
+      <svg className="absolute bottom-[40%] left-[25%] w-16 h-10 opacity-75" viewBox="0 0 60 35" fill="none">
+        <path
+          d="M5 20 Q20 5 35 25 Q50 40 55 18"
+          stroke="url(#grad-orange)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Small circles - pink */}
+      <svg className="absolute bottom-[45%] left-[40%] w-6 h-6 opacity-70" viewBox="0 0 25 25" fill="none">
+        <circle cx="12" cy="12" r="8" stroke="url(#grad-pink)" strokeWidth="2.5" fill="none" />
+      </svg>
+
+      {/* Dot - yellow */}
+      <div className="absolute bottom-[42%] left-[48%] w-3 h-3 rounded-full bg-yellow-400 opacity-75" />
+
+      {/* Heart filled - pink small */}
+      <svg className="absolute bottom-[48%] right-[30%] w-6 h-6 opacity-70" viewBox="0 0 25 25" fill="none">
+        <path
+          d="M12 22 C2 14 2 6 7 5 C10 4 12 7 12 7 C12 7 14 4 17 5 C22 6 22 14 12 22"
+          fill="hsl(340, 80%, 65%)"
+        />
+      </svg>
+
+      {/* Squiggle - purple */}
+      <svg className="absolute bottom-[38%] right-[12%] w-14 h-10 opacity-75" viewBox="0 0 50 35" fill="none">
+        <path
+          d="M5 25 Q15 8 25 20 Q35 32 45 15"
+          stroke="url(#grad-purple)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* === BOTTOM AREA DOODLES === */}
+
+      {/* Wavy line - pink bottom left */}
+      <svg className="absolute bottom-[25%] left-[5%] w-20 h-8 opacity-75" viewBox="0 0 75 30" fill="none">
+        <path
+          d="M5 15 Q18 5 32 15 Q46 25 60 15 Q70 8 72 15"
+          stroke="url(#grad-pink)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Circle outline - yellow */}
+      <svg className="absolute bottom-[20%] left-[18%] w-8 h-8 opacity-70" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="10" stroke="url(#grad-yellow)" strokeWidth="2.5" fill="none" />
+      </svg>
+
+      {/* Small arc - purple */}
+      <svg className="absolute bottom-[15%] left-[28%] w-10 h-8 opacity-65" viewBox="0 0 40 30" fill="none">
+        <path d="M5 25 Q20 5 35 25" stroke="url(#grad-purple)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+
+      {/* Spiral snail - yellow */}
+      <svg className="absolute bottom-[18%] left-[45%] w-12 h-12 opacity-75" viewBox="0 0 45 45" fill="none">
+        <path
+          d="M22 22 Q25 22 25 19 Q25 14 20 14 Q13 14 13 22 Q13 32 25 32 Q38 32 38 20"
+          stroke="url(#grad-yellow)"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Dots - pink */}
+      <div className="absolute bottom-[12%] left-[55%] flex gap-2 opacity-70">
+        <div className="w-2 h-2 rounded-full bg-pink-400" />
+        <div className="w-2 h-2 rounded-full bg-pink-400" />
+        <div className="w-2 h-2 rounded-full bg-pink-400" />
+      </div>
+
+      {/* Triangle small - green */}
+      <svg className="absolute bottom-[22%] right-[35%] w-6 h-6 opacity-70" viewBox="0 0 25 25" fill="none">
+        <path d="M12 4 L22 21 L2 21 Z" stroke="url(#grad-green)" strokeWidth="2" fill="none" strokeLinejoin="round" />
+      </svg>
+
+      {/* Curly bracket shape - green */}
+      <svg className="absolute bottom-[28%] right-[20%] w-10 h-14 opacity-70" viewBox="0 0 35 50" fill="none">
+        <path
+          d="M25 5 Q10 15 10 25 Q10 35 25 45"
+          stroke="url(#grad-green)"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Small zigzag - orange */}
+      <svg className="absolute bottom-[10%] right-[12%] w-14 h-8 opacity-70" viewBox="0 0 50 30" fill="none">
+        <path
+          d="M5 20 L15 8 L25 22 L35 8 L45 20"
+          stroke="url(#grad-orange)"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* Cross/plus - pink */}
+      <svg className="absolute bottom-[5%] right-[25%] w-6 h-6 opacity-65" viewBox="0 0 25 25" fill="none">
+        <path d="M12 4 L12 21 M4 12 L21 12" stroke="url(#grad-pink)" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+
+      {/* === LARGE FLOWING SWIRLS (CORNERS) === */}
+      
+      {/* Top-right flowing swirl */}
       <svg
-        className="absolute -bottom-40 -left-40 w-[800px] h-[900px] opacity-80 rotate-180"
-        viewBox="0 0 400 500"
+        className="absolute -top-10 -right-20 w-[500px] h-[600px] opacity-60"
+        viewBox="0 0 250 300"
         fill="none"
       >
         <path
-          d="M 380 20 Q 300 80 280 180 Q 260 280 180 350 Q 100 420 20 480"
-          stroke="url(#rainbow-swirl-2)"
-          strokeWidth="4"
-          fill="none"
-          strokeLinecap="round"
-        />
-        <path
-          d="M 395 40 Q 315 100 295 200 Q 275 300 195 370 Q 115 440 35 500"
-          stroke="url(#rainbow-swirl-2)"
+          d="M 240 10 Q 180 50 170 120 Q 160 190 100 230 Q 40 270 10 290"
+          stroke="url(#grad-purple)"
           strokeWidth="3"
           fill="none"
           strokeLinecap="round"
-          opacity="0.75"
         />
         <path
-          d="M 410 60 Q 330 120 310 220 Q 290 320 210 390 Q 130 460 50 520"
-          stroke="url(#rainbow-swirl-2)"
-          strokeWidth="2"
+          d="M 250 25 Q 190 65 180 135 Q 170 205 110 245 Q 50 285 20 305"
+          stroke="url(#grad-pink)"
+          strokeWidth="2.5"
           fill="none"
           strokeLinecap="round"
-          opacity="0.5"
+          opacity="0.7"
         />
       </svg>
 
-      {/* Decorative curved lines - like in reference image */}
-      {/* Top area squiggles */}
-      <svg className="absolute top-[5%] left-[15%] w-32 h-16 opacity-80" viewBox="0 0 100 40" fill="none">
+      {/* Bottom-left flowing swirl */}
+      <svg
+        className="absolute -bottom-20 -left-20 w-[450px] h-[500px] opacity-55 rotate-180"
+        viewBox="0 0 250 300"
+        fill="none"
+      >
         <path
-          d="M5 20 Q15 5 30 20 Q45 35 60 20 Q75 5 95 20"
-          stroke="url(#rainbow-line-1)"
+          d="M 240 10 Q 180 50 170 120 Q 160 190 100 230 Q 40 270 10 290"
+          stroke="url(#grad-green)"
           strokeWidth="3"
           fill="none"
           strokeLinecap="round"
         />
+        <path
+          d="M 250 25 Q 190 65 180 135 Q 170 205 110 245 Q 50 285 20 305"
+          stroke="url(#grad-yellow)"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.7"
+        />
       </svg>
+
+      {/* === ANIMATED ELEMENTS === */}
       
-      <svg className="absolute top-[12%] right-[20%] w-24 h-20 opacity-75" viewBox="0 0 60 50" fill="none">
-        {/* Crown shape */}
-        <path
-          d="M10 40 L15 15 L25 30 L30 10 L35 30 L45 15 L50 40"
-          stroke="url(#rainbow-line-2)"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-
-      {/* Star outline */}
-      <svg className="absolute top-[8%] right-[35%] w-12 h-12 opacity-70" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M20 5 L23 15 L33 15 L25 22 L28 32 L20 26 L12 32 L15 22 L7 15 L17 15 Z"
-          stroke="url(#rainbow-line-3)"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-
-      {/* Wavy line - middle */}
-      <svg className="absolute top-[25%] left-[5%] w-28 h-14 opacity-75" viewBox="0 0 80 35" fill="none">
-        <path
-          d="M5 25 Q20 5 40 20 Q60 35 75 15"
-          stroke="url(#rainbow-line-1)"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* Arrow */}
-      <svg className="absolute bottom-[35%] left-[60%] w-20 h-16 opacity-70" viewBox="0 0 60 50" fill="none">
-        <path
-          d="M5 25 Q15 25 25 20 Q35 15 45 25 L40 18 M45 25 L40 32"
-          stroke="url(#rainbow-line-2)"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-
-      {/* Heart outline */}
-      <svg className="absolute bottom-[25%] left-[8%] w-16 h-14 opacity-80" viewBox="0 0 50 45" fill="none">
-        <path
-          d="M25 40 C5 25 5 10 15 8 C22 6 25 12 25 12 C25 12 28 6 35 8 C45 10 45 25 25 40"
-          stroke="url(#rainbow-line-1)"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* Spiral */}
-      <svg className="absolute top-[45%] right-[8%] w-20 h-20 opacity-75" viewBox="0 0 60 60" fill="none">
-        <path
-          d="M30 30 Q35 30 35 25 Q35 20 30 20 Q22 20 22 30 Q22 42 35 42 Q48 42 48 28 Q48 14 30 14"
-          stroke="url(#rainbow-line-3)"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* Cloud outline */}
-      <svg className="absolute top-[18%] left-[35%] w-24 h-16 opacity-65" viewBox="0 0 80 50" fill="none">
-        <path
-          d="M15 35 Q5 35 5 28 Q5 20 15 20 Q15 12 25 12 Q32 12 35 18 Q38 10 48 10 Q60 10 60 22 Q75 22 75 32 Q75 40 60 40 L20 40 Q10 40 10 35"
-          stroke="url(#rainbow-line-2)"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* Lightning bolt */}
-      <svg className="absolute top-[30%] left-[12%] w-12 h-18 opacity-75" viewBox="0 0 30 50" fill="none">
-        <path
-          d="M18 5 L8 22 L15 22 L12 45 L22 25 L15 25 Z"
-          stroke="url(#rainbow-line-2)"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-
-      {/* Rainbow arc - thin lines */}
-      <svg className="absolute top-[10%] left-[55%] w-32 h-20 opacity-55" viewBox="0 0 100 50" fill="none">
-        <path d="M10 45 Q50 -5 90 45" stroke="hsl(340, 80%, 60%)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        <path d="M18 45 Q50 5 82 45" stroke="hsl(25, 90%, 58%)" strokeWidth="2" fill="none" strokeLinecap="round" />
-        <path d="M26 45 Q50 15 74 45" stroke="hsl(45, 100%, 58%)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <path d="M34 45 Q50 25 66 45" stroke="hsl(140, 65%, 50%)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-      </svg>
-
-      {/* Fluffy clouds - softer */}
-      <svg className="absolute top-10 left-10 w-48 h-32 opacity-60" viewBox="0 0 200 100" fill="none">
-        <ellipse cx="50" cy="60" rx="40" ry="28" fill="hsl(330, 70%, 75%)" />
-        <ellipse cx="90" cy="52" rx="35" ry="32" fill="hsl(330, 70%, 78%)" />
-        <ellipse cx="130" cy="55" rx="32" ry="26" fill="hsl(25, 70%, 80%)" />
-        <ellipse cx="155" cy="62" rx="28" ry="24" fill="hsl(330, 65%, 82%)" />
-      </svg>
-
-      <svg className="absolute top-1/4 right-5 w-40 h-28 opacity-50" viewBox="0 0 200 100" fill="none">
-        <ellipse cx="50" cy="55" rx="36" ry="26" fill="hsl(25, 70%, 78%)" />
-        <ellipse cx="85" cy="48" rx="32" ry="30" fill="hsl(20, 65%, 75%)" />
-        <ellipse cx="125" cy="55" rx="38" ry="24" fill="hsl(340, 60%, 75%)" />
-      </svg>
-
-      <svg className="absolute bottom-28 right-16 w-36 h-24 opacity-45" viewBox="0 0 200 100" fill="none">
-        <ellipse cx="60" cy="55" rx="40" ry="28" fill="hsl(275, 50%, 72%)" />
-        <ellipse cx="110" cy="48" rx="38" ry="26" fill="hsl(225, 60%, 70%)" />
-        <ellipse cx="150" cy="58" rx="32" ry="24" fill="hsl(280, 55%, 75%)" />
-      </svg>
-
-      {/* Smiling flower - right side (smaller) */}
-      <svg className="absolute bottom-36 right-[15%] w-24 h-32 opacity-85 animate-float" viewBox="0 0 80 120" fill="none">
-        <path d="M40 55 Q38 80 42 110" stroke="hsl(140, 60%, 45%)" strokeWidth="4" fill="none" />
-        <ellipse cx="30" cy="82" rx="12" ry="6" fill="hsl(140, 60%, 50%)" transform="rotate(-30 30 82)" />
-        <ellipse cx="52" cy="92" rx="10" ry="5" fill="hsl(140, 60%, 50%)" transform="rotate(25 52 92)" />
-        <ellipse cx="40" cy="18" rx="12" ry="18" fill="white" />
-        <ellipse cx="23" cy="33" rx="12" ry="18" fill="white" transform="rotate(-60 23 33)" />
-        <ellipse cx="57" cy="33" rx="12" ry="18" fill="white" transform="rotate(60 57 33)" />
-        <ellipse cx="23" cy="52" rx="12" ry="18" fill="white" transform="rotate(-30 23 52)" />
-        <ellipse cx="57" cy="52" rx="12" ry="18" fill="white" transform="rotate(30 57 52)" />
-        <circle cx="40" cy="40" r="14" fill="hsl(45, 100%, 60%)" />
-        <circle cx="35" cy="38" r="2" fill="hsl(25, 30%, 25%)" />
-        <circle cx="45" cy="38" r="2" fill="hsl(25, 30%, 25%)" />
-        <path d="M35 44 Q40 48 45 44" stroke="hsl(25, 30%, 25%)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      </svg>
-
-      {/* Second flower - left side (smaller) */}
-      <svg className="absolute top-[45%] left-[8%] w-20 h-28 opacity-70 animate-float" style={{ animationDelay: '0.8s' }} viewBox="0 0 80 120" fill="none">
-        <path d="M40 55 Q42 80 38 110" stroke="hsl(140, 55%, 42%)" strokeWidth="3" fill="none" />
-        <ellipse cx="50" cy="85" rx="10" ry="5" fill="hsl(140, 55%, 48%)" transform="rotate(20 50 85)" />
-        <ellipse cx="40" cy="18" rx="10" ry="16" fill="hsl(340, 75%, 70%)" />
-        <ellipse cx="25" cy="32" rx="10" ry="16" fill="hsl(340, 75%, 72%)" transform="rotate(-55 25 32)" />
-        <ellipse cx="55" cy="32" rx="10" ry="16" fill="hsl(340, 75%, 72%)" transform="rotate(55 55 32)" />
-        <ellipse cx="25" cy="48" rx="10" ry="16" fill="hsl(340, 75%, 70%)" transform="rotate(-25 25 48)" />
-        <ellipse cx="55" cy="48" rx="10" ry="16" fill="hsl(340, 75%, 70%)" transform="rotate(25 55 48)" />
-        <circle cx="40" cy="38" r="12" fill="hsl(35, 90%, 62%)" />
-        <circle cx="36" cy="36" r="1.5" fill="hsl(25, 30%, 25%)" />
-        <circle cx="44" cy="36" r="1.5" fill="hsl(25, 30%, 25%)" />
-        <path d="M36 41 Q40 44 44 41" stroke="hsl(25, 30%, 25%)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-      </svg>
-
-      {/* Cute worm - smaller */}
-      <svg className="absolute bottom-20 left-[32%] w-14 h-10 opacity-75 animate-wiggle" viewBox="0 0 60 40" fill="none">
-        <path d="M5 25 Q15 12 25 25 Q35 38 45 25 Q55 12 55 25" stroke="hsl(340, 70%, 65%)" strokeWidth="6" fill="none" strokeLinecap="round" />
-        <circle cx="55" cy="22" r="5" fill="hsl(340, 70%, 65%)" />
-        <circle cx="53" cy="20" r="1.5" fill="hsl(25, 30%, 25%)" />
-        <circle cx="57" cy="20" r="1.5" fill="hsl(25, 30%, 25%)" />
-      </svg>
-
       {/* Sparkle stars */}
-      <div className="absolute top-[12%] left-[32%] text-2xl animate-pulse-glow">✦</div>
-      <div className="absolute top-[22%] right-[42%] text-lg animate-pulse-glow text-primary" style={{ animationDelay: '0.3s' }}>✦</div>
-      <div className="absolute top-[42%] left-[15%] text-xl animate-pulse-glow text-secondary" style={{ animationDelay: '0.6s' }}>✦</div>
-      <div className="absolute top-[32%] right-[18%] text-2xl animate-pulse-glow text-accent" style={{ animationDelay: '0.9s' }}>✦</div>
-      <div className="absolute bottom-[32%] left-[48%] text-lg animate-pulse-glow" style={{ animationDelay: '0.4s' }}>✦</div>
-      <div className="absolute bottom-[45%] right-[10%] text-xl animate-pulse-glow text-primary" style={{ animationDelay: '0.7s' }}>✦</div>
-      <div className="absolute top-[62%] left-[68%] text-lg animate-pulse-glow text-secondary" style={{ animationDelay: '1s' }}>✦</div>
+      <div className="absolute top-[12%] left-[36%] text-xl animate-pulse-glow opacity-80">✦</div>
+      <div className="absolute top-[25%] right-[40%] text-lg animate-pulse-glow text-primary opacity-75" style={{ animationDelay: '0.3s' }}>✦</div>
+      <div className="absolute top-[45%] left-[22%] text-lg animate-pulse-glow text-secondary opacity-70" style={{ animationDelay: '0.6s' }}>✦</div>
+      <div className="absolute bottom-[35%] right-[18%] text-xl animate-pulse-glow text-accent opacity-75" style={{ animationDelay: '0.9s' }}>✦</div>
+      <div className="absolute bottom-[22%] left-[38%] text-lg animate-pulse-glow opacity-70" style={{ animationDelay: '0.4s' }}>✦</div>
 
-      {/* Colored dots - fewer and smaller */}
-      <div className="absolute top-[18%] left-[52%] w-3 h-3 rounded-full bg-secondary animate-float" />
-      <div className="absolute top-[28%] left-[22%] w-2.5 h-2.5 rounded-full bg-primary animate-float" style={{ animationDelay: '0.5s' }} />
-      <div className="absolute top-[48%] right-[28%] w-4 h-4 rounded-full bg-accent animate-float" style={{ animationDelay: '1s' }} />
-      <div className="absolute bottom-[38%] left-[35%] w-3 h-3 rounded-full bg-neon-purple animate-float" style={{ animationDelay: '0.7s' }} />
-      <div className="absolute top-[68%] right-[42%] w-3 h-3 rounded-full bg-lime-green animate-float" style={{ animationDelay: '1.2s' }} />
+      {/* Floating dots */}
+      <div className="absolute top-[20%] left-[55%] w-3 h-3 rounded-full bg-secondary animate-float opacity-60" />
+      <div className="absolute top-[50%] right-[30%] w-3 h-3 rounded-full bg-primary animate-float opacity-55" style={{ animationDelay: '0.5s' }} />
+      <div className="absolute bottom-[30%] left-[65%] w-4 h-4 rounded-full bg-accent animate-float opacity-50" style={{ animationDelay: '1s' }} />
 
-      {/* Droplets - smaller */}
-      <svg className="absolute top-[52%] right-[8%] w-6 h-9 opacity-70" viewBox="0 0 20 30" fill="hsl(200, 85%, 62%)">
-        <path d="M10 0 Q0 15 10 28 Q20 15 10 0" />
+      {/* Smiling flower - right side */}
+      <svg className="absolute bottom-[30%] right-[8%] w-20 h-28 opacity-80 animate-float" viewBox="0 0 80 120" fill="none">
+        <path d="M40 55 Q38 80 42 110" stroke="hsl(140, 60%, 45%)" strokeWidth="3" fill="none" />
+        <ellipse cx="30" cy="82" rx="10" ry="5" fill="hsl(140, 60%, 50%)" transform="rotate(-30 30 82)" />
+        <ellipse cx="52" cy="92" rx="8" ry="4" fill="hsl(140, 60%, 50%)" transform="rotate(25 52 92)" />
+        <ellipse cx="40" cy="18" rx="10" ry="16" fill="white" />
+        <ellipse cx="25" cy="32" rx="10" ry="16" fill="white" transform="rotate(-60 25 32)" />
+        <ellipse cx="55" cy="32" rx="10" ry="16" fill="white" transform="rotate(60 55 32)" />
+        <ellipse cx="25" cy="50" rx="10" ry="16" fill="white" transform="rotate(-30 25 50)" />
+        <ellipse cx="55" cy="50" rx="10" ry="16" fill="white" transform="rotate(30 55 50)" />
+        <circle cx="40" cy="40" r="12" fill="hsl(45, 100%, 60%)" />
+        <circle cx="36" cy="38" r="1.5" fill="hsl(25, 30%, 25%)" />
+        <circle cx="44" cy="38" r="1.5" fill="hsl(25, 30%, 25%)" />
+        <path d="M36 43 Q40 46 44 43" stroke="hsl(25, 30%, 25%)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
       </svg>
-      <svg className="absolute bottom-[20%] left-[20%] w-5 h-8 opacity-60" viewBox="0 0 20 30" fill="hsl(340, 85%, 62%)">
-        <path d="M10 0 Q0 15 10 28 Q20 15 10 0" />
+
+      {/* Second flower - left side */}
+      <svg className="absolute top-[40%] left-[6%] w-16 h-24 opacity-70 animate-float" style={{ animationDelay: '0.8s' }} viewBox="0 0 80 120" fill="none">
+        <path d="M40 55 Q42 80 38 110" stroke="hsl(140, 55%, 42%)" strokeWidth="2.5" fill="none" />
+        <ellipse cx="50" cy="85" rx="8" ry="4" fill="hsl(140, 55%, 48%)" transform="rotate(20 50 85)" />
+        <ellipse cx="40" cy="18" rx="8" ry="14" fill="hsl(340, 75%, 70%)" />
+        <ellipse cx="27" cy="30" rx="8" ry="14" fill="hsl(340, 75%, 72%)" transform="rotate(-55 27 30)" />
+        <ellipse cx="53" cy="30" rx="8" ry="14" fill="hsl(340, 75%, 72%)" transform="rotate(55 53 30)" />
+        <ellipse cx="27" cy="46" rx="8" ry="14" fill="hsl(340, 75%, 70%)" transform="rotate(-25 27 46)" />
+        <ellipse cx="53" cy="46" rx="8" ry="14" fill="hsl(340, 75%, 70%)" transform="rotate(25 53 46)" />
+        <circle cx="40" cy="38" r="10" fill="hsl(35, 90%, 62%)" />
+        <circle cx="37" cy="36" r="1.2" fill="hsl(25, 30%, 25%)" />
+        <circle cx="43" cy="36" r="1.2" fill="hsl(25, 30%, 25%)" />
+        <path d="M37 40 Q40 43 43 40" stroke="hsl(25, 30%, 25%)" strokeWidth="1.2" fill="none" strokeLinecap="round" />
       </svg>
 
-      {/* Hearts */}
-      <div className="absolute top-[28%] left-[6%] text-2xl animate-float opacity-70" style={{ animationDelay: '0.3s' }}>💖</div>
-      <div className="absolute bottom-[15%] right-[22%] text-xl animate-float opacity-65" style={{ animationDelay: '0.9s' }}>💗</div>
+      {/* Cute worm */}
+      <svg className="absolute bottom-[15%] left-[35%] w-12 h-8 opacity-70 animate-wiggle" viewBox="0 0 60 40" fill="none">
+        <path d="M5 25 Q15 12 25 25 Q35 38 45 25 Q55 12 55 25" stroke="hsl(340, 70%, 65%)" strokeWidth="5" fill="none" strokeLinecap="round" />
+        <circle cx="55" cy="22" r="4" fill="hsl(340, 70%, 65%)" />
+        <circle cx="53" cy="20" r="1.2" fill="hsl(25, 30%, 25%)" />
+        <circle cx="57" cy="20" r="1.2" fill="hsl(25, 30%, 25%)" />
+      </svg>
 
-      {/* Floating emojis - fewer and smaller */}
-      <div className="absolute bottom-24 right-[25%] text-4xl animate-wiggle opacity-70" style={{ animationDelay: '0.5s' }}>🌸</div>
-      <div className="absolute top-[38%] left-6 text-3xl animate-spin-slow opacity-60">✨</div>
-      <div className="absolute top-[72%] right-6 text-2xl animate-float opacity-65" style={{ animationDelay: '0.8s' }}>🌿</div>
-      <div className="absolute top-[5%] left-[58%] text-2xl animate-wiggle opacity-65">⭐</div>
-      <div className="absolute bottom-[58%] left-[78%] text-3xl animate-float opacity-60" style={{ animationDelay: '1.1s' }}>🦋</div>
+      {/* Soft clouds */}
+      <svg className="absolute top-8 left-8 w-36 h-24 opacity-45" viewBox="0 0 200 100" fill="none">
+        <ellipse cx="50" cy="60" rx="35" ry="24" fill="hsl(330, 70%, 80%)" />
+        <ellipse cx="85" cy="52" rx="30" ry="28" fill="hsl(330, 70%, 82%)" />
+        <ellipse cx="120" cy="58" rx="28" ry="22" fill="hsl(25, 70%, 82%)" />
+      </svg>
+
+      <svg className="absolute top-[22%] right-4 w-32 h-22 opacity-40" viewBox="0 0 200 100" fill="none">
+        <ellipse cx="50" cy="55" rx="32" ry="22" fill="hsl(25, 70%, 80%)" />
+        <ellipse cx="82" cy="48" rx="28" ry="26" fill="hsl(20, 65%, 78%)" />
+        <ellipse cx="115" cy="55" rx="32" ry="20" fill="hsl(340, 60%, 78%)" />
+      </svg>
+
+      <svg className="absolute bottom-24 right-12 w-28 h-20 opacity-35" viewBox="0 0 200 100" fill="none">
+        <ellipse cx="60" cy="55" rx="35" ry="24" fill="hsl(275, 50%, 75%)" />
+        <ellipse cx="105" cy="48" rx="32" ry="22" fill="hsl(225, 60%, 75%)" />
+        <ellipse cx="140" cy="58" rx="28" ry="20" fill="hsl(280, 55%, 78%)" />
+      </svg>
     </div>
   );
 };

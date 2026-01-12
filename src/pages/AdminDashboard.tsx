@@ -7,8 +7,26 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, Activity, Shield } from 'lucide-react';
+import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ActivityLog {
   id: string;
@@ -26,6 +44,7 @@ interface UserProfile {
   username: string;
   created_at: string;
   user_roles?: {
+    id: string;
     role: string;
   }[];
 }
@@ -57,7 +76,6 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     setLoadingData(true);
     try {
-      // Fetch all activity logs with profile info
       const { data: activityData, error: activityError } = await supabase
         .from('activity_logs')
         .select(`
@@ -71,12 +89,11 @@ const AdminDashboard = () => {
         console.error('Error fetching activities:', activityError);
       }
 
-      // Fetch all users with their roles
       const { data: usersData, error: usersError } = await supabase
         .from('profiles')
         .select(`
           *,
-          user_roles(role)
+          user_roles(id, role)
         `)
         .order('created_at', { ascending: false });
       
@@ -94,6 +111,87 @@ const AdminDashboard = () => {
       console.error('Error fetching admin data:', error);
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const handleDeleteUser = async (userProfile: UserProfile) => {
+    // Prevent deleting yourself
+    if (userProfile.user_id === user?.id) {
+      toast.error("You cannot delete your own account!");
+      return;
+    }
+
+    try {
+      // First delete user roles
+      const { error: rolesError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userProfile.user_id);
+
+      if (rolesError) {
+        console.error('Error deleting user roles:', rolesError);
+      }
+
+      // Then delete the profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userProfile.user_id);
+
+      if (profileError) {
+        toast.error('Failed to delete user profile');
+        console.error('Error deleting profile:', profileError);
+        return;
+      }
+
+      toast.success(`User "${userProfile.username}" has been deleted`);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    }
+  };
+
+  const handleChangeRole = async (userProfile: UserProfile, newRole: 'admin' | 'user') => {
+    // Prevent changing your own role
+    if (userProfile.user_id === user?.id) {
+      toast.error("You cannot change your own role!");
+      return;
+    }
+
+    try {
+      const existingRole = userProfile.user_roles?.[0];
+
+      if (existingRole) {
+        // Update existing role
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: newRole })
+          .eq('id', existingRole.id);
+
+        if (error) {
+          toast.error('Failed to update user role');
+          console.error('Error updating role:', error);
+          return;
+        }
+      } else {
+        // Insert new role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userProfile.user_id, role: newRole });
+
+        if (error) {
+          toast.error('Failed to set user role');
+          console.error('Error inserting role:', error);
+          return;
+        }
+      }
+
+      toast.success(`Changed ${userProfile.username}'s role to ${newRole}`);
+      fetchData();
+    } catch (error) {
+      console.error('Error changing role:', error);
+      toast.error('Failed to change role');
     }
   };
 
@@ -145,12 +243,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden p-6">
-      {/* Theme Toggle */}
       <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
       </div>
 
-      {/* Floating decorations */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-10 left-10 text-4xl animate-float drop-shadow-[0_0_20px_rgba(255,100,150,0.8)]">👑</div>
         <div className="absolute top-20 right-32 text-3xl animate-wiggle drop-shadow-[0_0_20px_rgba(100,200,255,0.8)]">🔮</div>
@@ -158,7 +254,6 @@ const AdminDashboard = () => {
       </div>
 
       <div className="container mx-auto max-w-7xl relative z-10">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link to="/">
@@ -182,7 +277,6 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -217,7 +311,6 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Tab Buttons */}
         <div className="flex gap-4 mb-6">
           <Button
             onClick={() => setActiveTab('activity')}
@@ -241,7 +334,6 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        {/* Content */}
         <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
           <CardContent className="p-0">
             {activeTab === 'activity' ? (
@@ -290,35 +382,110 @@ const AdminDashboard = () => {
                     <TableHead className="text-foreground font-bold">Username</TableHead>
                     <TableHead className="text-foreground font-bold">Role</TableHead>
                     <TableHead className="text-foreground font-bold">Joined</TableHead>
+                    <TableHead className="text-foreground font-bold text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={4} className="text-center py-8 text-foreground/60">
                         No users yet. Lonely out here... 😢
                       </TableCell>
                     </TableRow>
                   ) : (
-                    users.map((userProfile) => (
-                      <TableRow key={userProfile.user_id} className="border-border/30 hover:bg-card/50">
-                        <TableCell className="font-medium text-foreground">
-                          {userProfile.username}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={
-                            userProfile.user_roles?.some(r => r.role === 'admin')
-                              ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border'
-                              : 'bg-gray-500/20 text-gray-400 border-gray-500/30 border'
-                          }>
-                            {userProfile.user_roles?.[0]?.role || 'user'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-foreground/60 text-sm">
-                          {format(new Date(userProfile.created_at), 'MMM d, yyyy')}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    users.map((userProfile) => {
+                      const isCurrentUser = userProfile.user_id === user?.id;
+                      const currentRole = userProfile.user_roles?.[0]?.role || 'user';
+                      
+                      return (
+                        <TableRow key={userProfile.user_id} className="border-border/30 hover:bg-card/50">
+                          <TableCell className="font-medium text-foreground">
+                            {userProfile.username}
+                            {isCurrentUser && (
+                              <span className="ml-2 text-xs text-primary">(you)</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={
+                              currentRole === 'admin'
+                                ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border'
+                                : 'bg-gray-500/20 text-gray-400 border-gray-500/30 border'
+                            }>
+                              {currentRole}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-foreground/60 text-sm">
+                            {format(new Date(userProfile.created_at), 'MMM d, yyyy')}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {/* Role Change Dropdown */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isCurrentUser}
+                                    className="h-8"
+                                  >
+                                    <UserCog className="h-4 w-4 mr-1" />
+                                    Role
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleChangeRole(userProfile, 'admin')}
+                                    disabled={currentRole === 'admin'}
+                                  >
+                                    <Shield className="h-4 w-4 mr-2 text-yellow-500" />
+                                    Make Admin
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleChangeRole(userProfile, 'user')}
+                                    disabled={currentRole === 'user'}
+                                  >
+                                    <Users className="h-4 w-4 mr-2 text-gray-500" />
+                                    Make User
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+
+                              {/* Delete Button */}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={isCurrentUser}
+                                    className="h-8"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete <strong>{userProfile.username}</strong>? 
+                                      This will remove their profile and roles. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteUser(userProfile)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
