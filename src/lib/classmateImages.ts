@@ -19,15 +19,22 @@ export function extractClassmateImagePath(imageUrl: string): string | null {
       const marker = "/classmate-images/";
       const idx = u.pathname.indexOf(marker);
       if (idx === -1) return null;
-      const path = u.pathname.slice(idx + marker.length);
-      return path || null;
+      const encodedPath = u.pathname.slice(idx + marker.length);
+      // Decode URL-encoded characters (e.g., %20 -> space) so storage API can find the file
+      const decodedPath = decodeURIComponent(encodedPath);
+      return decodedPath || null;
     } catch {
       return null;
     }
   }
 
   // Otherwise treat it like a stored path/filename.
-  return trimmed.split("?")[0] || null;
+  // Also decode in case it's URL-encoded
+  try {
+    return decodeURIComponent(trimmed.split("?")[0]) || null;
+  } catch {
+    return trimmed.split("?")[0] || null;
+  }
 }
 
 export async function withSignedClassmateImageUrls<T extends { image_url: string | null }>(
