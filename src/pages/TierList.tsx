@@ -12,11 +12,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import html2canvas from "html2canvas";
+import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 
 interface ImageType {
   id: string;
   name: string;
-  image_url: string;
+  image_url: string | null;
 }
 
 interface TiersType {
@@ -71,8 +72,9 @@ const TierList = () => {
       return;
     }
 
-    setImages(imagesData || []);
-    const allImageIds = (imagesData || []).map(img => img.id);
+    const signedImages = await withSignedClassmateImageUrls(imagesData || []);
+    setImages(signedImages);
+    const allImageIds = (imagesData || []).map((img) => img.id);
 
     // Load saved tier list
     const { data: tierData } = await supabase
@@ -293,11 +295,19 @@ const TierList = () => {
           <DragOverlay>
             {activeImage ? (
               <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-primary shadow-glow">
-                <img
-                  src={activeImage.image_url}
-                  alt={activeImage.name}
-                  className="w-full h-full object-cover"
-                />
+                {activeImage.image_url ? (
+                  <img
+                    src={activeImage.image_url}
+                    alt={activeImage.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-card flex items-center justify-center p-2">
+                    <p className="text-xs font-bold text-foreground text-center break-words leading-tight">
+                      {activeImage.name}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : null}
           </DragOverlay>

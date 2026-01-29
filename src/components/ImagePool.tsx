@@ -4,7 +4,7 @@ import { DraggableImage } from "./DraggableImage";
 interface ImageType {
   id: string;
   name: string;
-  image_url: string;
+  image_url: string | null;
 }
 
 interface ImagePoolProps {
