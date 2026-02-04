@@ -26,6 +26,7 @@ interface TiersType {
   B: string[];
   C: string[];
   D: string[];
+  F: string[];
   pool: string[];
 }
 
@@ -35,6 +36,7 @@ const tierColors = {
   B: "bg-yellow-500",
   C: "bg-green-500",
   D: "bg-blue-500",
+  F: "bg-purple-500",
 };
 
 const TierList = () => {
@@ -45,6 +47,7 @@ const TierList = () => {
     B: [],
     C: [],
     D: [],
+    F: [],
     pool: [],
   });
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -93,6 +96,7 @@ const TierList = () => {
         ...savedTiers.B,
         ...savedTiers.C,
         ...savedTiers.D,
+        ...(savedTiers.F || []),
         ...savedTiers.pool,
       ]);
       // Find new images that aren't in the saved tier list
@@ -100,6 +104,7 @@ const TierList = () => {
       // Merge: keep saved positions, add new images to pool
       setTiers({
         ...savedTiers,
+        F: savedTiers.F || [],
         pool: [...savedTiers.pool, ...newImageIds],
       });
     } else {
@@ -119,6 +124,7 @@ const TierList = () => {
       B: [],
       C: [],
       D: [],
+      F: [],
       pool: allImageIds,
     });
     toast({
@@ -279,7 +285,7 @@ const TierList = () => {
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div id="tier-list-container" className="space-y-4">
             {/* Tier Rows */}
-            {(['S', 'A', 'B', 'C', 'D'] as const).map(tier => (
+            {(['S', 'A', 'B', 'C', 'D', 'F'] as const).map(tier => (
               <TierRow
                 key={tier}
                 tier={tier}

@@ -11,6 +11,7 @@ import { DraggableImage } from "@/components/DraggableImage";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { Plus, Trash2, Save, Download, Home } from "lucide-react";
+import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 
 interface ImageType {
   id: string;
@@ -60,10 +61,12 @@ export default function Classifications() {
     const { data, error } = await supabase
       .from('images')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(10000);
 
     if (!error && data) {
-      setImages(data);
+      const signedImages = await withSignedClassmateImageUrls(data);
+      setImages(signedImages);
     }
   };
 
