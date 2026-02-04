@@ -10,6 +10,7 @@ import html2canvas from "html2canvas";
 import { DraggableImage } from "@/components/DraggableImage";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { RotateCcw } from "lucide-react";
+import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 
 interface ImageType {
   id: string;
@@ -55,7 +56,8 @@ export default function VennDiagram() {
       .limit(10000);
 
     if (!error && data) {
-      setImages(data);
+      const signedImages = await withSignedClassmateImageUrls(data);
+      setImages(signedImages);
     }
   };
 

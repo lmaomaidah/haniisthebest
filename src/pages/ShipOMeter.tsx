@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Heart, Sparkles, ArrowLeft, RotateCcw } from "lucide-react";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
+import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 
 interface ImageType {
   id: string;
@@ -104,7 +105,10 @@ const ShipOMeter = () => {
     } = await supabase.from("images").select("*").order("created_at", {
       ascending: false
     }).limit(10000);
-    if (data) setImages(data);
+    if (data) {
+      const signedImages = await withSignedClassmateImageUrls(data);
+      setImages(signedImages);
+    }
   };
 
   const resetShipOMeter = () => {

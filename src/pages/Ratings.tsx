@@ -10,11 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
+import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 
 interface ImageType {
   id: string;
   name: string;
-  image_url: string;
+  image_url: string | null;
 }
 
 interface RatingType {
@@ -90,7 +91,10 @@ const Ratings = () => {
       return;
     }
 
-    const imagesWithRatings = (imagesData || []).map(img => {
+    // Get signed URLs for images
+    const signedImages = await withSignedClassmateImageUrls(imagesData || []);
+
+    const imagesWithRatings = signedImages.map(img => {
       const rating = ratingsData?.find(r => r.image_id === img.id);
       const total = rating
         ? (rating.sex_appeal || 0) + (rating.character_design || 0) + (rating.iq || 0) + (rating.eq || 0)
@@ -222,11 +226,19 @@ const Ratings = () => {
               {selectedImage && (
                 <div className="space-y-6">
                   <div className="aspect-square rounded-3xl overflow-hidden border-4 border-primary dark:shadow-[0_0_20px_rgba(255,100,150,0.4)]">
-                    <img
-                      src={selectedImage.image_url}
-                      alt={selectedImage.name}
-                      className="w-full h-full object-cover"
-                    />
+                    {selectedImage.image_url ? (
+                      <img
+                        src={selectedImage.image_url}
+                        alt={selectedImage.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <span className="text-6xl font-bold text-primary-foreground">
+                          {selectedImage.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-6">
@@ -330,11 +342,19 @@ const Ratings = () => {
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                       </div>
                       <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-primary">
-                        <img
-                          src={image.image_url}
-                          alt={image.name}
-                          className="w-full h-full object-cover"
-                        />
+                        {image.image_url ? (
+                          <img
+                            src={image.image_url}
+                            alt={image.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                            <span className="text-lg font-bold text-primary-foreground">
+                              {image.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <p className="font-bold text-lg truncate text-foreground">{image.name}</p>
