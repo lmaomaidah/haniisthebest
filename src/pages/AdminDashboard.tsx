@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
@@ -56,6 +57,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState<'activity' | 'users'>('activity');
+  const [selectedLogs, setSelectedLogs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!loading) {
@@ -187,6 +189,64 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error changing role:', error);
       toast.error('Failed to change role');
+    }
+  };
+
+  const handleDeleteSelectedLogs = async () => {
+    if (selectedLogs.size === 0) return;
+    try {
+      const { error } = await supabase
+        .from('activity_logs')
+        .delete()
+        .in('id', Array.from(selectedLogs));
+      if (error) {
+        toast.error('Failed to delete selected logs');
+        console.error(error);
+        return;
+      }
+      toast.success(`Deleted ${selectedLogs.size} log(s)`);
+      setSelectedLogs(new Set());
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to delete logs');
+    }
+  };
+
+  const handleDeleteAllLogs = async () => {
+    try {
+      const { error } = await supabase
+        .from('activity_logs')
+        .delete()
+        .gte('id', '00000000-0000-0000-0000-000000000000');
+      if (error) {
+        toast.error('Failed to delete all logs');
+        console.error(error);
+        return;
+      }
+      toast.success('All activity logs deleted');
+      setSelectedLogs(new Set());
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to delete logs');
+    }
+  };
+
+  const toggleLogSelection = (id: string) => {
+    setSelectedLogs(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAllLogs = () => {
+    if (selectedLogs.size === activities.length) {
+      setSelectedLogs(new Set());
+    } else {
+      setSelectedLogs(new Set(activities.map(a => a.id)));
     }
   };
 
@@ -332,9 +392,60 @@ const AdminDashboard = () => {
         <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
           <CardContent className="p-0">
             {activeTab === 'activity' ? (
+              <div>
+                {activities.length > 0 && (
+                  <div className="flex items-center gap-3 p-4 border-b border-border/30">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete Selected ({selectedLogs.size})
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {selectedLogs.size} selected log(s)? This cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm">
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete All
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete ALL {activities.length} activity logs? This cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50">
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={activities.length > 0 && selectedLogs.size === activities.length}
+                        onCheckedChange={toggleAllLogs}
+                      />
+                    </TableHead>
                     <TableHead className="text-foreground font-bold">User</TableHead>
                     <TableHead className="text-foreground font-bold">Action</TableHead>
                     <TableHead className="text-foreground font-bold">Details</TableHead>
@@ -344,13 +455,19 @@ const AdminDashboard = () => {
                 <TableBody>
                   {activities.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
                         No activity yet. Everyone's being too quiet... 🤫
                       </TableCell>
                     </TableRow>
                   ) : (
                     activities.map((activity) => (
                       <TableRow key={activity.id} className="border-border/30 hover:bg-card/50">
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedLogs.has(activity.id)}
+                            onCheckedChange={() => toggleLogSelection(activity.id)}
+                          />
+                        </TableCell>
                         <TableCell className="font-medium text-foreground">
                           {activity.profiles?.username || 'Unknown'}
                         </TableCell>
@@ -370,6 +487,7 @@ const AdminDashboard = () => {
                   )}
                 </TableBody>
               </Table>
+              </div>
             ) : (
               <Table>
                 <TableHeader>
