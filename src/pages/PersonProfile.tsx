@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,11 +13,45 @@ import {
   ExternalLink,
   Copy,
   Check,
+  GripVertical,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// Load Pinterest widget script once
+let pinterestLoaded = false;
+function loadPinterestScript() {
+  if (pinterestLoaded) return;
+  pinterestLoaded = true;
+  const script = document.createElement("script");
+  script.src = "https://assets.pinterest.com/js/pinit.js";
+  script.async = true;
+  script.defer = true;
+  document.body.appendChild(script);
+}
+
+declare global {
+  interface Window {
+    PinUtils?: { build: () => void };
+  }
+}
 
 interface Pin {
   id: string;
@@ -33,6 +67,121 @@ interface PersonData {
   bio: string | null;
 }
 
+/* ──────────── Pinterest Embed Component ──────────── */
+function PinterestEmbed({ url }: { url: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadPinterestScript();
+    // Try building after a short delay to let the script load
+    const timer = setTimeout(() => {
+      window.PinUtils?.build();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [url]);
+
+  return (
+    <div ref={containerRef} className="flex justify-center p-4">
+      <a
+        data-pin-do="embedPin"
+        data-pin-width="medium"
+        href={url}
+      />
+    </div>
+  );
+}
+
+/* ──────────── Sortable Pin Card ──────────── */
+function SortablePinCard({
+  pin,
+  isAdmin,
+  copiedId,
+  onCopy,
+  onDelete,
+}: {
+  pin: Pin;
+  isAdmin: boolean;
+  copiedId: string | null;
+  onCopy: (url: string, id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: pin.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group bg-card/70 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+    >
+      {/* Drag handle */}
+      {isAdmin && (
+        <div
+          {...attributes}
+          {...listeners}
+          className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <GripVertical className="h-5 w-5" />
+        </div>
+      )}
+
+      {/* Pinterest embed */}
+      <PinterestEmbed url={pin.pin_url} />
+
+      {/* Fallback link */}
+      <a
+        href={pin.pin_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+      >
+        <ExternalLink className="h-3 w-3 shrink-0" />
+        <span className="truncate">{pin.pin_url}</span>
+      </a>
+
+      {/* Actions */}
+      <div className="flex items-center justify-end gap-1 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCopy(pin.pin_url, pin.id)}
+        >
+          {copiedId === pin.id ? (
+            <Check className="h-4 w-4 text-lime-green" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            onClick={() => onDelete(pin.id)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────── Main Page ──────────── */
 const PersonProfile = () => {
   const { id } = useParams<{ id: string }>();
   const { isAdmin } = useAuth();
@@ -47,6 +196,10 @@ const PersonProfile = () => {
   const [bioText, setBioText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   const fetchPerson = useCallback(async () => {
     if (!id) return;
@@ -80,9 +233,18 @@ const PersonProfile = () => {
     fetchPins();
   }, [fetchPerson, fetchPins]);
 
+  // Re-build Pinterest widgets whenever pins change
+  useEffect(() => {
+    const timer = setTimeout(() => window.PinUtils?.build(), 800);
+    return () => clearTimeout(timer);
+  }, [pins]);
+
   const handleAddPin = async () => {
     if (!newPinUrl.trim() || !id) return;
-    if (!newPinUrl.includes("pinterest.com") && !newPinUrl.includes("pin.it")) {
+    if (
+      !newPinUrl.includes("pinterest.com") &&
+      !newPinUrl.includes("pin.it")
+    ) {
       toast({
         title: "Invalid link",
         description: "Please paste a valid Pinterest link!",
@@ -99,7 +261,11 @@ const PersonProfile = () => {
     });
 
     if (error) {
-      toast({ title: "Error adding pin", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error adding pin",
+        description: error.message,
+        variant: "destructive",
+      });
     } else {
       toast({ title: "📌 Pin added!" });
       setNewPinUrl("");
@@ -110,11 +276,36 @@ const PersonProfile = () => {
   };
 
   const handleDeletePin = async (pinId: string) => {
-    const { error } = await supabase.from("pinterest_pins").delete().eq("id", pinId);
+    const { error } = await supabase
+      .from("pinterest_pins")
+      .delete()
+      .eq("id", pinId);
     if (!error) {
       setPins((prev) => prev.filter((p) => p.id !== pinId));
       toast({ title: "Pin removed 🗑️" });
     }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = pins.findIndex((p) => p.id === active.id);
+    const newIndex = pins.findIndex((p) => p.id === over.id);
+    const reordered = arrayMove(pins, oldIndex, newIndex);
+
+    // Optimistic update
+    setPins(reordered);
+
+    // Persist new order
+    await Promise.all(
+      reordered.map((pin, i) =>
+        supabase
+          .from("pinterest_pins")
+          .update({ pin_order: i })
+          .eq("id", pin.id)
+      )
+    );
   };
 
   const handleSaveBio = async () => {
@@ -125,7 +316,9 @@ const PersonProfile = () => {
       .eq("id", id);
 
     if (!error) {
-      setPerson((prev) => (prev ? { ...prev, bio: bioText.trim() || null } : prev));
+      setPerson((prev) =>
+        prev ? { ...prev, bio: bioText.trim() || null } : prev
+      );
       setEditingBio(false);
       toast({ title: "Bio saved ✨" });
     }
@@ -135,12 +328,6 @@ const PersonProfile = () => {
     navigator.clipboard.writeText(url);
     setCopiedId(pinId);
     setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  // Extract Pinterest pin ID from URL for embed
-  const getPinId = (url: string): string | null => {
-    const match = url.match(/pin\/(\d+)/);
-    return match ? match[1] : null;
   };
 
   if (loading) {
@@ -174,7 +361,10 @@ const PersonProfile = () => {
         {/* Back button */}
         <div className="pt-6 mb-6">
           <Link to="/profiles">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-foreground"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Shrine Wall
             </Button>
           </Link>
@@ -182,10 +372,8 @@ const PersonProfile = () => {
 
         {/* Profile Header */}
         <div className="relative mb-12">
-          {/* Banner */}
           <div className="h-40 md:h-56 rounded-3xl overflow-hidden bg-gradient-to-r from-primary/30 via-secondary/30 to-accent/30" />
 
-          {/* Avatar overlapping banner */}
           <div className="flex flex-col items-center -mt-16 md:-mt-20">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-card overflow-hidden shadow-xl bg-card">
               {person.image_url ? (
@@ -197,7 +385,12 @@ const PersonProfile = () => {
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary/50 to-secondary/50 flex items-center justify-center">
                   <span className="text-4xl font-bold text-foreground">
-                    {person.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)}
+                    {person.name
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
                   </span>
                 </div>
               )}
@@ -219,8 +412,16 @@ const PersonProfile = () => {
                     rows={3}
                   />
                   <div className="flex gap-2 justify-center">
-                    <Button size="sm" onClick={handleSaveBio}>Save</Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditingBio(false)}>Cancel</Button>
+                    <Button size="sm" onClick={handleSaveBio}>
+                      Save
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setEditingBio(false)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -228,7 +429,8 @@ const PersonProfile = () => {
                   className={`text-muted-foreground italic ${isAdmin ? "cursor-pointer hover:text-foreground transition-colors" : ""}`}
                   onClick={() => isAdmin && setEditingBio(true)}
                 >
-                  {person.bio || (isAdmin ? "Click to add a bio…" : "No bio yet.")}
+                  {person.bio ||
+                    (isAdmin ? "Click to add a bio…" : "No bio yet.")}
                 </p>
               )}
             </div>
@@ -247,10 +449,21 @@ const PersonProfile = () => {
                 onKeyDown={(e) => e.key === "Enter" && handleAddPin()}
               />
               <div className="flex gap-2">
-                <Button onClick={handleAddPin} disabled={adding} className="flex-1 gradient-pink-blue text-foreground rounded-xl">
-                  <Plus className="mr-2 h-4 w-4" /> {adding ? "Adding…" : "Add Pin"}
+                <Button
+                  onClick={handleAddPin}
+                  disabled={adding}
+                  className="flex-1 gradient-pink-blue text-foreground rounded-xl"
+                >
+                  <Plus className="mr-2 h-4 w-4" />{" "}
+                  {adding ? "Adding…" : "Add Pin"}
                 </Button>
-                <Button variant="ghost" onClick={() => { setShowAddInput(false); setNewPinUrl(""); }}>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setShowAddInput(false);
+                    setNewPinUrl("");
+                  }}
+                >
                   Cancel
                 </Button>
               </div>
@@ -265,70 +478,40 @@ const PersonProfile = () => {
           )}
         </div>
 
-        {/* Pins Masonry Grid */}
+        {/* Pins Grid */}
         {pins.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-xl text-muted-foreground mb-2">
               This person is too NPC to have their own pin wall.
             </p>
-            <p className="text-muted-foreground/60 text-sm italic">Die loser die</p>
+            <p className="text-muted-foreground/60 text-sm italic">
+              Die loser die
+            </p>
           </div>
         ) : (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-            {pins.map((pin) => {
-              const pinId = getPinId(pin.pin_url);
-              return (
-                <div
-                  key={pin.id}
-                  className="break-inside-avoid group bg-card/70 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-                >
-                  {pinId ? (
-                    <div className="w-full">
-                      <iframe
-                        src={`https://assets.pinterest.com/ext/embed.html?id=${pinId}`}
-                        className="w-full border-0"
-                        style={{ minHeight: "300px" }}
-                        loading="lazy"
-                        title={`Pinterest pin ${pinId}`}
-                      />
-                    </div>
-                  ) : (
-                    <a
-                      href={pin.pin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block p-6 text-center"
-                    >
-                      <ExternalLink className="h-8 w-8 mx-auto mb-2 text-primary" />
-                      <p className="text-sm text-muted-foreground truncate">{pin.pin_url}</p>
-                    </a>
-                  )}
-
-                  {/* Actions - visible on hover */}
-                  <div className="flex items-center justify-end gap-1 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleCopyLink(pin.pin_url, pin.id)}
-                    >
-                      {copiedId === pin.id ? <Check className="h-4 w-4 text-lime-green" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                    {isAdmin && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleDeletePin(pin.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={pins.map((p) => p.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pins.map((pin) => (
+                  <SortablePinCard
+                    key={pin.id}
+                    pin={pin}
+                    isAdmin={isAdmin}
+                    copiedId={copiedId}
+                    onCopy={handleCopyLink}
+                    onDelete={handleDeletePin}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
