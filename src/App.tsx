@@ -18,6 +18,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Polls from "./pages/Polls";
 import PollEdit from "./pages/PollEdit";
 import PollVote from "./pages/PollVote";
+import Profiles from "./pages/Profiles";
+import PersonProfile from "./pages/PersonProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +45,8 @@ const App = () => (
               <Route path="/polls" element={<ProtectedRoute><Polls /></ProtectedRoute>} />
               <Route path="/polls/:id" element={<ProtectedRoute><PollVote /></ProtectedRoute>} />
               <Route path="/polls/:id/edit" element={<ProtectedRoute><PollEdit /></ProtectedRoute>} />
+              <Route path="/profiles" element={<ProtectedRoute><Profiles /></ProtectedRoute>} />
+              <Route path="/profiles/:id" element={<ProtectedRoute><PersonProfile /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

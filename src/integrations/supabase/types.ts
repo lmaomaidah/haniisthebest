@@ -222,24 +222,59 @@ export type Database = {
       }
       images: {
         Row: {
+          bio: string | null
           created_at: string | null
           id: string
           image_url: string | null
           name: string
         }
         Insert: {
+          bio?: string | null
           created_at?: string | null
           id?: string
           image_url?: string | null
           name: string
         }
         Update: {
+          bio?: string | null
           created_at?: string | null
           id?: string
           image_url?: string | null
           name?: string
         }
         Relationships: []
+      }
+      pinterest_pins: {
+        Row: {
+          created_at: string
+          id: string
+          image_id: string
+          pin_order: number
+          pin_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_id: string
+          pin_order?: number
+          pin_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_id?: string
+          pin_order?: number
+          pin_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pinterest_pins_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "images"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote } from "lucide-react";
+import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
@@ -89,6 +89,12 @@ Fanclub
               <Button size="lg" className="bg-neon-purple hover:bg-neon-purple/90 text-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Vote className="mr-2 h-5 w-5" />
                 Crowd Verdicts
+              </Button>
+            </Link>
+            <Link to="/profiles">
+              <Button size="lg" className="bg-cloud-pink hover:bg-cloud-pink/90 text-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <Pin className="mr-2 h-5 w-5" />
+                Shrine Wall
               </Button>
             </Link>
           </div>
