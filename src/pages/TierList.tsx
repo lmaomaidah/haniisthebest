@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Home, Save, Download, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { TierRow } from "@/components/TierRow";
 import { ImagePool } from "@/components/ImagePool";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -146,13 +146,13 @@ const TierList = () => {
       return;
     }
 
-    const activeId = active.id as string;
+    const dragId = active.id as string;
     const overId = over.id as string;
 
     // Find which tier the active item is in
     let fromTier: keyof TiersType | null = null;
     for (const [tier, items] of Object.entries(tiers)) {
-      if (items.includes(activeId)) {
+      if (items.includes(dragId)) {
         fromTier = tier as keyof TiersType;
         break;
       }
@@ -163,21 +163,56 @@ const TierList = () => {
       return;
     }
 
-    // Determine target tier
-    const toTier = overId as keyof TiersType;
+    // Check if dropped over a tier label (S, A, B, C, D, F, pool)
+    const tierKeys = ['S', 'A', 'B', 'C', 'D', 'F', 'pool'] as const;
+    const isDroppedOnTier = tierKeys.includes(overId as any);
 
-    if (fromTier === toTier) {
-      setActiveId(null);
-      return;
+    if (isDroppedOnTier) {
+      const toTier = overId as keyof TiersType;
+      if (fromTier === toTier) {
+        setActiveId(null);
+        return;
+      }
+      // Move to another tier
+      setTiers(prev => {
+        const newTiers = { ...prev };
+        newTiers[fromTier!] = newTiers[fromTier!].filter(id => id !== dragId);
+        newTiers[toTier] = [...newTiers[toTier], dragId];
+        return newTiers;
+      });
+    } else {
+      // Dropped on another image — check if same tier (reorder) or different tier
+      let toTier: keyof TiersType | null = null;
+      for (const [tier, items] of Object.entries(tiers)) {
+        if (items.includes(overId)) {
+          toTier = tier as keyof TiersType;
+          break;
+        }
+      }
+
+      if (toTier && fromTier === toTier) {
+        // Reorder within same tier
+        setTiers(prev => {
+          const items = [...prev[fromTier!]];
+          const oldIndex = items.indexOf(dragId);
+          const newIndex = items.indexOf(overId);
+          items.splice(oldIndex, 1);
+          items.splice(newIndex, 0, dragId);
+          return { ...prev, [fromTier!]: items };
+        });
+      } else if (toTier) {
+        // Move to another tier at a specific position
+        setTiers(prev => {
+          const newTiers = { ...prev };
+          newTiers[fromTier!] = newTiers[fromTier!].filter(id => id !== dragId);
+          const targetItems = [...newTiers[toTier!]];
+          const insertIndex = targetItems.indexOf(overId);
+          targetItems.splice(insertIndex, 0, dragId);
+          newTiers[toTier!] = targetItems;
+          return newTiers;
+        });
+      }
     }
-
-    // Move item
-    setTiers(prev => {
-      const newTiers = { ...prev };
-      newTiers[fromTier!] = newTiers[fromTier!].filter(id => id !== activeId);
-      newTiers[toTier] = [...newTiers[toTier], activeId];
-      return newTiers;
-    });
 
     setActiveId(null);
   };
@@ -282,7 +317,7 @@ const TierList = () => {
           </p>
         </div>
 
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div id="tier-list-container" className="space-y-4">
             {/* Tier Rows */}
             {(['S', 'A', 'B', 'C', 'D', 'F'] as const).map(tier => (

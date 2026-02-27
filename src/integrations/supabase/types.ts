@@ -251,6 +251,7 @@ export type Database = {
           image_id: string
           pin_order: number
           pin_url: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -258,6 +259,7 @@ export type Database = {
           image_id: string
           pin_order?: number
           pin_url: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -265,6 +267,7 @@ export type Database = {
           image_id?: string
           pin_order?: number
           pin_url?: string
+          user_id?: string | null
         }
         Relationships: [
           {
