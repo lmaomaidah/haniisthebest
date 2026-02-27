@@ -271,6 +271,8 @@ const TierList = () => {
     }
   };
 
+  const getOrderedImages = (ids: string[]) => ids.map((id) => images.find((img) => img.id === id)).filter((img): img is ImageType => Boolean(img));
+
   const activeImage = activeId ? images.find(img => img.id === activeId) : null;
 
   return (
@@ -325,12 +327,12 @@ const TierList = () => {
                 key={tier}
                 tier={tier}
                 color={tierColors[tier]}
-                images={images.filter(img => tiers[tier].includes(img.id))}
+                images={getOrderedImages(tiers[tier])}
               />
             ))}
 
             {/* Image Pool */}
-            <ImagePool images={images.filter(img => tiers.pool.includes(img.id))} />
+            <ImagePool images={getOrderedImages(tiers.pool)} />
           </div>
 
           <DragOverlay>

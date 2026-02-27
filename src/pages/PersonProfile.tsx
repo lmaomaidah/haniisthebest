@@ -30,7 +30,7 @@ import {
 import {
   SortableContext,
   useSortable,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -50,11 +50,25 @@ interface PersonData {
   bio: string | null;
 }
 
-/* ──────────── Pinterest Embed via iframe ──────────── */
+const loadPinterestScript = () => {
+  if (typeof window === "undefined") return;
+  if (document.querySelector('script[src="https://assets.pinterest.com/js/pinit.js"]')) return;
+
+  const script = document.createElement("script");
+  script.src = "https://assets.pinterest.com/js/pinit.js";
+  script.async = true;
+  document.body.appendChild(script);
+};
+
+declare global {
+  interface Window {
+    PinUtils?: { build: () => void };
+  }
+}
+
+/* ──────────── Pinterest Embed ──────────── */
 function PinterestEmbed({ url }: { url: string }) {
-  // Extract pin ID from various Pinterest URL formats
   const extractPinId = (pinUrl: string): string | null => {
-    // Match /pin/123456/ or pin.it/xxxxx
     const longMatch = pinUrl.match(/\/pin\/(\d+)/);
     if (longMatch) return longMatch[1];
     return null;
@@ -62,33 +76,32 @@ function PinterestEmbed({ url }: { url: string }) {
 
   const pinId = extractPinId(url);
 
-  if (!pinId) {
-    // For pin.it short URLs or unrecognized formats, use a rich link preview approach
+  useEffect(() => {
+    if (pinId) return;
+    loadPinterestScript();
+    const timer = setTimeout(() => window.PinUtils?.build(), 450);
+    return () => clearTimeout(timer);
+  }, [pinId, url]);
+
+  if (pinId) {
     return (
-      <div className="w-full aspect-[3/4] flex items-center justify-center bg-muted/30 rounded-xl">
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-center p-4 hover:text-primary transition-colors"
-        >
-          <ExternalLink className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Open pin on Pinterest</p>
-        </a>
+      <div className="w-full overflow-hidden rounded-xl">
+        <iframe
+          src={`https://assets.pinterest.com/ext/embed.html?id=${pinId}`}
+          className="w-full border-0"
+          style={{ minHeight: "400px" }}
+          scrolling="no"
+          title="Pinterest Pin"
+        />
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-xl">
-      <iframe
-        src={`https://assets.pinterest.com/ext/embed.html?id=${pinId}`}
-        className="w-full border-0"
-        style={{ minHeight: "400px" }}
-        scrolling="no"
-        allowFullScreen
-        title="Pinterest Pin"
-      />
+    <div className="w-full overflow-hidden rounded-xl min-h-[400px] bg-card/40 flex items-center justify-center">
+      <a data-pin-do="embedPin" data-pin-width="medium" href={url}>
+        Pinterest pin
+      </a>
     </div>
   );
 }
@@ -133,7 +146,6 @@ function SortablePinCard({
       style={style}
       className="group bg-card/70 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
     >
-      {/* Drag handle */}
       {canReorder && (
         <div
           {...attributes}
@@ -144,44 +156,32 @@ function SortablePinCard({
         </div>
       )}
 
-      {/* Pinterest embed */}
       <PinterestEmbed url={pin.pin_url} />
 
-      {/* Actions */}
-      <div className="flex items-center justify-between gap-1 p-2">
-        <a
-          href={pin.pin_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors truncate"
+      <div className="flex items-center justify-end gap-1 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCopy(pin.pin_url, pin.id)}
         >
-          <ExternalLink className="h-3 w-3 shrink-0" />
-          <span className="truncate">View on Pinterest</span>
-        </a>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {copiedId === pin.id ? (
+            <Check className="h-4 w-4 text-primary" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
+
+        {canDelete && (
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
-            onClick={() => onCopy(pin.pin_url, pin.id)}
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            onClick={() => onDelete(pin.id)}
           >
-            {copiedId === pin.id ? (
-              <Check className="h-4 w-4 text-green-500" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
+            <X className="h-4 w-4" />
           </Button>
-          {canDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
-              onClick={() => onDelete(pin.id)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
@@ -239,6 +239,12 @@ const PersonProfile = () => {
     fetchPins();
   }, [fetchPerson, fetchPins]);
 
+  useEffect(() => {
+    loadPinterestScript();
+    const timer = setTimeout(() => window.PinUtils?.build(), 500);
+    return () => clearTimeout(timer);
+  }, [pins]);
+
   const handleAddPin = async () => {
     if (!newPinUrl.trim() || !id) return;
     if (
@@ -258,6 +264,7 @@ const PersonProfile = () => {
       image_id: id,
       pin_url: newPinUrl.trim(),
       pin_order: pins.length,
+      user_id: user?.id,
     });
 
     if (error) {
@@ -296,7 +303,7 @@ const PersonProfile = () => {
 
     setPins(reordered);
 
-    await Promise.all(
+    const updates = await Promise.all(
       reordered.map((pin, i) =>
         supabase
           .from("pinterest_pins")
@@ -304,6 +311,16 @@ const PersonProfile = () => {
           .eq("id", pin.id)
       )
     );
+
+    const failed = updates.some((r) => r.error);
+    if (failed) {
+      toast({
+        title: "Couldn't save order",
+        description: "You can still drag, but this order couldn't be saved.",
+        variant: "destructive",
+      });
+      fetchPins();
+    }
   };
 
   const handleSaveBio = async () => {
@@ -494,7 +511,7 @@ const PersonProfile = () => {
           >
             <SortableContext
               items={pins.map((p) => p.id)}
-              strategy={verticalListSortingStrategy}
+              strategy={rectSortingStrategy}
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pins.map((pin) => (
@@ -503,7 +520,7 @@ const PersonProfile = () => {
                     pin={pin}
                     isAdmin={isAdmin}
                     canDelete={isAdmin || pin.user_id === user?.id}
-                    canReorder={isAdmin}
+                    canReorder={isAdmin || pin.user_id === user?.id}
                     copiedId={copiedId}
                     onCopy={handleCopyLink}
                     onDelete={handleDeletePin}
