@@ -104,6 +104,7 @@ function PinterestEmbed({ url }: { url: string }) {
     normalizePinterestUrl(url)
   );
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewImageFailed, setPreviewImageFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,51 +112,69 @@ function PinterestEmbed({ url }: { url: string }) {
     const resolvePin = async () => {
       const normalizedUrl = normalizePinterestUrl(url);
       setResolvedUrl(normalizedUrl);
+      setResolvedPinId(null);
       setPreviewImageUrl(null);
+      setPreviewImageFailed(false);
       setStatus("loading");
-
-      const directPinId = extractPinIdFromUrl(normalizedUrl);
-      if (directPinId) {
-        setResolvedPinId(directPinId);
-        setStatus("ready");
-        return;
-      }
 
       const isPinterestUrl = /https?:\/\/(?:www\.)?(?:pin\.it|pinterest\.com)\//i.test(
         normalizedUrl
       );
 
       if (!isPinterestUrl) {
-        setResolvedPinId(null);
         setStatus("error");
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke(
-        "resolve-pinterest-pin",
-        { body: { url: normalizedUrl } }
-      );
+      const directPinId = extractPinIdFromUrl(normalizedUrl);
 
-      if (cancelled) return;
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "resolve-pinterest-pin",
+          { body: { url: normalizedUrl } }
+        );
 
-      const payload = (data ?? {}) as PinResolveResult;
-      const pinId = typeof payload.pinId === "string" ? payload.pinId : null;
-      const preview =
-        typeof payload.previewImageUrl === "string" ? payload.previewImageUrl : null;
-      const finalUrl =
-        typeof payload.resolvedUrl === "string" ? payload.resolvedUrl : normalizedUrl;
+        if (cancelled) return;
 
-      setResolvedUrl(finalUrl);
-      setPreviewImageUrl(preview);
+        const payload = (data ?? {}) as PinResolveResult;
+        const pinIdFromResolver =
+          typeof payload.pinId === "string" && payload.pinId.length > 0
+            ? payload.pinId
+            : null;
+        const pinId = pinIdFromResolver ?? directPinId;
+        const preview =
+          typeof payload.previewImageUrl === "string" && payload.previewImageUrl.length > 0
+            ? payload.previewImageUrl
+            : null;
+        const finalUrl =
+          typeof payload.resolvedUrl === "string" ? payload.resolvedUrl : normalizedUrl;
 
-      if (!error && pinId) {
+        setResolvedUrl(finalUrl);
         setResolvedPinId(pinId);
-        setStatus("ready");
-        return;
-      }
+        setPreviewImageUrl(preview);
 
-      setResolvedPinId(null);
-      setStatus("error");
+        if (!error && (pinId || preview)) {
+          setStatus("ready");
+          return;
+        }
+
+        if (pinId || preview) {
+          setStatus("ready");
+          return;
+        }
+
+        setStatus("error");
+      } catch {
+        if (cancelled) return;
+
+        if (directPinId) {
+          setResolvedPinId(directPinId);
+          setStatus("ready");
+          return;
+        }
+
+        setStatus("error");
+      }
     };
 
     resolvePin();
@@ -166,22 +185,49 @@ function PinterestEmbed({ url }: { url: string }) {
   }, [url]);
 
   useEffect(() => {
-    if (status !== "error") return;
+    if (status === "loading") return;
     loadPinterestScript();
     const timer = setTimeout(() => window.PinUtils?.build(), 450);
     return () => clearTimeout(timer);
-  }, [status]);
+  }, [status, resolvedPinId, resolvedUrl, previewImageUrl]);
 
-  if (status === "ready" && resolvedPinId) {
+  if (status === "ready") {
     return (
-      <div className="w-full overflow-hidden rounded-xl">
-        <iframe
-          src={`https://assets.pinterest.com/ext/embed.html?id=${resolvedPinId}`}
-          className="w-full border-0"
-          style={{ minHeight: "400px" }}
-          scrolling="no"
-          title="Pinterest Pin"
-        />
+      <div className="w-full overflow-hidden rounded-xl border border-border bg-card/40">
+        {previewImageUrl && !previewImageFailed ? (
+          <a href={resolvedUrl} target="_blank" rel="noreferrer" className="block">
+            <img
+              src={previewImageUrl}
+              alt="Pinterest pin image preview"
+              loading="lazy"
+              className="w-full h-auto object-cover"
+              onError={() => setPreviewImageFailed(true)}
+            />
+          </a>
+        ) : resolvedPinId ? (
+          <div className="w-full min-h-[400px] flex justify-center py-2">
+            <a
+              data-pin-do="embedPin"
+              data-pin-width="large"
+              href={`https://www.pinterest.com/pin/${resolvedPinId}/`}
+            />
+          </div>
+        ) : (
+          <div className="min-h-[260px] flex items-center justify-center px-4 text-center">
+            <p className="text-sm text-muted-foreground">Open this pin on Pinterest.</p>
+          </div>
+        )}
+
+        <div className="border-t border-border/60 p-3">
+          <a
+            href={resolvedUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors"
+          >
+            Open pin on Pinterest <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
     );
   }
