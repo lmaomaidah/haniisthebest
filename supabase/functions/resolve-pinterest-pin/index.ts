@@ -27,7 +27,63 @@ const extractPinId = (value: string | null | undefined): string | null => {
 
 const extractPreviewImage = (html: string): string | null => {
   const ogMatch = html.match(OG_IMAGE_REGEX);
-  return ogMatch?.[1] ?? null;
+  if (ogMatch?.[1]) return ogMatch[1];
+
+  const secureMatch = html.match(
+    /<meta[^>]+property=["']og:image:secure_url["'][^>]+content=["']([^"']+)["']/i
+  );
+  if (secureMatch?.[1]) return secureMatch[1];
+
+  const escapedPinimgMatch = html.match(/https?:\\\/\\\/i\.pinimg\.com\\\/[^"\\]+/i);
+  if (escapedPinimgMatch?.[0]) {
+    return escapedPinimgMatch[0].replace(/\\\//g, "/").replace(/\\u002F/gi, "/");
+  }
+
+  const pinimgMatch = html.match(/https?:\/\/i\.pinimg\.com\/[^"']+/i);
+  return pinimgMatch?.[0] ?? null;
+};
+
+const fetchOEmbedPreview = async (targetUrl: string): Promise<string | null> => {
+  try {
+    const response = await fetch(
+      `https://www.pinterest.com/oembed.json?url=${encodeURIComponent(targetUrl)}`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; pin-resolver/1.0)",
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const payload = (await response.json()) as Record<string, unknown>;
+    const thumbnailUrl =
+      typeof payload.thumbnail_url === "string" ? payload.thumbnail_url : null;
+    const imageUrl = typeof payload.image_url === "string" ? payload.image_url : null;
+
+    return thumbnailUrl ?? imageUrl;
+  } catch {
+    return null;
+  }
+};
+
+const fetchPreviewFromPage = async (targetUrl: string): Promise<string | null> => {
+  try {
+    const response = await fetch(targetUrl, {
+      method: "GET",
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; pin-resolver/1.0)",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+
+    const html = await response.text();
+    return extractPreviewImage(html);
+  } catch {
+    return null;
+  }
 };
 
 const normalizeUrl = (rawUrl: string): string => {
@@ -55,33 +111,50 @@ const tryResolvePinId = async (
     },
   });
 
+  let previewImageUrl: string | null = null;
   const fromFinalUrl = extractPinId(response.url);
-  if (fromFinalUrl) {
-    return { pinId: fromFinalUrl, resolvedUrl: response.url, previewImageUrl: null };
-  }
-
   const fromLocation = extractPinId(response.headers.get("location"));
-  if (fromLocation) {
-    return { pinId: fromLocation, resolvedUrl: response.url, previewImageUrl: null };
-  }
+  let fromHtml: string | null = null;
+  let fromDeepLink: string | null = null;
 
   if (method === "GET") {
     const html = await response.text();
-    const previewImageUrl = extractPreviewImage(html);
+    previewImageUrl = extractPreviewImage(html);
 
     const htmlMatch = html.match(PIN_ID_REGEX);
-    if (htmlMatch) {
-      return { pinId: htmlMatch[1], resolvedUrl: response.url, previewImageUrl };
-    }
+    if (htmlMatch) fromHtml = htmlMatch[1];
 
     const deepLinkMatch = html.match(/pinterest:\/\/pin\/(\d+)/i);
-    if (deepLinkMatch) {
-      return { pinId: deepLinkMatch[1], resolvedUrl: response.url, previewImageUrl };
+    if (deepLinkMatch) fromDeepLink = deepLinkMatch[1];
+  }
+
+  const resolvedPinId = fromFinalUrl ?? fromLocation ?? fromHtml ?? fromDeepLink;
+
+  if (resolvedPinId) {
+    if (!previewImageUrl) {
+      const pagePreview = await fetchPreviewFromPage(response.url);
+      previewImageUrl = pagePreview ?? (await fetchOEmbedPreview(response.url));
     }
 
-    if (previewImageUrl) {
-      return { pinId: null, resolvedUrl: response.url, previewImageUrl };
-    }
+    return {
+      pinId: resolvedPinId,
+      resolvedUrl: response.url,
+      previewImageUrl,
+    };
+  }
+
+  if (previewImageUrl) {
+    return { pinId: null, resolvedUrl: response.url, previewImageUrl };
+  }
+
+  const pagePreview = await fetchPreviewFromPage(response.url);
+  if (pagePreview) {
+    return { pinId: null, resolvedUrl: response.url, previewImageUrl: pagePreview };
+  }
+
+  const oEmbedPreview = await fetchOEmbedPreview(response.url);
+  if (oEmbedPreview) {
+    return { pinId: null, resolvedUrl: response.url, previewImageUrl: oEmbedPreview };
   }
 
   return null;
@@ -113,11 +186,14 @@ Deno.serve(async (req) => {
     const directPinId = extractPinId(normalized);
 
     if (directPinId) {
+      const pagePreview = await fetchPreviewFromPage(normalized);
+      const directPreview = pagePreview ?? (await fetchOEmbedPreview(normalized));
+
       return new Response(
         JSON.stringify({
           pinId: directPinId,
           resolvedUrl: normalized,
-          previewImageUrl: null,
+          previewImageUrl: directPreview,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -134,7 +210,7 @@ Deno.serve(async (req) => {
     let fallback: ResolveAttemptResult | null = null;
 
     for (const attempt of attempts) {
-      for (const method of ["HEAD", "GET"] as const) {
+      for (const method of ["GET", "HEAD"] as const) {
         try {
           const resolved = await tryResolvePinId(attempt, method);
           if (!resolved) continue;
