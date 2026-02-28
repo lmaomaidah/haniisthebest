@@ -1,9 +1,12 @@
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const PIN_ID_REGEX = /\/pin\/(\d+)/i;
+const OG_IMAGE_REGEX =
+  /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)["'][^>]+content=["']([^"']+)["']/i;
 
 const extractPinId = (value: string | null | undefined): string | null => {
   if (!value) return null;
@@ -13,10 +16,18 @@ const extractPinId = (value: string | null | undefined): string | null => {
   const direct = decoded.match(PIN_ID_REGEX);
   if (direct) return direct[1];
 
+  const shortNumeric = decoded.match(/pin\.it\/(\d+)(?:[/?#]|$)/i);
+  if (shortNumeric) return shortNumeric[1];
+
   const query = decoded.match(/[?&](?:pin_id|pinId|id)=(\d+)/i);
   if (query) return query[1];
 
   return null;
+};
+
+const extractPreviewImage = (html: string): string | null => {
+  const ogMatch = html.match(OG_IMAGE_REGEX);
+  return ogMatch?.[1] ?? null;
 };
 
 const normalizeUrl = (rawUrl: string): string => {
@@ -25,7 +36,16 @@ const normalizeUrl = (rawUrl: string): string => {
   return `https://${trimmed}`;
 };
 
-const tryResolvePinId = async (url: string, method: "HEAD" | "GET") => {
+type ResolveAttemptResult = {
+  pinId: string | null;
+  resolvedUrl: string;
+  previewImageUrl: string | null;
+};
+
+const tryResolvePinId = async (
+  url: string,
+  method: "HEAD" | "GET"
+): Promise<ResolveAttemptResult | null> => {
   const response = await fetch(url, {
     method,
     redirect: "follow",
@@ -36,22 +56,31 @@ const tryResolvePinId = async (url: string, method: "HEAD" | "GET") => {
   });
 
   const fromFinalUrl = extractPinId(response.url);
-  if (fromFinalUrl) return { pinId: fromFinalUrl, resolvedUrl: response.url };
+  if (fromFinalUrl) {
+    return { pinId: fromFinalUrl, resolvedUrl: response.url, previewImageUrl: null };
+  }
 
   const fromLocation = extractPinId(response.headers.get("location"));
-  if (fromLocation) return { pinId: fromLocation, resolvedUrl: response.url };
+  if (fromLocation) {
+    return { pinId: fromLocation, resolvedUrl: response.url, previewImageUrl: null };
+  }
 
   if (method === "GET") {
     const html = await response.text();
+    const previewImageUrl = extractPreviewImage(html);
 
     const htmlMatch = html.match(PIN_ID_REGEX);
     if (htmlMatch) {
-      return { pinId: htmlMatch[1], resolvedUrl: response.url };
+      return { pinId: htmlMatch[1], resolvedUrl: response.url, previewImageUrl };
     }
 
     const deepLinkMatch = html.match(/pinterest:\/\/pin\/(\d+)/i);
     if (deepLinkMatch) {
-      return { pinId: deepLinkMatch[1], resolvedUrl: response.url };
+      return { pinId: deepLinkMatch[1], resolvedUrl: response.url, previewImageUrl };
+    }
+
+    if (previewImageUrl) {
+      return { pinId: null, resolvedUrl: response.url, previewImageUrl };
     }
   }
 
@@ -60,7 +89,7 @@ const tryResolvePinId = async (url: string, method: "HEAD" | "GET") => {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   if (req.method !== "POST") {
@@ -85,7 +114,11 @@ Deno.serve(async (req) => {
 
     if (directPinId) {
       return new Response(
-        JSON.stringify({ pinId: directPinId, resolvedUrl: normalized }),
+        JSON.stringify({
+          pinId: directPinId,
+          resolvedUrl: normalized,
+          previewImageUrl: null,
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -98,14 +131,22 @@ Deno.serve(async (req) => {
       ])
     );
 
+    let fallback: ResolveAttemptResult | null = null;
+
     for (const attempt of attempts) {
       for (const method of ["HEAD", "GET"] as const) {
         try {
           const resolved = await tryResolvePinId(attempt, method);
-          if (resolved?.pinId) {
+          if (!resolved) continue;
+
+          if (resolved.pinId) {
             return new Response(JSON.stringify(resolved), {
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
+          }
+
+          if (!fallback && resolved.previewImageUrl) {
+            fallback = resolved;
           }
         } catch {
           // Continue to next strategy
@@ -113,10 +154,25 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (fallback) {
+      return new Response(
+        JSON.stringify({
+          ...fallback,
+          error:
+            "Could not fully resolve this short link. Try using the full Pinterest pin URL.",
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     return new Response(
       JSON.stringify({
         pinId: null,
         resolvedUrl: normalized,
+        previewImageUrl: null,
         error: "Unable to resolve pin ID from this URL",
       }),
       {
@@ -126,7 +182,9 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unexpected error" }),
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unexpected error",
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
