@@ -60,6 +60,21 @@ const loadPinterestScript = () => {
   document.body.appendChild(script);
 };
 
+const extractPinIdFromUrl = (pinUrl: string): string | null => {
+  const trimmed = pinUrl.trim();
+
+  const directMatch = trimmed.match(/\/pin\/(\d+)/i);
+  if (directMatch) return directMatch[1];
+
+  const shortNumericMatch = trimmed.match(/pin\.it\/(\d+)(?:[/?#]|$)/i);
+  if (shortNumericMatch) return shortNumericMatch[1];
+
+  const queryMatch = trimmed.match(/[?&](?:pin_id|pinId|id)=(\d+)/i);
+  if (queryMatch) return queryMatch[1];
+
+  return null;
+};
+
 declare global {
   interface Window {
     PinUtils?: { build: () => void };
@@ -68,26 +83,64 @@ declare global {
 
 /* ──────────── Pinterest Embed ──────────── */
 function PinterestEmbed({ url }: { url: string }) {
-  const extractPinId = (pinUrl: string): string | null => {
-    const longMatch = pinUrl.match(/\/pin\/(\d+)/);
-    if (longMatch) return longMatch[1];
-    return null;
-  };
-
-  const pinId = extractPinId(url);
+  const [resolvedPinId, setResolvedPinId] = useState<string | null>(() =>
+    extractPinIdFromUrl(url)
+  );
 
   useEffect(() => {
-    if (pinId) return;
+    let cancelled = false;
+
+    const resolvePin = async () => {
+      const directPinId = extractPinIdFromUrl(url);
+      if (directPinId) {
+        setResolvedPinId(directPinId);
+        return;
+      }
+
+      if (!/https?:\/\/(?:www\.)?pin\.it\//i.test(url)) {
+        setResolvedPinId(null);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke(
+        "resolve-pinterest-pin",
+        { body: { url } }
+      );
+
+      if (cancelled) return;
+
+      if (!error && data && typeof data === "object" && "pinId" in data) {
+        const pinId =
+          typeof (data as { pinId?: unknown }).pinId === "string"
+            ? (data as { pinId: string }).pinId
+            : null;
+
+        setResolvedPinId(pinId);
+        return;
+      }
+
+      setResolvedPinId(null);
+    };
+
+    resolvePin();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  useEffect(() => {
+    if (resolvedPinId) return;
     loadPinterestScript();
     const timer = setTimeout(() => window.PinUtils?.build(), 450);
     return () => clearTimeout(timer);
-  }, [pinId, url]);
+  }, [resolvedPinId, url]);
 
-  if (pinId) {
+  if (resolvedPinId) {
     return (
       <div className="w-full overflow-hidden rounded-xl">
         <iframe
-          src={`https://assets.pinterest.com/ext/embed.html?id=${pinId}`}
+          src={`https://assets.pinterest.com/ext/embed.html?id=${resolvedPinId}`}
           className="w-full border-0"
           style={{ minHeight: "400px" }}
           scrolling="no"
@@ -99,9 +152,10 @@ function PinterestEmbed({ url }: { url: string }) {
 
   return (
     <div className="w-full overflow-hidden rounded-xl min-h-[400px] bg-card/40 flex items-center justify-center">
-      <a data-pin-do="embedPin" data-pin-width="medium" href={url}>
+      <a data-pin-do="embedPin" data-pin-width="medium" href={url} className="sr-only">
         Pinterest pin
       </a>
+      <p className="text-sm text-muted-foreground">Loading pin…</p>
     </div>
   );
 }
