@@ -53,7 +53,7 @@ const Profiles = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in">
-            📌 Shrine Wall
+            📌 Shame Wall
           </h1>
           <Link to="/">
             <Button variant="outline" size="lg" className="border-4 border-primary rounded-2xl bg-card/80 backdrop-blur-sm">
@@ -66,7 +66,7 @@ const Profiles = () => {
         <div className="relative max-w-md mx-auto mb-12">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search people…"
+            placeholder="Search for L's..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-12 border-4 border-secondary/60 rounded-full text-lg py-6 bg-card/70 backdrop-blur-sm focus:border-secondary"

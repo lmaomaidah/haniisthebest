@@ -21,7 +21,7 @@ export function UserMenu() {
           className="rounded-full border-2 border-primary/50 hover:border-primary bg-card/80 backdrop-blur-sm"
         >
           <User className="h-4 w-4 mr-2" />
-          <span className="font-bold">{profile?.username || 'User'}</span>
+          <span className="font-bold">{profile?.username || 'User'} 💀</span>
           {isAdmin && <span className="ml-2">👑</span>}
         </Button>
       </DropdownMenuTrigger>

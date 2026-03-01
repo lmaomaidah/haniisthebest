@@ -288,7 +288,7 @@ const TierList = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(255,200,100,0.5)]">
-            ⭐ Tier List Maker
+            💀 Tears List Maker
           </h1>
           <div className="flex gap-4 flex-wrap">
             <Button onClick={resetTierList} variant="outline" className="border-4 border-destructive rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm">

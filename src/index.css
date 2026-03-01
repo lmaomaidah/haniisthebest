@@ -1,3 +1,47 @@
+*, *::before, *::after { font-family: 'Courier New', Courier, monospace !important; }
+:root {
+  --background: 0 0% 0% !important;
+  --foreground: 0 100% 50% !important;
+  --card: 0 0% 4% !important;
+  --card-foreground: 0 100% 50% !important;
+  --primary: 0 100% 50% !important;
+  --primary-foreground: 0 0% 0% !important;
+  --secondary: 0 100% 35% !important;
+  --secondary-foreground: 0 0% 0% !important;
+  --muted: 0 0% 10% !important;
+  --muted-foreground: 0 80% 60% !important;
+  --border: 0 100% 30% !important;
+  --accent: 0 100% 45% !important;
+}
+body { background: #000 !important; color: #ff0000 !important; }
+.bg-lime-green, .gradient-chaos, .gradient-pink-blue, .bg-secondary, .bg-primary {
+  background: #000 !important; color: #ff0000 !important;
+}
+button:hover, a:hover { animation: glitch 0.2s infinite !important; }
+@keyframes glitch {
+  0%   { transform: translate(0); }
+  25%  { transform: translate(-2px, 1px) skewX(1deg); filter: hue-rotate(90deg); }
+  50%  { transform: translate(2px, -1px) skewX(-1deg); }
+  75%  { transform: translate(-1px, 2px); filter: hue-rotate(180deg); }
+  100% { transform: translate(0); }
+}
+@keyframes float-pwned {
+  0%, 100% { transform: translateY(0px) rotate(-15deg); }
+  50%       { transform: translateY(-10px) rotate(-15deg); }
+}
+.hacked-watermark {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(4rem, 15vw, 12rem); font-weight: 900; color: rgba(255,0,0,0.06);
+  transform: rotate(-35deg); letter-spacing: 0.5rem; user-select: none;
+  font-family: 'Courier New', monospace;
+}
+.pwned-corner {
+  position: fixed; font-size: 1.1rem; font-weight: 900; color: #ff0000;
+  z-index: 9999; pointer-events: none; animation: float-pwned 3s ease-in-out infinite;
+  font-family: 'Courier New', monospace; text-shadow: 0 0 8px #ff0000;
+}
+
 @import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Henny+Penny&family=Lobster&display=swap");
 @tailwind base;
 @tailwind components;

@@ -33,7 +33,7 @@ interface ImageWithRating extends ImageType {
 }
 
 const badgeNames = [
-  { min: 36, name: "✨ Certified Slay Queen/King", color: "bg-neon-pink" },
+  { min: 36, name: "✨ Certified Main L", color: "bg-neon-pink" },
   { min: 30, name: "🔥 Main Character Energy", color: "bg-neon-purple" },
   { min: 24, name: "💫 Top Scholar Gremlin", color: "bg-neon-blue" },
   { min: 18, name: "😎 Solid Vibe Check", color: "bg-neon-green" },
@@ -199,7 +199,7 @@ const Ratings = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-bounce-in drop-shadow-[0_0_30px_rgba(200,100,255,0.5)]">
-            🧠 Rate & Rank
+            💀 Rate Regret
           </h1>
           <div className="flex gap-4">
             <Button onClick={resetRatings} variant="outline" className="border-4 border-destructive rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm">
@@ -220,7 +220,7 @@ const Ratings = () => {
           <div className="space-y-6">
             <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-secondary rounded-3xl p-8 shadow-bounce dark:shadow-[0_0_25px_rgba(100,200,255,0.3)]">
               <h2 className="text-3xl font-bold mb-6 text-center text-foreground">
-                {selectedImage ? "Rate This Classmate! 💯" : "Select a Classmate to Rate 👇"}
+                {selectedImage ? "Rate This L! 💀" : "Select an L to Destroy 👇"}
               </h2>
 
               {selectedImage && (
