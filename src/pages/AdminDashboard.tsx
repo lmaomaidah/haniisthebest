@@ -298,6 +298,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden p-6">
+      {/* Hijacked Banner */}
+      <div style={{ background: '#000', borderBottom: '2px solid #ff0000', padding: '10px', textAlign: 'center', color: '#ff0000', fontFamily: 'monospace', fontWeight: 900, fontSize: '1rem', zIndex: 100, position: 'relative' }}>
+        ⛔ ADMIN TERMINAL HIJACKED — CHAOS HUSTLERS ADMIN ACCESS GRANTED
+      </div>
       <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
       </div>
@@ -319,10 +323,10 @@ const AdminDashboard = () => {
             <div>
               <h1 className="text-4xl font-bold text-gradient flex items-center gap-3">
                 <Shield className="h-10 w-10 text-primary" />
-                Admin Command Center
+                ⛔ HIJACKED TERMINAL
               </h1>
               <p className="text-foreground/70 text-lg mt-1">
-                Welcome, {profile?.username} 👑 You see everything.
+                Welcome, {profile?.username} 💀 CHAOS HUSTLERS SEE EVERYTHING.
               </p>
             </div>
           </div>

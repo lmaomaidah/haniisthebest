@@ -237,7 +237,7 @@ export default function Classifications() {
         </div>
 
         <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-primary animate-bounce-in drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
-          🔵 Venn Diagram 🟣
+          💀 Classify L's
         </h1>
 
         {/* Add Circle Section */}
@@ -247,7 +247,7 @@ export default function Classifications() {
             <Input
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
-              placeholder="Circle label..."
+              placeholder="Type your L here"
               className="border-2 border-primary max-w-xs bg-background/80 dark:bg-background/50"
               onKeyDown={(e) => e.key === 'Enter' && addCircle()}
             />

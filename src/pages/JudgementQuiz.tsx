@@ -292,11 +292,11 @@ export default function JudgementQuiz() {
 
           <div className="text-center space-y-8 animate-bounce-in">
             <div className="text-8xl">🔮</div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gradient">THE JUDGEMENT</h1>
+            <h1 className="text-4xl md:text-6xl font-bold text-gradient">THE PWNENING</h1>
             <p className="text-xl text-muted-foreground">A quiz that will see through your carefully curated personality</p>
 
             <div className="bg-card border-2 border-primary/30 rounded-3xl p-8 text-left space-y-4">
-              <h2 className="text-2xl font-bold text-primary">What this will expose:</h2>
+              <h2 className="text-2xl font-bold text-primary">What this will DESTROY:</h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary">•</span>
@@ -344,7 +344,7 @@ export default function JudgementQuiz() {
         <div className="max-w-2xl mx-auto pt-8 relative z-10">
           <div className="text-center space-y-8 animate-bounce-in">
             <div className="text-8xl">{result.emoji}</div>
-            <h1 className="text-3xl md:text-5xl font-bold text-foreground">Your Cultural Profile</h1>
+            <h1 className="text-3xl md:text-5xl font-bold text-foreground">Your L Profile 💀</h1>
 
             <div className="bg-card border-2 border-primary/30 rounded-3xl p-8 space-y-6">
               {/* Score bars */}
@@ -378,6 +378,7 @@ export default function JudgementQuiz() {
                 <p className="text-sm text-muted-foreground mb-2">FINAL JUDGMENT:</p>
                 <h2 className="text-4xl font-bold text-gradient mb-4">{result.title}</h2>
                 <p className="text-muted-foreground leading-relaxed">{result.description}</p>
+                <p className="text-sm text-destructive mt-4 font-bold italic">Diagnosed by CHAOS HUSTLERS — accuracy not guaranteed, L confirmed</p>
               </div>
             </div>
 

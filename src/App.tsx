@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { HackedOverlay } from "@/components/HackedOverlay";
+import { useToast } from "@/hooks/use-toast";
 import Index from "./pages/Index";
 import Gallery from "./pages/Gallery";
 import TierList from "./pages/TierList";
@@ -24,6 +27,14 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function HackedToast() {
+  const { toast } = useToast();
+  useEffect(() => {
+    toast({ title: ">_ INTRUSION DETECTED", description: "CHAOS HUSTLERS have entered the system.", variant: "destructive" });
+  }, []);
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -31,6 +42,8 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <HackedOverlay />
+          <HackedToast />
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />

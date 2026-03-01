@@ -268,10 +268,10 @@ const ShipOMeter = () => {
         <div className="text-center mb-10">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient animate-pulse-glow flex items-center justify-center gap-4">
             <Heart className="text-pink-400 animate-pulse" />
-            Ship-O-Meter
+            Cringe-Meter
             <Heart className="text-pink-400 animate-pulse" />
           </h1>
-          <p className="text-xl text-muted-foreground mt-2">Find out if your ship is canon! 💕</p>
+          <p className="text-xl text-muted-foreground mt-2">Find out how cringe your ship really is 💀</p>
         </div>
 
         {/* Person Selection */}
@@ -284,7 +284,7 @@ const ShipOMeter = () => {
             {/* Trait Sliders */}
             <div className="backdrop-blur border-4 border-secondary/30 rounded-3xl p-6 mb-8 bg-card/50">
               <h2 className="text-2xl font-bold text-center mb-6 text-secondary">
-                ✨ Personality Traits ✨
+                💀 Cringe Traits 💀
               </h2>
               
               <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
