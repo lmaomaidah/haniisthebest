@@ -283,6 +283,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_approved: boolean
           updated_at: string
           user_id: string
           username: string
@@ -290,6 +291,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_approved?: boolean
           updated_at?: string
           user_id: string
           username: string
@@ -297,6 +299,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_approved?: boolean
           updated_at?: string
           user_id?: string
           username?: string
@@ -442,6 +445,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_approved: { Args: { _user_id: string }; Returns: boolean }
       is_form_creator: {
         Args: { _form_id: string; _user_id: string }
         Returns: boolean
