@@ -5,8 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: { username: string } | null;
+  profile: { username: string; is_approved: boolean } | null;
   isAdmin: boolean;
+  isApproved: boolean;
   loading: boolean;
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signIn: (username: string, password: string) => Promise<{ error: Error | null }>;
@@ -19,18 +20,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<{ username: string } | null>(null);
+  const [profile, setProfile] = useState<{ username: string; is_approved: boolean } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const isApproved = profile?.is_approved ?? false;
+
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
-        // Defer profile/role fetching with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
             fetchProfileAndRole(session.user.id);
@@ -42,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -57,18 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfileAndRole = async (userId: string) => {
     try {
-      // Fetch profile
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('username')
+        .select('username, is_approved')
         .eq('user_id', userId)
         .maybeSingle();
 
       if (profileData) {
-        setProfile({ username: profileData.username });
+        setProfile({ username: profileData.username, is_approved: profileData.is_approved });
       }
 
-      // Fetch role
       const { data: roleData } = await supabase
         .from('user_roles')
         .select('role')
@@ -137,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return { error: null };
   };
+
   const signOut = async () => {
     if (user) {
       await logActivity('logout', {});
@@ -159,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       profile,
       isAdmin,
+      isApproved,
       loading,
       signUp,
       signIn,
