@@ -533,7 +533,7 @@ const AdminDashboard = () => {
                 <TableBody>
                   {users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
                         No users yet. Lonely out here... 😢
                       </TableCell>
                     </TableRow>
