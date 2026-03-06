@@ -569,6 +569,16 @@ const AdminDashboard = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant={userProfile.is_approved ? 'secondary' : 'default'}
+                                size="sm"
+                                disabled={isCurrentUser}
+                                className="h-8"
+                                onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}
+                              >
+                                {userProfile.is_approved ? 'Revoke' : 'Approve'}
+                              </Button>
+
                               {/* Role Change Dropdown */}
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
