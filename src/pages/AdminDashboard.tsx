@@ -525,6 +525,7 @@ const AdminDashboard = () => {
                   <TableRow className="border-border/50">
                     <TableHead className="text-foreground font-bold">Username</TableHead>
                     <TableHead className="text-foreground font-bold">Role</TableHead>
+                    <TableHead className="text-foreground font-bold">Approval</TableHead>
                     <TableHead className="text-foreground font-bold">Joined</TableHead>
                     <TableHead className="text-foreground font-bold text-right">Actions</TableHead>
                   </TableRow>
