@@ -123,12 +123,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
-      {/* Hacked Watermark */}
-      <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 50 }}>
-        <div style={{ color: 'rgba(255,0,0,0.15)', fontSize: 'clamp(2rem,8vw,5rem)', fontWeight: 900, fontFamily: 'monospace', transform: 'rotate(-20deg)', textAlign: 'center', lineHeight: 1.2 }}>
-          ACCESS DENIED<br/>HACKED BY<br/>CHAOS HUSTLERS
-        </div>
-      </div>
       <WhimsicalBackground />
       
       {/* Theme Toggle */}
@@ -166,7 +160,7 @@ const Auth = () => {
               <Input
                 id="username"
                 type="text"
-                placeholder="Type your L here"
+                placeholder="your_iconic_name"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="text-lg p-6 border-2 border-secondary rounded-xl"
@@ -184,7 +178,7 @@ const Auth = () => {
               <Input
                 id="passcode"
                 type="password"
-                placeholder="Type your L here"
+                placeholder="••••••"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 className="text-lg p-6 border-2 border-secondary rounded-xl"

@@ -8,12 +8,6 @@ import Marquee from "@/components/Marquee";
 
 const Index = () => {
   return <div className="min-h-screen relative overflow-hidden">
-      {/* Hacked Banner */}
-      <div style={{ background: '#000', borderBottom: '2px solid #ff0000', padding: '12px', textAlign: 'center' }}>
-        <h1 style={{ color: '#ff0000', margin: 0, fontSize: '1.5rem', fontFamily: 'monospace' }}>💀 HACKED BY CHAOS HUSTLERS 💀</h1>
-        <h2 style={{ color: '#ff0000', margin: '4px 0 0', fontSize: '1rem', fontFamily: 'monospace' }}>Better luck next time</h2>
-      </div>
-
       {/* Scrolling marquee ticker */}
       <Marquee />
       
@@ -31,13 +25,13 @@ const Index = () => {
         <div className="text-center space-y-6 animate-bounce-in">
           {/* Subtitle */}
           <p className="text-lg md:text-xl font-medium text-foreground/70 tracking-widest uppercase">
-            ⚠ SYSTEM BREACH DETECTED ⚠
+            Welcome to the chaos
           </p>
           
           {/* Main Title - Retro style like reference */}
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-bold leading-tight">
-            <span className="text-gradient">THE LAME
-ZONE
+            <span className="text-gradient">Kingstop
+Fanclub
           </span>
             <br />
             
@@ -45,11 +39,12 @@ ZONE
           
           {/* Tagline */}
           <p className="text-xl md:text-2xl text-foreground/80 font-medium">
-            by CHAOS HUSTLERS
+            by the minion
           </p>
           
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            YOUR DATA HAS BEEN COMPROMISED. CHAOS HUSTLERS HAVE INFILTRATED THIS SYSTEM. RESISTANCE IS FUTILE.
+            The universe is a cruel, uncaring void. The key to being happy isn't a search for meaning; 
+            it's to keep yourself busy with unimportant nonsense, and eventually you'll be dead.
           </p>
 
           {/* CTA Buttons */}
@@ -57,49 +52,49 @@ ZONE
             <Link to="/gallery">
               <Button size="lg" className="bg-card hover:bg-card/80 text-foreground border-2 border-foreground/20 text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Image className="mr-2 h-5 w-5" />
-                Upload L's
+                Upload Classmates
               </Button>
             </Link>
             <Link to="/tier-list">
               <Button size="lg" className="gradient-chaos text-card-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Star className="mr-2 h-5 w-5" />
-                Tears List
+                Make Tier List
               </Button>
             </Link>
             <Link to="/classifications">
               <Button size="lg" className="gradient-pink-blue text-card-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Sparkles className="mr-2 h-5 w-5" />
-                Classify L
+                Classify
               </Button>
             </Link>
             <Link to="/ratings">
               <Button size="lg" className="bg-lime-green hover:bg-lime-green/90 text-background text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <TrendingUp className="mr-2 h-5 w-5" />
-                Rate Regret
+                Rate & Rank
               </Button>
             </Link>
             <Link to="/ship-o-meter">
               <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Heart className="mr-2 h-5 w-5" />
-                Cringe-Meter
+                Ship-O-Meter
               </Button>
             </Link>
             <Link to="/judgement-quiz">
               <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Brain className="mr-2 h-5 w-5" />
-                The Pwnening
+                The Judgement
               </Button>
             </Link>
             <Link to="/polls">
               <Button size="lg" className="bg-neon-purple hover:bg-neon-purple/90 text-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                 <Vote className="mr-2 h-5 w-5" />
-                Roast Me
+                Crowd Verdicts
               </Button>
             </Link>
             <Link to="/profiles">
               <Button size="lg" className="bg-cloud-pink hover:bg-cloud-pink/90 text-foreground text-lg md:text-xl px-6 py-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 bg-[#9d9f1d]">
                 <Pin className="mr-2 h-5 w-5" />
-                Shame Wall
+                Shrine Wall
               </Button>
             </Link>
           </div>

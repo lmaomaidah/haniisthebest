@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -44,7 +44,6 @@ interface UserProfile {
   user_id: string;
   username: string;
   created_at: string;
-  is_approved: boolean;
   user_roles?: {
     id: string;
     role: string;
@@ -57,7 +56,7 @@ const AdminDashboard = () => {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState<'activity' | 'users'>('users');
+  const [activeTab, setActiveTab] = useState<'activity' | 'users'>('activity');
   const [selectedLogs, setSelectedLogs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -117,60 +116,15 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleApproveUser = async (userProfile: UserProfile) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_approved: true })
-        .eq('user_id', userProfile.user_id);
-
-      if (error) {
-        toast.error('Failed to approve user');
-        console.error(error);
-        return;
-      }
-
-      toast.success(`✅ ${userProfile.username} has been approved!`);
-      fetchData();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to approve user');
-    }
-  };
-
-  const handleRevokeApproval = async (userProfile: UserProfile) => {
-    if (userProfile.user_id === user?.id) {
-      toast.error("You can't revoke your own approval!");
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_approved: false })
-        .eq('user_id', userProfile.user_id);
-
-      if (error) {
-        toast.error('Failed to revoke approval');
-        console.error(error);
-        return;
-      }
-
-      toast.success(`❌ ${userProfile.username}'s access has been revoked`);
-      fetchData();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to revoke approval');
-    }
-  };
-
   const handleDeleteUser = async (userProfile: UserProfile) => {
+    // Prevent deleting yourself
     if (userProfile.user_id === user?.id) {
       toast.error("You cannot delete your own account!");
       return;
     }
 
     try {
+      // Call edge function to completely delete user (including auth.users record)
       const { data, error } = await supabase.functions.invoke('delete-user', {
         body: { userId: userProfile.user_id }
       });
@@ -196,6 +150,7 @@ const AdminDashboard = () => {
   };
 
   const handleChangeRole = async (userProfile: UserProfile, newRole: 'admin' | 'user') => {
+    // Prevent changing your own role
     if (userProfile.user_id === user?.id) {
       toast.error("You cannot change your own role!");
       return;
@@ -205,6 +160,7 @@ const AdminDashboard = () => {
       const existingRole = userProfile.user_roles?.[0];
 
       if (existingRole) {
+        // Update existing role
         const { error } = await supabase
           .from('user_roles')
           .update({ role: newRole })
@@ -216,6 +172,7 @@ const AdminDashboard = () => {
           return;
         }
       } else {
+        // Insert new role
         const { error } = await supabase
           .from('user_roles')
           .insert({ user_id: userProfile.user_id, role: newRole });
@@ -339,9 +296,6 @@ const AdminDashboard = () => {
     return null;
   }
 
-  const pendingUsers = users.filter(u => !u.is_approved);
-  const approvedUsers = users.filter(u => u.is_approved);
-
   return (
     <div className="min-h-screen relative overflow-hidden p-6">
       <div className="absolute top-6 right-6 z-50">
@@ -378,7 +332,7 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg font-medium">Total Users</CardTitle>
@@ -386,16 +340,6 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-primary">{users.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-destructive dark:shadow-[0_0_25px_rgba(255,80,80,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Pending Approval</CardTitle>
-              <XCircle className="h-6 w-6 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-destructive">{pendingUsers.length}</div>
             </CardContent>
           </Card>
 
@@ -424,16 +368,6 @@ const AdminDashboard = () => {
 
         <div className="flex gap-4 mb-6">
           <Button
-            onClick={() => setActiveTab('users')}
-            className={activeTab === 'users' 
-              ? 'gradient-pink-blue text-white' 
-              : 'bg-card border-2 border-primary/50'
-            }
-          >
-            <Users className="mr-2 h-4 w-4" />
-            All Users {pendingUsers.length > 0 && `(${pendingUsers.length} pending)`}
-          </Button>
-          <Button
             onClick={() => setActiveTab('activity')}
             className={activeTab === 'activity' 
               ? 'gradient-pink-blue text-white' 
@@ -442,6 +376,16 @@ const AdminDashboard = () => {
           >
             <Activity className="mr-2 h-4 w-4" />
             Activity Feed
+          </Button>
+          <Button
+            onClick={() => setActiveTab('users')}
+            className={activeTab === 'users' 
+              ? 'gradient-pink-blue text-white' 
+              : 'bg-card border-2 border-primary/50'
+            }
+          >
+            <Users className="mr-2 h-4 w-4" />
+            All Users
           </Button>
         </div>
 
@@ -549,7 +493,6 @@ const AdminDashboard = () => {
                 <TableHeader>
                   <TableRow className="border-border/50">
                     <TableHead className="text-foreground font-bold">Username</TableHead>
-                    <TableHead className="text-foreground font-bold">Status</TableHead>
                     <TableHead className="text-foreground font-bold">Role</TableHead>
                     <TableHead className="text-foreground font-bold">Joined</TableHead>
                     <TableHead className="text-foreground font-bold text-right">Actions</TableHead>
@@ -558,7 +501,7 @@ const AdminDashboard = () => {
                 <TableBody>
                   {users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={4} className="text-center py-8 text-foreground/60">
                         No users yet. Lonely out here... 😢
                       </TableCell>
                     </TableRow>
@@ -568,24 +511,11 @@ const AdminDashboard = () => {
                       const currentRole = userProfile.user_roles?.[0]?.role || 'user';
                       
                       return (
-                        <TableRow key={userProfile.user_id} className={`border-border/30 hover:bg-card/50 ${!userProfile.is_approved ? 'bg-destructive/5' : ''}`}>
+                        <TableRow key={userProfile.user_id} className="border-border/30 hover:bg-card/50">
                           <TableCell className="font-medium text-foreground">
                             {userProfile.username}
                             {isCurrentUser && (
                               <span className="ml-2 text-xs text-primary">(you)</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {userProfile.is_approved ? (
-                              <Badge className="bg-green-500/20 text-green-400 border-green-500/30 border">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Approved
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-red-500/20 text-red-400 border-red-500/30 border">
-                                <XCircle className="h-3 w-3 mr-1" />
-                                Pending
-                              </Badge>
                             )}
                           </TableCell>
                           <TableCell>
@@ -602,28 +532,6 @@ const AdminDashboard = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
-                              {/* Approve / Revoke button */}
-                              {!userProfile.is_approved ? (
-                                <Button
-                                  size="sm"
-                                  className="h-8 bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={() => handleApproveUser(userProfile)}
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                              ) : !isCurrentUser ? (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 text-destructive border-destructive/50 hover:bg-destructive/10"
-                                  onClick={() => handleRevokeApproval(userProfile)}
-                                >
-                                  <XCircle className="h-4 w-4 mr-1" />
-                                  Revoke
-                                </Button>
-                              ) : null}
-
                               {/* Role Change Dropdown */}
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

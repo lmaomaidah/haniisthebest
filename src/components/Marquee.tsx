@@ -1,8 +1,8 @@
 const Marquee = () => {
-  const message = "💀 HACKED BY CHAOS HUSTLERS 💀 SYSTEM COMPROMISED 💀 YOU'VE BEEN PWNED 💀 THE LAME ZONE IS UNDER ATTACK 💀 CHAOS REIGNS 💀 lol get rekt 💀 ";
+  const message = "✦ WELCOME TO THE CHAOS ✦ EARLY BIRD TICKETS ON SALE NOW ✦ RATE YOUR CLASSMATES ✦ STIR SOME SHI UP ✦ TIER LISTS ARE THE NEW DEMOCRACY ✦ SHIP-O-METER LOADING... ✦ BE ICONIC OR BE FORGOTTEN ✦ THE JUDGEMENT AWAITS ✦ ";
   
   return (
-    <div className="w-full overflow-hidden py-3 z-50 relative" style={{ background: '#000', border: '1px solid #ff0000' }}>
+    <div className="w-full bg-gradient-to-r from-primary via-secondary to-accent overflow-hidden py-3 z-50 relative">
       {/* Decorative borders */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-neon-orange via-lime-green to-neon-purple" />
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-neon-purple via-lime-green to-neon-orange" />

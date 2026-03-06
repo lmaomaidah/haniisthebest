@@ -247,12 +247,12 @@ export default function VennDiagram() {
         </div>
 
         <h1 className="text-6xl font-bold text-center mb-8 text-primary animate-bounce-in">
-          🔮 Cringe Diagram 🔮
+          🔮 Venn Diagram Sorter 🔮
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-card rounded-3xl p-6 border-4 border-primary shadow-bounce">
-            <h3 className="text-2xl font-bold mb-4">🎯 Available L's</h3>
+            <h3 className="text-2xl font-bold mb-4">🎯 Available Classmates</h3>
             <div className="flex flex-wrap gap-4">
               {getUnplacedImages().map(img => (
                 <DraggableImage key={img.id} image={img} />
@@ -264,7 +264,7 @@ export default function VennDiagram() {
           </div>
 
           <div className="lg:col-span-2 bg-card rounded-3xl p-6 border-4 border-primary shadow-bounce">
-            <h3 className="text-2xl font-bold mb-4">⚙️ Customize Shame Zones</h3>
+            <h3 className="text-2xl font-bold mb-4">⚙️ Customize Circles</h3>
             <div className="space-y-4">
               {circles.map(circle => (
                 <div key={circle.id} className="flex gap-2">

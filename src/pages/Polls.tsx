@@ -114,7 +114,7 @@ const Polls = () => {
             </Button>
           </Link>
           <h1 className="text-5xl md:text-7xl font-display text-gradient drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
-            Roast Me 🗳️
+            Crowd Verdicts 🗳️
           </h1>
         </div>
 
