@@ -20,6 +20,7 @@ import PollEdit from "./pages/PollEdit";
 import PollVote from "./pages/PollVote";
 import Profiles from "./pages/Profiles";
 import PersonProfile from "./pages/PersonProfile";
+import PendingApproval from "./pages/PendingApproval";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
