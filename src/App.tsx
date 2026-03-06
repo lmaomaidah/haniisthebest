@@ -35,6 +35,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/gallery" element={<ProtectedRoute><Gallery /></ProtectedRoute>} />
               <Route path="/tier-list" element={<ProtectedRoute><TierList /></ProtectedRoute>} />
