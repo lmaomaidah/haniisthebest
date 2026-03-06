@@ -43,6 +43,7 @@ interface ActivityLog {
 interface UserProfile {
   user_id: string;
   username: string;
+  is_approved: boolean;
   created_at: string;
   user_roles?: {
     id: string;
