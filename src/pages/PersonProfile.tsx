@@ -153,6 +153,7 @@ function PinterestEmbed({ url }: { url: string }) {
 
         if (directPinId) {
           setResolvedPinId(directPinId);
+          setResolvedUrl(`https://www.pinterest.com/pin/${directPinId}/`);
           setStatus("ready");
           return;
         }
