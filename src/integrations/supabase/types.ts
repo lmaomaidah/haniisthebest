@@ -227,6 +227,7 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          user_id: string
         }
         Insert: {
           bio?: string | null
@@ -234,6 +235,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
+          user_id?: string
         }
         Update: {
           bio?: string | null
@@ -241,6 +243,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -283,6 +286,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_approved: boolean
           updated_at: string
           user_id: string
           username: string
@@ -290,6 +294,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_approved?: boolean
           updated_at?: string
           user_id: string
           username: string
@@ -297,6 +302,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_approved?: boolean
           updated_at?: string
           user_id?: string
           username?: string
@@ -313,6 +319,7 @@ export type Database = {
           iq: number | null
           sex_appeal: number | null
           updated_at: string | null
+          user_id: string
         }
         Insert: {
           character_design?: number | null
@@ -323,6 +330,7 @@ export type Database = {
           iq?: number | null
           sex_appeal?: number | null
           updated_at?: string | null
+          user_id?: string
         }
         Update: {
           character_design?: number | null
@@ -333,6 +341,7 @@ export type Database = {
           iq?: number | null
           sex_appeal?: number | null
           updated_at?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -351,6 +360,7 @@ export type Database = {
           name: string
           tiers: Json
           updated_at: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -358,6 +368,7 @@ export type Database = {
           name?: string
           tiers?: Json
           updated_at?: string | null
+          user_id?: string
         }
         Update: {
           created_at?: string | null
@@ -365,6 +376,7 @@ export type Database = {
           name?: string
           tiers?: Json
           updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -402,6 +414,7 @@ export type Database = {
           name: string
           placements: Json
           updated_at: string
+          user_id: string
         }
         Insert: {
           circles?: Json
@@ -410,6 +423,7 @@ export type Database = {
           name?: string
           placements?: Json
           updated_at?: string
+          user_id?: string
         }
         Update: {
           circles?: Json
@@ -418,6 +432,7 @@ export type Database = {
           name?: string
           placements?: Json
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -442,6 +457,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_approved: { Args: { _user_id: string }; Returns: boolean }
       is_form_creator: {
         Args: { _form_id: string; _user_id: string }
         Returns: boolean

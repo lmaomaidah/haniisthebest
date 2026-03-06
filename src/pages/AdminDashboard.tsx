@@ -43,6 +43,7 @@ interface ActivityLog {
 interface UserProfile {
   user_id: string;
   username: string;
+  is_approved: boolean;
   created_at: string;
   user_roles?: {
     id: string;
@@ -189,6 +190,36 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error changing role:', error);
       toast.error('Failed to change role');
+    }
+  };
+
+  const handleToggleApproval = async (userProfile: UserProfile, nextApproved: boolean) => {
+    if (userProfile.user_id === user?.id) {
+      toast.error("You cannot change your own approval status!");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_approved: nextApproved })
+        .eq('user_id', userProfile.user_id);
+
+      if (error) {
+        toast.error('Failed to update approval status');
+        console.error('Error updating approval status:', error);
+        return;
+      }
+
+      toast.success(
+        nextApproved
+          ? `${userProfile.username} is now approved`
+          : `${userProfile.username} access has been revoked`
+      );
+      fetchData();
+    } catch (error) {
+      console.error('Error toggling approval status:', error);
+      toast.error('Failed to update approval status');
     }
   };
 
@@ -494,6 +525,7 @@ const AdminDashboard = () => {
                   <TableRow className="border-border/50">
                     <TableHead className="text-foreground font-bold">Username</TableHead>
                     <TableHead className="text-foreground font-bold">Role</TableHead>
+                    <TableHead className="text-foreground font-bold">Approval</TableHead>
                     <TableHead className="text-foreground font-bold">Joined</TableHead>
                     <TableHead className="text-foreground font-bold text-right">Actions</TableHead>
                   </TableRow>
@@ -501,7 +533,7 @@ const AdminDashboard = () => {
                 <TableBody>
                   {users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
                         No users yet. Lonely out here... 😢
                       </TableCell>
                     </TableRow>
@@ -527,11 +559,26 @@ const AdminDashboard = () => {
                               {currentRole}
                             </Badge>
                           </TableCell>
+                          <TableCell>
+                            <Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>
+                              {userProfile.is_approved ? 'approved' : 'pending'}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="text-foreground/60 text-sm">
                             {format(new Date(userProfile.created_at), 'MMM d, yyyy')}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant={userProfile.is_approved ? 'secondary' : 'default'}
+                                size="sm"
+                                disabled={isCurrentUser}
+                                className="h-8"
+                                onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}
+                              >
+                                {userProfile.is_approved ? 'Revoke' : 'Approve'}
+                              </Button>
+
                               {/* Role Change Dropdown */}
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

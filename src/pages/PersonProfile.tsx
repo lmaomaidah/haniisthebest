@@ -50,16 +50,6 @@ interface PersonData {
   bio: string | null;
 }
 
-const loadPinterestScript = () => {
-  if (typeof window === "undefined") return;
-  if (document.querySelector('script[src="https://assets.pinterest.com/js/pinit.js"]')) return;
-
-  const script = document.createElement("script");
-  script.src = "https://assets.pinterest.com/js/pinit.js";
-  script.async = true;
-  document.body.appendChild(script);
-};
-
 const normalizePinterestUrl = (rawUrl: string) => {
   const trimmed = rawUrl.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
@@ -80,12 +70,6 @@ const extractPinIdFromUrl = (pinUrl: string): string | null => {
 
   return null;
 };
-
-declare global {
-  interface Window {
-    PinUtils?: { build: () => void };
-  }
-}
 
 type PinResolveResult = {
   pinId?: string | null;
@@ -146,8 +130,11 @@ function PinterestEmbed({ url }: { url: string }) {
           typeof payload.previewImageUrl === "string" && payload.previewImageUrl.length > 0
             ? payload.previewImageUrl
             : null;
-        const finalUrl =
-          typeof payload.resolvedUrl === "string" ? payload.resolvedUrl : normalizedUrl;
+        const finalUrl = pinId
+          ? `https://www.pinterest.com/pin/${pinId}/`
+          : typeof payload.resolvedUrl === "string"
+            ? payload.resolvedUrl
+            : normalizedUrl;
 
         setResolvedUrl(finalUrl);
         setResolvedPinId(pinId);
@@ -169,6 +156,7 @@ function PinterestEmbed({ url }: { url: string }) {
 
         if (directPinId) {
           setResolvedPinId(directPinId);
+          setResolvedUrl(`https://www.pinterest.com/pin/${directPinId}/`);
           setStatus("ready");
           return;
         }
@@ -184,12 +172,6 @@ function PinterestEmbed({ url }: { url: string }) {
     };
   }, [url]);
 
-  useEffect(() => {
-    if (status === "loading") return;
-    loadPinterestScript();
-    const timer = setTimeout(() => window.PinUtils?.build(), 450);
-    return () => clearTimeout(timer);
-  }, [status, resolvedPinId, resolvedUrl, previewImageUrl]);
 
   if (status === "ready") {
     return (
@@ -205,11 +187,12 @@ function PinterestEmbed({ url }: { url: string }) {
             />
           </a>
         ) : resolvedPinId ? (
-          <div className="w-full min-h-[400px] flex justify-center py-2">
-            <a
-              data-pin-do="embedPin"
-              data-pin-width="large"
-              href={`https://www.pinterest.com/pin/${resolvedPinId}/`}
+          <div className="w-full min-h-[420px] bg-background/40">
+            <iframe
+              src={`https://assets.pinterest.com/ext/embed.html?id=${resolvedPinId}`}
+              title={`Pinterest pin ${resolvedPinId}`}
+              className="w-full h-[520px] border-0"
+              loading="lazy"
             />
           </div>
         ) : (
@@ -406,11 +389,6 @@ const PersonProfile = () => {
     fetchPins();
   }, [fetchPerson, fetchPins]);
 
-  useEffect(() => {
-    loadPinterestScript();
-    const timer = setTimeout(() => window.PinUtils?.build(), 500);
-    return () => clearTimeout(timer);
-  }, [pins]);
 
   const handleAddPin = async () => {
     if (!newPinUrl.trim() || !id) return;
@@ -427,9 +405,26 @@ const PersonProfile = () => {
     }
 
     setAdding(true);
+
+    let normalizedToSave = normalizePinterestUrl(newPinUrl);
+    try {
+      const { data } = await supabase.functions.invoke("resolve-pinterest-pin", {
+        body: { url: normalizedToSave },
+      });
+
+      const payload = (data ?? {}) as PinResolveResult;
+      if (payload.pinId) {
+        normalizedToSave = `https://www.pinterest.com/pin/${payload.pinId}/`;
+      } else if (payload.resolvedUrl) {
+        normalizedToSave = payload.resolvedUrl;
+      }
+    } catch {
+      // keep original normalized url as fallback
+    }
+
     const { error } = await supabase.from("pinterest_pins").insert({
       image_id: id,
-      pin_url: newPinUrl.trim(),
+      pin_url: normalizedToSave,
       pin_order: pins.length,
       user_id: user?.id,
     });
