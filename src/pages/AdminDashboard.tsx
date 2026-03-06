@@ -559,6 +559,11 @@ const AdminDashboard = () => {
                               {currentRole}
                             </Badge>
                           </TableCell>
+                          <TableCell>
+                            <Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>
+                              {userProfile.is_approved ? 'approved' : 'pending'}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="text-foreground/60 text-sm">
                             {format(new Date(userProfile.created_at), 'MMM d, yyyy')}
                           </TableCell>
