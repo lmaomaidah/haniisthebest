@@ -193,6 +193,36 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleToggleApproval = async (userProfile: UserProfile, nextApproved: boolean) => {
+    if (userProfile.user_id === user?.id) {
+      toast.error("You cannot change your own approval status!");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_approved: nextApproved })
+        .eq('user_id', userProfile.user_id);
+
+      if (error) {
+        toast.error('Failed to update approval status');
+        console.error('Error updating approval status:', error);
+        return;
+      }
+
+      toast.success(
+        nextApproved
+          ? `${userProfile.username} is now approved`
+          : `${userProfile.username} access has been revoked`
+      );
+      fetchData();
+    } catch (error) {
+      console.error('Error toggling approval status:', error);
+      toast.error('Failed to update approval status');
+    }
+  };
+
   const handleDeleteSelectedLogs = async () => {
     if (selectedLogs.size === 0) return;
     try {
