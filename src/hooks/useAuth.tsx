@@ -1,17 +1,24 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+
+interface UserProfile {
+  username: string;
+  is_approved: boolean;
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: { username: string } | null;
+  profile: UserProfile | null;
   isAdmin: boolean;
+  isApproved: boolean;
   loading: boolean;
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signIn: (username: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   logActivity: (actionType: string, actionDetails?: object) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,67 +26,84 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<{ username: string } | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        // Defer profile/role fetching with setTimeout to avoid deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfileAndRole(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setIsAdmin(false);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfileAndRole(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfileAndRole = async (userId: string) => {
+  const fetchProfileAndRole = useCallback(async (userId: string) => {
     try {
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', userId)
-        .maybeSingle();
+      const [{ data: profileData }, { data: roleData }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('username, is_approved')
+          .eq('user_id', userId)
+          .maybeSingle(),
+        supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .maybeSingle(),
+      ]);
 
       if (profileData) {
-        setProfile({ username: profileData.username });
+        setProfile({
+          username: profileData.username,
+          is_approved: profileData.is_approved,
+        });
+        setIsApproved(profileData.is_approved);
+      } else {
+        setProfile(null);
+        setIsApproved(false);
       }
-
-      // Fetch role
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .maybeSingle();
 
       setIsAdmin(roleData?.role === 'admin');
     } catch (error) {
       console.error('Error fetching profile/role:', error);
+      setProfile(null);
+      setIsAdmin(false);
+      setIsApproved(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const syncSessionState = async (nextSession: Session | null) => {
+      if (!mounted) return;
+
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+
+      if (!nextSession?.user) {
+        setProfile(null);
+        setIsAdmin(false);
+        setIsApproved(false);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      await fetchProfileAndRole(nextSession.user.id);
+
+      if (mounted) {
+        setLoading(false);
+      }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      void syncSessionState(nextSession);
+    });
+
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      void syncSessionState(existingSession);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfileAndRole]);
 
   const normalizeUsername = (value: string) => value.trim().toLowerCase();
 
@@ -137,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return { error: null };
   };
+
   const signOut = async () => {
     if (user) {
       await logActivity('logout', {});
@@ -146,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setProfile(null);
     setIsAdmin(false);
+    setIsApproved(false);
   };
 
   const logActivity = async (actionType: string, actionDetails: object = {}) => {
@@ -153,17 +179,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await insertActivity(user.id, actionType, actionDetails);
   };
 
+  const refreshProfile = useCallback(async () => {
+    if (!user) return;
+    await fetchProfileAndRole(user.id);
+  }, [fetchProfileAndRole, user]);
+
   return (
     <AuthContext.Provider value={{
       user,
       session,
       profile,
       isAdmin,
+      isApproved,
       loading,
       signUp,
       signIn,
       signOut,
-      logActivity
+      logActivity,
+      refreshProfile,
     }}>
       {children}
     </AuthContext.Provider>
@@ -177,3 +210,4 @@ export function useAuth() {
   }
   return context;
 }
+
