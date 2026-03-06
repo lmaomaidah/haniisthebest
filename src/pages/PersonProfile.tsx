@@ -50,16 +50,6 @@ interface PersonData {
   bio: string | null;
 }
 
-const loadPinterestScript = () => {
-  if (typeof window === "undefined") return;
-  if (document.querySelector('script[src="https://assets.pinterest.com/js/pinit.js"]')) return;
-
-  const script = document.createElement("script");
-  script.src = "https://assets.pinterest.com/js/pinit.js";
-  script.async = true;
-  document.body.appendChild(script);
-};
-
 const normalizePinterestUrl = (rawUrl: string) => {
   const trimmed = rawUrl.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
@@ -80,12 +70,6 @@ const extractPinIdFromUrl = (pinUrl: string): string | null => {
 
   return null;
 };
-
-declare global {
-  interface Window {
-    PinUtils?: { build: () => void };
-  }
-}
 
 type PinResolveResult = {
   pinId?: string | null;
