@@ -130,8 +130,11 @@ function PinterestEmbed({ url }: { url: string }) {
           typeof payload.previewImageUrl === "string" && payload.previewImageUrl.length > 0
             ? payload.previewImageUrl
             : null;
-        const finalUrl =
-          typeof payload.resolvedUrl === "string" ? payload.resolvedUrl : normalizedUrl;
+        const finalUrl = pinId
+          ? `https://www.pinterest.com/pin/${pinId}/`
+          : typeof payload.resolvedUrl === "string"
+            ? payload.resolvedUrl
+            : normalizedUrl;
 
         setResolvedUrl(finalUrl);
         setResolvedPinId(pinId);
@@ -402,9 +405,26 @@ const PersonProfile = () => {
     }
 
     setAdding(true);
+
+    let normalizedToSave = normalizePinterestUrl(newPinUrl);
+    try {
+      const { data } = await supabase.functions.invoke("resolve-pinterest-pin", {
+        body: { url: normalizedToSave },
+      });
+
+      const payload = (data ?? {}) as PinResolveResult;
+      if (payload.pinId) {
+        normalizedToSave = `https://www.pinterest.com/pin/${payload.pinId}/`;
+      } else if (payload.resolvedUrl) {
+        normalizedToSave = payload.resolvedUrl;
+      }
+    } catch {
+      // keep original normalized url as fallback
+    }
+
     const { error } = await supabase.from("pinterest_pins").insert({
       image_id: id,
-      pin_url: newPinUrl.trim(),
+      pin_url: normalizedToSave,
       pin_order: pins.length,
       user_id: user?.id,
     });
