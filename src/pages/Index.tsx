@@ -3,24 +3,20 @@ import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin, Trophy } fr
 import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import Marquee from "@/components/Marquee";
-import { motion } from "framer-motion";
 
 const navItems = [
-  { to: "/gallery", icon: <Image className="h-5 w-5" />, label: "Upload Classmates" },
-  { to: "/tier-list", icon: <Star className="h-5 w-5" />, label: "Tier List" },
-  { to: "/classifications", icon: <Sparkles className="h-5 w-5" />, label: "Classify" },
-  { to: "/ratings", icon: <TrendingUp className="h-5 w-5" />, label: "Rate & Rank" },
-  { to: "/ship-o-meter", icon: <Heart className="h-5 w-5" />, label: "Ship-O-Meter" },
-  { to: "/judgement-quiz", icon: <Brain className="h-5 w-5" />, label: "The Judgement" },
-  { to: "/polls", icon: <Vote className="h-5 w-5" />, label: "Crowd Verdicts" },
-  { to: "/profiles", icon: <Pin className="h-5 w-5" />, label: "Shrine Wall" },
-  { to: "/leaderboard", icon: <Trophy className="h-5 w-5" />, label: "Leaderboard" },
+  { to: "/gallery", icon: <Image className="h-6 w-6" />, label: "Upload Classmates" },
+  { to: "/tier-list", icon: <Star className="h-6 w-6" />, label: "Make Tier List" },
+  { to: "/classifications", icon: <Sparkles className="h-6 w-6" />, label: "Classify" },
+  { to: "/ratings", icon: <TrendingUp className="h-6 w-6" />, label: "Rate & Rank" },
+  { to: "/ship-o-meter", icon: <Heart className="h-6 w-6" />, label: "Ship-O-Meter" },
+  { to: "/judgement-quiz", icon: <Brain className="h-6 w-6" />, label: "The Judgement" },
+  { to: "/polls", icon: <Vote className="h-6 w-6" />, label: "Crowd Verdicts" },
+  { to: "/profiles", icon: <Pin className="h-6 w-6" />, label: "Shrine Wall" },
+  { to: "/leaderboard", icon: <Trophy className="h-6 w-6" />, label: "Leaderboard" },
 ];
 
 const Index = () => {
-  const count = navItems.length;
-  const orbitRadiusPercent = 37;
-
   return (
     <div className="min-h-screen relative overflow-hidden">
       <Marquee />
@@ -29,7 +25,7 @@ const Index = () => {
       <div className="container mx-auto px-4 relative z-10">
         <PageHeader title="" showHome={false} />
 
-        <div className="text-center space-y-6 animate-fade-in py-8">
+        <div className="text-center space-y-6 animate-fade-in py-12">
           <p className="text-lg md:text-xl font-medium text-foreground/70 tracking-widest uppercase">
             Welcome to the chaos
           </p>
@@ -45,58 +41,23 @@ const Index = () => {
             it's to keep yourself busy with unimportant nonsense, and eventually you'll be dead.
           </p>
 
-          {/* Circular Navigation */}
-          <div className="pt-12 pb-8 flex justify-center">
-            <div className="relative w-[360px] h-[360px] md:w-[440px] md:h-[440px]">
-              {/* Center decoration */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
-                  <Trophy className="h-9 w-9 md:h-10 md:w-10 text-primary" />
+          {/* Navigation Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-12 max-w-3xl mx-auto">
+            {navItems.map((item) => (
+              <Link key={item.to} to={item.to} className="group">
+                <div className="relative bg-card rounded-xl p-4 border border-border hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-[0_4px_20px_hsl(var(--primary)/0.15)] active:scale-95">
+                  <div className="flex flex-col items-center gap-2.5 text-center">
+                    <span className="text-primary group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
+                    <span className="font-semibold text-sm text-foreground">{item.label}</span>
+                  </div>
                 </div>
-              </div>
-
-              {/* Orbit ring */}
-              <div className="absolute inset-[15%] rounded-full border border-dashed border-primary/15" />
-
-              {/* Nav items in circle */}
-              {navItems.map((item, i) => {
-                const angle = (i * 360) / count - 90;
-                const radAngle = (angle * Math.PI) / 180;
-                const x = Math.cos(radAngle) * orbitRadiusPercent;
-                const y = Math.sin(radAngle) * orbitRadiusPercent;
-
-                return (
-                  <motion.div
-                    key={item.to}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.06, type: "spring", stiffness: 200 }}
-                    className="absolute"
-                    style={{
-                      left: `${50 + x}%`,
-                      top: `${50 + y}%`,
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    <Link to={item.to} className="group block">
-                      <div className="relative flex flex-col items-center gap-1">
-                        <div className="h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-card border border-border hover:border-primary/50 flex items-center justify-center shadow-md group-hover:shadow-[0_4px_20px_hsl(var(--primary)/0.2)] transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 active:scale-95">
-                          <span className="text-primary">{item.icon}</span>
-                        </div>
-                        <span className="text-[10px] md:text-xs font-semibold text-foreground/80 whitespace-nowrap max-w-[80px] truncate text-center">
-                          {item.label}
-                        </span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </div>
+              </Link>
+            ))}
           </div>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mt-8">
+        <div className="grid md:grid-cols-3 gap-6 mt-24">
           {[
             { emoji: "📸", title: "Image Gallery", desc: "I come from poison. I have poison inside me, and I destroy everything I touch. That's my legacy.", border: "border-primary/40", titleColor: "text-primary" },
             { emoji: "⭐", title: "Tier Lists", desc: "I looooooove chocolate, but it will literally kill me!!!!!!", border: "border-secondary/40", titleColor: "text-secondary" },
