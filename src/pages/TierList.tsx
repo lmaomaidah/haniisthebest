@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Save, Download, RotateCcw, Globe, Lock, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Save, Download, RotateCcw, Globe, Lock, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { TierRow } from "@/components/TierRow";
 import { ImagePool } from "@/components/ImagePool";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { UserMenu } from "@/components/UserMenu";
+import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import html2canvas from "html2canvas";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
@@ -324,39 +323,24 @@ const TierList = () => {
   return (
     <div className="min-h-screen p-4 md:p-8 relative">
       <WhimsicalBackground />
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
-        <UserMenu />
-        <ThemeToggle />
-      </div>
-
       <div className="container mx-auto relative z-10 max-w-6xl">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-6 flex-wrap gap-4">
-          <div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide">
-              ⭐ Tier List
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Drag classmates into tiers • Click tier labels to rename • Add custom tiers below
-            </p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <Button onClick={resetTierList} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50 bg-card/80 backdrop-blur-sm hover:bg-destructive/10">
-              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
-            </Button>
-            <Button onClick={saveTierList} size="sm" className="rounded-xl gradient-pink-blue text-white">
-              <Save className="mr-1.5 h-3.5 w-3.5" /> Save
-            </Button>
-            <Button onClick={exportAsImage} size="sm" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
-              <Download className="mr-1.5 h-3.5 w-3.5" /> Export
-            </Button>
-            <Link to="/">
-              <Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50 bg-card/80 backdrop-blur-sm">
-                <Home className="mr-1.5 h-3.5 w-3.5" /> Home
+        <PageHeader
+          title="⭐ Tier List"
+          subtitle="Drag classmates into tiers • Click tier labels to rename • Add custom tiers below"
+          actions={
+            <>
+              <Button onClick={resetTierList} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50 hover:bg-destructive/10">
+                <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
-            </Link>
-          </div>
-        </div>
+              <Button onClick={saveTierList} size="sm" className="rounded-xl gradient-pink-blue text-white">
+                <Save className="mr-1.5 h-3.5 w-3.5" /> Save
+              </Button>
+              <Button onClick={exportAsImage} size="sm" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
+                <Download className="mr-1.5 h-3.5 w-3.5" /> Export
+              </Button>
+            </>
+          }
+        />
 
         {/* Public toggle - cleaner design */}
         <div className="flex items-center gap-3 mb-5 bg-card/60 backdrop-blur-sm border border-border/30 rounded-xl px-4 py-2.5">

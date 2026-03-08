@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { UserMenu } from "@/components/UserMenu";
-import { NavLink } from "@/components/NavLink";
+import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -545,39 +543,19 @@ const ShipOMeter = () => {
     <div className="min-h-screen py-8 px-4 relative">
       <WhimsicalBackground />
 
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
-        <UserMenu />
-        <ThemeToggle />
-      </div>
-
       <div className="container mx-auto max-w-6xl relative z-10">
-        <div className="flex flex-wrap items-center gap-3 mb-8">
-          <Link to="/">
-            <Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50">
-              <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Home
+        <PageHeader
+          title="💕 Ship-O-Meter"
+          subtitle="Advanced compatibility engine with personality vectors and dimension analysis."
+          actions={
+            <Button onClick={resetShipOMeter} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>
-          </Link>
-          <Button onClick={resetShipOMeter} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50">
-            <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
-          </Button>
-          <NavLink to="/gallery">Gallery</NavLink>
-          <NavLink to="/tier-list">Tier List</NavLink>
-          <NavLink to="/ratings">Ratings</NavLink>
-        </div>
+          }
+        />
 
         <div className="mb-6">
           <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
-        </div>
-
-        <div className="text-center mb-10 space-y-3">
-          <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide flex items-center justify-center gap-3">
-            <Heart className="text-secondary animate-pulse h-8 w-8 md:h-10 md:w-10" />
-            Ship-O-Meter
-            <Heart className="text-secondary animate-pulse h-8 w-8 md:h-10 md:w-10" />
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto">
-            Advanced compatibility engine with personality vectors and dimension analysis.
-          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-10">

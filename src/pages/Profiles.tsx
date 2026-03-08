@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Home, Search, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { UserMenu } from "@/components/UserMenu";
+import { Search, Eye } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
@@ -46,16 +44,11 @@ const Profiles = () => {
   return (
     <div className="min-h-screen p-4 md:p-8 relative">
       <WhimsicalBackground />
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3"><UserMenu /><ThemeToggle /></div>
-
       <div className="container mx-auto relative z-10 max-w-7xl">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide">📌 Shrine Wall</h1>
-            <p className="text-muted-foreground text-sm mt-1">{people.length} classmates enshrined</p>
-          </div>
-          <Link to="/"><Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50 bg-card/80 backdrop-blur-sm"><Home className="mr-1.5 h-3.5 w-3.5" /> Home</Button></Link>
-        </div>
+        <PageHeader
+          title="📌 Shrine Wall"
+          subtitle={`${people.length} classmates enshrined`}
+        />
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start">
           <div className="relative w-full sm:max-w-xs">

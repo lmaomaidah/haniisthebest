@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Save, TrendingUp, RotateCcw } from "lucide-react";
+import { Save, TrendingUp, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { UserMenu } from "@/components/UserMenu";
+import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
@@ -94,19 +93,16 @@ const Ratings = () => {
   return (
     <div className="min-h-screen p-4 md:p-8 relative">
       <WhimsicalBackground />
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3"><UserMenu /><ThemeToggle /></div>
-
       <div className="container mx-auto relative z-10 max-w-6xl">
-        <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide">🧠 Rate & Rank</h1>
-            <p className="text-muted-foreground text-sm mt-1">Judge your classmates with precision</p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={resetRatings} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50"><RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset</Button>
-            <Link to="/"><Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50"><Home className="mr-1.5 h-3.5 w-3.5" /> Home</Button></Link>
-          </div>
-        </div>
+        <PageHeader
+          title="🧠 Rate & Rank"
+          subtitle="Judge your classmates with precision"
+          actions={
+            <Button onClick={resetRatings} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
+            </Button>
+          }
+        />
 
         <div className="mb-6">
           <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
