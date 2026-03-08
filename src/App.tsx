@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ActivityTracker } from "@/components/ActivityTracker";
 import Index from "./pages/Index";
 import Gallery from "./pages/Gallery";
 import TierList from "./pages/TierList";
@@ -33,6 +34,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ActivityTracker />
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/pending-approval" element={<PendingApproval />} />
