@@ -22,6 +22,7 @@ import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
 import { useToast } from "@/hooks/use-toast";
+import { CommentSection } from "@/components/CommentSection";
 
 interface ImageType {
   id: string;
@@ -737,6 +738,16 @@ const ShipOMeter = () => {
                   </div>
                 </div>
               </section>
+            )}
+
+            {/* Comments on ship results */}
+            {showResult && person1 && person2 && (
+              <div className="mt-8 bg-card/60 backdrop-blur-sm border-2 border-border/40 rounded-3xl p-6">
+                <CommentSection
+                  contentType="ship"
+                  contentId={`${[person1.id, person2.id].sort().join("-")}`}
+                />
+              </div>
             )}
           </>
         )}
