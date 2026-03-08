@@ -19,6 +19,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
+import { CategoryPicker } from "@/components/CategoryPicker";
+import { useCategories, fetchImageCategoryIds, setImageCategories } from "@/hooks/useCategories";
 import {
   DndContext,
   closestCenter,
@@ -373,6 +375,8 @@ const PersonProfile = () => {
   const [bioText, setBioText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [personCategories, setPersonCategories] = useState<string[]>([]);
+  const { categories, createCategory } = useCategories();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -405,10 +409,43 @@ const PersonProfile = () => {
     if (data) setPins(data as Pin[]);
   }, [id]);
 
+  const fetchPersonCategories = useCallback(async () => {
+    if (!id) return;
+    const cats = await fetchImageCategoryIds(id);
+    setPersonCategories(cats);
+  }, [id]);
+
   useEffect(() => {
     fetchPerson();
     fetchPins();
-  }, [fetchPerson, fetchPins]);
+    fetchPersonCategories();
+  }, [fetchPerson, fetchPins, fetchPersonCategories]);
+
+  const handleCategoryChange = async (newCats: string[]) => {
+    if (!id) return;
+    try {
+      await setImageCategories(id, newCats);
+      setPersonCategories(newCats);
+      toast({ title: "Categories updated! 🏷️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't update categories", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleCreateCategoryOnProfile = async (name: string) => {
+    if (!user) return;
+    try {
+      const cat = await createCategory(name, user.id);
+      if (cat) {
+        const updated = [...personCategories, cat.id];
+        await setImageCategories(id!, updated);
+        setPersonCategories(updated);
+      }
+      toast({ title: "Category created & assigned! 🏷️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't create category", description: err.message, variant: "destructive" });
+    }
+  };
 
 
   const handleAddPin = async () => {
@@ -630,6 +667,18 @@ const PersonProfile = () => {
                   {person.bio ||
                     (isAdmin ? "Click to add a bio…" : "No bio yet.")}
                 </p>
+              )}
+            </div>
+
+            {/* Categories */}
+            <div className="mt-4 max-w-md">
+              <CategoryPicker
+                categories={categories}
+                selected={personCategories}
+                onChange={handleCategoryChange}
+              />
+              {categories.length > 0 && personCategories.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1 text-center">Tap to assign categories</p>
               )}
             </div>
           </div>

@@ -25,7 +25,7 @@ const Profiles = () => {
   const [loading, setLoading] = useState(true);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -59,6 +59,25 @@ const Profiles = () => {
       toast({ title: "Category created! 🏷️" });
     } catch (err: any) {
       toast({ title: "Couldn't create category", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try {
+      await renameCategory(id, newName);
+      toast({ title: "Category renamed! ✏️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't rename", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      await deleteCategory(id);
+      await loadCategoryMap();
+      toast({ title: "Category deleted! 🗑️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't delete", description: err.message, variant: "destructive" });
     }
   };
 
@@ -106,6 +125,9 @@ const Profiles = () => {
               onChange={setFilterCategories}
               allowCreate
               onCreateCategory={handleCreateCategory}
+              allowEdit
+              onRenameCategory={handleRenameCategory}
+              onDeleteCategory={handleDeleteCategory}
             />
           </div>
         )}

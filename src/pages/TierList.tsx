@@ -50,7 +50,7 @@ const TierList = () => {
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
   const { toast } = useToast();
   const { logActivity, user } = useAuth();
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
@@ -215,6 +215,25 @@ const TierList = () => {
     }
   };
 
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try {
+      await renameCategory(id, newName);
+      toast({ title: "Category renamed! ✏️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't rename", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      await deleteCategory(id);
+      await loadCategoryMap();
+      toast({ title: "Category deleted! 🗑️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't delete", description: err.message, variant: "destructive" });
+    }
+  };
+
   const getOrderedImages = (ids: string[]) =>
     ids.map((id) => images.find((img) => img.id === id)).filter((img): img is ImageType => Boolean(img));
 
@@ -257,6 +276,9 @@ const TierList = () => {
               onChange={setFilterCategories}
               allowCreate
               onCreateCategory={handleCreateCategory}
+              allowEdit
+              onRenameCategory={handleRenameCategory}
+              onDeleteCategory={handleDeleteCategory}
             />
           </div>
         )}

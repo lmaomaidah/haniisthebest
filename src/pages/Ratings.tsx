@@ -54,7 +54,7 @@ const Ratings = () => {
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
   const { toast } = useToast();
   const { logActivity, user } = useAuth();
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   useEffect(() => {
     fetchImagesWithRatings();
@@ -135,6 +135,16 @@ const Ratings = () => {
     catch (err: any) { toast({ title: "Couldn't create category", description: err.message, variant: "destructive" }); }
   };
 
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try { await renameCategory(id, newName); toast({ title: "Category renamed! ✏️" }); }
+    catch (err: any) { toast({ title: "Couldn't rename", description: err.message, variant: "destructive" }); }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try { await deleteCategory(id); await loadCategoryMap(); toast({ title: "Category deleted! 🗑️" }); }
+    catch (err: any) { toast({ title: "Couldn't delete", description: err.message, variant: "destructive" }); }
+  };
+
   const sortedImages = [...images].sort((a, b) => b.total - a.total);
 
   return (
@@ -162,7 +172,7 @@ const Ratings = () => {
 
         {categories.length > 0 && (
           <div className="mb-6">
-            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} />
+            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
           </div>
         )}
 

@@ -12,6 +12,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { Plus, Trash2, Save, Download, Home } from "lucide-react";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
 
 interface ImageType {
   id: string;
@@ -42,7 +44,8 @@ const CIRCLE_COLORS = [
 
 export default function Classifications() {
   const navigate = useNavigate();
-  const { logActivity } = useAuth();
+  const { logActivity, user } = useAuth();
+  const [allImages, setAllImages] = useState<ImageType[]>([]);
   const [images, setImages] = useState<ImageType[]>([]);
   const [circles, setCircles] = useState<Circle[]>([
     { id: 'circle-1', label: 'Circle 1', color: CIRCLE_COLORS[0] },
@@ -51,11 +54,31 @@ export default function Classifications() {
   const [placements, setPlacements] = useState<Placements>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [newLabel, setNewLabel] = useState("");
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   useEffect(() => {
     loadImages();
     loadClassifications();
+    loadCategoryMap();
   }, []);
+
+  const loadCategoryMap = async () => {
+    const map = await fetchAllImageCategories();
+    setImageCategoryMap(map);
+  };
+
+  useEffect(() => {
+    if (filterCategories.length === 0) {
+      setImages(allImages);
+    } else {
+      setImages(allImages.filter((img) => {
+        const cats = imageCategoryMap[img.id] || [];
+        return filterCategories.some((fc) => cats.includes(fc));
+      }));
+    }
+  }, [filterCategories, allImages, imageCategoryMap]);
 
   const loadImages = async () => {
     const { data, error } = await supabase
@@ -66,8 +89,25 @@ export default function Classifications() {
 
     if (!error && data) {
       const signedImages = await withSignedClassmateImageUrls(data);
+      setAllImages(signedImages);
       setImages(signedImages);
     }
+  };
+
+  const handleCreateCategory = async (name: string) => {
+    if (!user) return;
+    try { await createCategory(name, user.id); toast.success("Category created! 🏷️"); }
+    catch { toast.error("Couldn't create category"); }
+  };
+
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try { await renameCategory(id, newName); toast.success("Category renamed! ✏️"); }
+    catch { toast.error("Couldn't rename category"); }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try { await deleteCategory(id); await loadCategoryMap(); toast.success("Category deleted! 🗑️"); }
+    catch { toast.error("Couldn't delete category"); }
   };
 
   const loadClassifications = async () => {
@@ -239,6 +279,12 @@ export default function Classifications() {
         <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-primary animate-bounce-in drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
           🔵 Venn Diagram 🟣
         </h1>
+
+        {categories.length > 0 && (
+          <div className="mb-6">
+            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
+          </div>
+        )}
 
         {/* Add Circle Section */}
         <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm rounded-3xl p-6 border-4 border-primary shadow-bounce mb-6 dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">

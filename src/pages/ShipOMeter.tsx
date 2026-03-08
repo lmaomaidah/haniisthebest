@@ -338,7 +338,7 @@ const ShipOMeter = () => {
   const [showResult, setShowResult] = useState(false);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   const [physicalAffection, setPhysicalAffection] = useState([50, 50]);
   const [giftGiving, setGiftGiving] = useState([50, 50]);
@@ -383,6 +383,16 @@ const ShipOMeter = () => {
     if (!user) return;
     try { await createCategory(name, user.id); toast({ title: "Category created! 🏷️" }); }
     catch (err: any) { toast({ title: "Couldn't create category", description: err.message, variant: "destructive" }); }
+  };
+
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try { await renameCategory(id, newName); toast({ title: "Category renamed! ✏️" }); }
+    catch (err: any) { toast({ title: "Couldn't rename", description: err.message, variant: "destructive" }); }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try { await deleteCategory(id); await loadCategoryMap(); toast({ title: "Category deleted! 🗑️" }); }
+    catch (err: any) { toast({ title: "Couldn't delete", description: err.message, variant: "destructive" }); }
   };
 
   const resetShipOMeter = () => {
@@ -555,7 +565,7 @@ const ShipOMeter = () => {
 
         {categories.length > 0 && (
           <div className="mb-6">
-            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} />
+            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
           </div>
         )}
 

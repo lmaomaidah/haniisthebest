@@ -47,7 +47,7 @@ export default function VennDiagram() {
   const [newLabel, setNewLabel] = useState("");
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   useEffect(() => {
     loadImages();
@@ -89,6 +89,16 @@ export default function VennDiagram() {
     if (!user) return;
     try { await createCategory(name, user.id); toast.success("Category created! 🏷️"); }
     catch { toast.error("Couldn't create category"); }
+  };
+
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try { await renameCategory(id, newName); toast.success("Category renamed! ✏️"); }
+    catch { toast.error("Couldn't rename category"); }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try { await deleteCategory(id); await loadCategoryMap(); toast.success("Category deleted! 🗑️"); }
+    catch { toast.error("Couldn't delete category"); }
   };
 
   const loadVennDiagram = async () => {
@@ -276,9 +286,15 @@ export default function VennDiagram() {
           </Button>
         </div>
 
-        <h1 className="text-6xl font-bold text-center mb-8 text-primary animate-bounce-in">
+        <h1 className="text-6xl font-bold text-center mb-4 text-primary animate-bounce-in">
           🔮 Venn Diagram Sorter 🔮
         </h1>
+
+        {categories.length > 0 && (
+          <div className="mb-6">
+            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-card rounded-3xl p-6 border-4 border-primary shadow-bounce">
