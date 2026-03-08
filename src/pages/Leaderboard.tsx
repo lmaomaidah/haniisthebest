@@ -218,7 +218,11 @@ const Leaderboard = () => {
     }
   };
 
-  const getClassmateImage = (name: string) => classmates.get(name.toLowerCase());
+  const getClassmateImage = (identifier: string) => {
+    const key = (identifier || "").trim();
+    if (!key) return undefined;
+    return classmates.get(key) || classmates.get(key.toLowerCase());
+  };
 
   const countTierItems = (tiers: any): number => {
     if (!tiers || typeof tiers !== "object") return 0;
@@ -510,7 +514,7 @@ const Leaderboard = () => {
                                 </div>
                               )}
 
-                              <CommentSection contentType="ship-leaderboard" contentId={entry.id} />
+                              <CommentSection contentType="ship" contentId={entry.id} />
                             </div>
                           </motion.div>
                         )}
@@ -665,7 +669,7 @@ const Leaderboard = () => {
                               })}
                             </div>
 
-                            <CommentSection contentType="tier-list" contentId={tl.id} />
+                            <CommentSection contentType="tier_list" contentId={tl.id} />
                           </div>
                         </motion.div>
                       )}
