@@ -776,7 +776,6 @@ const PersonProfile = () => {
             </SortableContext>
           </DndContext>
         )}
-      </div>
 
         {/* Comments Section */}
         <div className="mt-12 bg-card/60 backdrop-blur-sm border-2 border-border/40 rounded-3xl p-6">
@@ -784,15 +783,15 @@ const PersonProfile = () => {
         </div>
       </div>
 
-        {/* Floating add button on mobile */}
-        {!showAddInput && (
-          <button
-            onClick={() => setShowAddInput(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-chaos shadow-xl flex items-center justify-center hover:scale-110 transition-transform md:hidden"
-          >
-            <Plus className="h-6 w-6 text-foreground" />
-          </button>
-        )}
+      {/* Floating add button on mobile */}
+      {!showAddInput && (
+        <button
+          onClick={() => setShowAddInput(true)}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-chaos shadow-xl flex items-center justify-center hover:scale-110 transition-transform md:hidden"
+        >
+          <Plus className="h-6 w-6 text-foreground" />
+        </button>
+      )}
     </div>
   );
 };
