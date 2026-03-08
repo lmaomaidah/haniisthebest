@@ -532,59 +532,105 @@ const AdminDashboard = () => {
         )}
 
         {/* ─── Activity Feed Tab ─── */}
-        {activeTab === 'activity' && (
+        {activeTab === 'activity' && (() => {
+          // Filter activities
+          const uniqueUsers = Array.from(new Set(activities.map(a => a.profiles?.username || 'Unknown'))).sort();
+          const uniqueTypes = Array.from(new Set(activities.map(a => a.action_type))).sort();
+          const searchLower = activitySearch.toLowerCase();
+
+          const filteredActivities = activities.filter(a => {
+            if (activityUserFilter !== 'all' && (a.profiles?.username || 'Unknown') !== activityUserFilter) return false;
+            if (activityTypeFilter !== 'all' && a.action_type !== activityTypeFilter) return false;
+            if (searchLower) {
+              const readable = formatReadableActivity(a.action_type, a.action_details).toLowerCase();
+              const username = (a.profiles?.username || '').toLowerCase();
+              const actionLabel = getActionConfig(a.action_type).label.toLowerCase();
+              if (!readable.includes(searchLower) && !username.includes(searchLower) && !actionLabel.includes(searchLower)) return false;
+            }
+            return true;
+          });
+
+          return (
           <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
             <CardContent className="p-0">
-              {activities.length > 0 && (
-                <div className="flex items-center gap-3 p-4 border-b border-border/30">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
-                        <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({selectedLogs.size})
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
-                        <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm"><Trash2 className="h-4 w-4 mr-1" /> Delete All</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
-                        <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              )}
+              {/* Filters bar */}
+              <div className="flex flex-wrap items-center gap-2 p-4 border-b border-border/30">
+                <input
+                  type="text"
+                  value={activitySearch}
+                  onChange={(e) => setActivitySearch(e.target.value)}
+                  placeholder="Search activity..."
+                  className="h-8 px-3 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50 w-40"
+                />
+                <select
+                  value={activityUserFilter}
+                  onChange={(e) => setActivityUserFilter(e.target.value)}
+                  className="h-8 px-2 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                >
+                  <option value="all">All users</option>
+                  {uniqueUsers.map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
+                <select
+                  value={activityTypeFilter}
+                  onChange={(e) => setActivityTypeFilter(e.target.value)}
+                  className="h-8 px-2 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                >
+                  <option value="all">All actions</option>
+                  {uniqueTypes.map(t => <option key={t} value={t}>{getActionConfig(t).label} ({t})</option>)}
+                </select>
+                <span className="text-[11px] text-muted-foreground ml-auto">{filteredActivities.length} of {activities.length} logs</span>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete ({selectedLogs.size})
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
+                      <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm"><Trash2 className="h-4 w-4 mr-1" /> Delete All</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
+                      <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
 
               <div className="divide-y divide-border/10">
                 <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
-                  <div className="w-8"><Checkbox checked={activities.length > 0 && selectedLogs.size === activities.length} onCheckedChange={toggleAllLogs} /></div>
+                  <div className="w-8"><Checkbox checked={filteredActivities.length > 0 && selectedLogs.size === filteredActivities.length} onCheckedChange={() => {
+                    if (selectedLogs.size === filteredActivities.length) setSelectedLogs(new Set());
+                    else setSelectedLogs(new Set(filteredActivities.map(a => a.id)));
+                  }} /></div>
                   <div className="w-24">User</div>
                   <div className="w-32">Action</div>
                   <div className="flex-1">Details</div>
                   <div className="w-28 text-right">When</div>
                 </div>
 
-                {activities.length === 0 ? (
-                  <div className="text-center py-12 text-foreground/60">No activity yet. Everyone's being too quiet... 🤫</div>
+                {filteredActivities.length === 0 ? (
+                  <div className="text-center py-12 text-foreground/60">
+                    {activities.length === 0 ? "No activity yet. Everyone's being too quiet... 🤫" : "No logs match your filters."}
+                  </div>
                 ) : (
-                  activities.map((activity) => {
+                  filteredActivities.map((activity) => {
                     const config = getActionConfig(activity.action_type);
                     const readable = formatReadableActivity(activity.action_type, activity.action_details);
                     const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
@@ -622,7 +668,8 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+          );
+        })()}
 
         {/* ─── Users Tab ─── */}
         {activeTab === 'users' && (
