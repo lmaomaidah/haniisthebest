@@ -26,7 +26,6 @@ const Index = () => {
         <PageHeader title="" showHome={false} />
 
         <div className="text-center space-y-6 animate-fade-in py-12">
-        <div className="text-center space-y-6 animate-fade-in">
           <p className="text-lg md:text-xl font-medium text-foreground/70 tracking-widest uppercase">
             Welcome to the chaos
           </p>
