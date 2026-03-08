@@ -521,7 +521,7 @@ const AdminDashboard = () => {
                 <TableBody>
                   {activities.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={6} className="text-center py-8 text-foreground/60">
                         No activity yet. Everyone's being too quiet... 🤫
                       </TableCell>
                     </TableRow>
