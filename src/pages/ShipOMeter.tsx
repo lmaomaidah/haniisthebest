@@ -428,6 +428,7 @@ const ShipOMeter = () => {
     setCompatibility(null);
     setAnalysis(null);
     setShowResult(false);
+    void logActivity("ship_reset", {});
   };
 
   const calculateCompatibility = () => {
