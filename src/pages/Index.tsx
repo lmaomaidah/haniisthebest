@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin } from "lucide-react";
+import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin, Trophy } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import Marquee from "@/components/Marquee";
@@ -14,6 +14,7 @@ const navItems = [
   { to: "/judgement-quiz", icon: <Brain className="h-6 w-6" />, label: "The Judgement", gradient: "from-accent to-secondary", textClass: "text-primary-foreground" },
   { to: "/polls", icon: <Vote className="h-6 w-6" />, label: "Crowd Verdicts", gradient: "from-primary to-accent", textClass: "text-primary-foreground" },
   { to: "/profiles", icon: <Pin className="h-6 w-6" />, label: "Shrine Wall", gradient: "from-secondary to-accent", textClass: "text-primary-foreground" },
+  { to: "/leaderboard", icon: <Trophy className="h-6 w-6" />, label: "Leaderboard", gradient: "from-primary to-secondary", textClass: "text-primary-foreground" },
 ];
 
 const Index = () => {
