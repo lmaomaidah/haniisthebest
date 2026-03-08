@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Save, Download, RotateCcw } from "lucide-react";
+import { Home, Save, Download, RotateCcw, Globe, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { TierRow } from "@/components/TierRow";
@@ -15,6 +15,8 @@ import html2canvas from "html2canvas";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
+import { CommentSection } from "@/components/CommentSection";
+import { Switch } from "@/components/ui/switch";
 
 interface ImageType {
   id: string;
@@ -48,6 +50,8 @@ const TierList = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
+  const [isPublic, setIsPublic] = useState(false);
+  const [tierListId, setTierListId] = useState<string | null>(null);
   const { toast } = useToast();
   const { logActivity, user } = useAuth();
   const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
