@@ -290,11 +290,9 @@ export default function VennDiagram() {
           🔮 Venn Diagram Sorter 🔮
         </h1>
 
-        {categories.length > 0 && (
-          <div className="mb-6">
-            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
-          </div>
-        )}
+        <div className="mb-6">
+          <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-card rounded-3xl p-6 border-4 border-primary shadow-bounce">

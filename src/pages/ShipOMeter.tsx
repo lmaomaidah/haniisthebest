@@ -563,11 +563,9 @@ const ShipOMeter = () => {
           <NavLink to="/venn-diagram">Venn</NavLink>
         </div>
 
-        {categories.length > 0 && (
-          <div className="mb-6">
-            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
-          </div>
-        )}
+        <div className="mb-6">
+          <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
+        </div>
 
         <div className="text-center mb-10 space-y-3">
           <h1 className="text-5xl md:text-7xl font-bold text-gradient flex items-center justify-center gap-4">

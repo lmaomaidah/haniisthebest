@@ -268,20 +268,18 @@ const TierList = () => {
           </div>
         </div>
 
-        {categories.length > 0 && (
-          <div className="mb-6">
-            <CategoryFilter
-              categories={categories}
-              selected={filterCategories}
-              onChange={setFilterCategories}
-              allowCreate
-              onCreateCategory={handleCreateCategory}
-              allowEdit
-              onRenameCategory={handleRenameCategory}
-              onDeleteCategory={handleDeleteCategory}
-            />
-          </div>
-        )}
+        <div className="mb-6">
+          <CategoryFilter
+            categories={categories}
+            selected={filterCategories}
+            onChange={setFilterCategories}
+            allowCreate
+            onCreateCategory={handleCreateCategory}
+            allowEdit
+            onRenameCategory={handleRenameCategory}
+            onDeleteCategory={handleDeleteCategory}
+          />
+        </div>
 
         <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-accent rounded-3xl p-6 mb-8 text-center">
           <p className="text-xl font-bold text-foreground">
