@@ -49,9 +49,9 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 max-w-4xl mx-auto">
             {navItems.map((item) => (
               <Link key={item.to} to={item.to} className="group">
-                <div className="relative bg-card rounded-xl p-4 border border-border hover:border-primary/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg active:scale-95">
+                <div className="relative bg-card rounded-xl p-4 border border-border hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-[0_4px_20px_hsl(var(--primary)/0.15)] active:scale-95">
                   <div className="flex flex-col items-center gap-2.5 text-center">
-                    <span className="text-primary">{item.icon}</span>
+                    <span className="text-primary group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
                     <span className="font-semibold text-sm text-foreground">{item.label}</span>
                   </div>
                 </div>
