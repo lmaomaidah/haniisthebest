@@ -169,6 +169,7 @@ export default function VennDiagram() {
       link.download = 'venn-diagram.png';
       link.href = canvas.toDataURL();
       link.click();
+      void logActivity("venn_exported", {});
       toast.success("📸 Diagram exported!");
     } catch (error) {
       console.error('Export error:', error);
@@ -192,6 +193,7 @@ export default function VennDiagram() {
 
     setCircles([...circles, newCircle]);
     setNewLabel("");
+    void logActivity("venn_circle_added", { label: newLabel });
     toast.success(`✨ Added ${newLabel}!`);
   };
 
