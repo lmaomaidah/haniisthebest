@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { UserMenu } from "@/components/UserMenu";
+import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import Marquee from "@/components/Marquee";
 
@@ -23,10 +22,8 @@ const Index = () => {
       <Marquee />
       <WhimsicalBackground />
 
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
-        <UserMenu />
-        <ThemeToggle />
-      </div>
+      <div className="container mx-auto px-4 relative z-10">
+        <PageHeader title="" showHome={false} />
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="text-center space-y-6 animate-fade-in">
