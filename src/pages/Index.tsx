@@ -19,8 +19,7 @@ const navItems = [
 
 const Index = () => {
   const count = navItems.length;
-  const radius = 170; // px from center
-  const radiusMobile = 130;
+  const orbitRadiusPercent = 37;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -52,7 +51,7 @@ const Index = () => {
               {/* Center decoration */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-3xl md:text-4xl">👑</span>
+                  <Trophy className="h-9 w-9 md:h-10 md:w-10 text-primary" />
                 </div>
               </div>
 
@@ -63,10 +62,8 @@ const Index = () => {
               {navItems.map((item, i) => {
                 const angle = (i * 360) / count - 90;
                 const radAngle = (angle * Math.PI) / 180;
-                const xMobile = Math.cos(radAngle) * radiusMobile;
-                const yMobile = Math.sin(radAngle) * radiusMobile;
-                const xDesktop = Math.cos(radAngle) * radius;
-                const yDesktop = Math.sin(radAngle) * radius;
+                const x = Math.cos(radAngle) * orbitRadiusPercent;
+                const y = Math.sin(radAngle) * orbitRadiusPercent;
 
                 return (
                   <motion.div
@@ -75,17 +72,11 @@ const Index = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.06, type: "spring", stiffness: 200 }}
                     className="absolute"
-                    style={
-                      {
-                        "--x-mobile": `${xMobile}px`,
-                        "--y-mobile": `${yMobile}px`,
-                        "--x-desktop": `${xDesktop}px`,
-                        "--y-desktop": `${yDesktop}px`,
-                        left: `calc(50% + var(--x-pos))`,
-                        top: `calc(50% + var(--y-pos))`,
-                        transform: "translate(-50%, -50%)",
-                      } as React.CSSProperties
-                    }
+                    style={{
+                      left: `${50 + x}%`,
+                      top: `${50 + y}%`,
+                      transform: "translate(-50%, -50%)",
+                    }}
                   >
                     <Link to={item.to} className="group block">
                       <div className="relative flex flex-col items-center gap-1">
@@ -100,19 +91,6 @@ const Index = () => {
                   </motion.div>
                 );
               })}
-
-              <style>{`
-                .relative > .absolute {
-                  --x-pos: var(--x-mobile);
-                  --y-pos: var(--y-mobile);
-                }
-                @media (min-width: 768px) {
-                  .relative > .absolute {
-                    --x-pos: var(--x-desktop);
-                    --y-pos: var(--y-desktop);
-                  }
-                }
-              `}</style>
             </div>
           </div>
         </div>

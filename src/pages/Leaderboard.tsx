@@ -106,7 +106,10 @@ const Leaderboard = () => {
     if (data) {
       const signed = await withSignedClassmateImageUrls(data);
       const map = new Map<string, ClassmateImage>();
-      signed.forEach((img) => map.set(img.name.toLowerCase(), img));
+      signed.forEach((img) => {
+        map.set(img.id, img);
+        map.set(img.name.trim().toLowerCase(), img);
+      });
       setClassmates(map);
     }
   }, []);
@@ -215,7 +218,11 @@ const Leaderboard = () => {
     }
   };
 
-  const getClassmateImage = (name: string) => classmates.get(name.toLowerCase());
+  const getClassmateImage = (identifier: string) => {
+    const key = (identifier || "").trim();
+    if (!key) return undefined;
+    return classmates.get(key) || classmates.get(key.toLowerCase());
+  };
 
   const countTierItems = (tiers: any): number => {
     if (!tiers || typeof tiers !== "object") return 0;
@@ -507,7 +514,7 @@ const Leaderboard = () => {
                                 </div>
                               )}
 
-                              <CommentSection contentType="ship-leaderboard" contentId={entry.id} />
+                              <CommentSection contentType="ship" contentId={entry.id} />
                             </div>
                           </motion.div>
                         )}
@@ -638,21 +645,27 @@ const Leaderboard = () => {
 
                                     <div className="flex-1 bg-background/20 border border-border/20 rounded-r-xl p-2 flex gap-2 flex-wrap">
                                       {items.map((item: any, i: number) => {
-                                        const name = typeof item === "string" ? item : item?.name || "?";
-                                        const img = getClassmateImage(name);
+                                        const rawIdentifier = typeof item === "string"
+                                          ? item
+                                          : item?.id || item?.name || "";
+                                        const img = getClassmateImage(rawIdentifier);
+                                        const displayName = typeof item === "string"
+                                          ? img?.name || item
+                                          : item?.name || img?.name || "?";
+
                                         return (
                                           <div key={i} className="flex items-center gap-1.5 bg-card/50 border border-border/30 rounded-lg px-2 py-1">
                                             {img?.image_url ? (
-                                              <img src={img.image_url} alt={name} className="h-6 w-6 rounded-full object-cover flex-shrink-0" />
+                                              <img src={img.image_url} alt={displayName} className="h-6 w-6 rounded-full object-cover flex-shrink-0" />
                                             ) : (
                                               <div
                                                 className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold text-card flex-shrink-0"
-                                                style={{ backgroundColor: `hsl(${name.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0) % 360} 60% 50%)` }}
+                                                style={{ backgroundColor: `hsl(${displayName.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0) % 360} 60% 50%)` }}
                                               >
-                                                {name.slice(0, 2).toUpperCase()}
+                                                {displayName.slice(0, 2).toUpperCase()}
                                               </div>
                                             )}
-                                            <span className="text-xs text-foreground/80 truncate max-w-[90px]">{name}</span>
+                                            <span className="text-xs text-foreground/80 truncate max-w-[90px]">{displayName}</span>
                                           </div>
                                         );
                                       })}
@@ -662,7 +675,7 @@ const Leaderboard = () => {
                               })}
                             </div>
 
-                            <CommentSection contentType="tier-list" contentId={tl.id} />
+                            <CommentSection contentType="tier_list" contentId={tl.id} />
                           </div>
                         </motion.div>
                       )}
