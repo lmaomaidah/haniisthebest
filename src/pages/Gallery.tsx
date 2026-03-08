@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Upload, Trash2, Home, Sparkles, Search, Eye } from "lucide-react";
+import { Upload, Trash2, Home, Sparkles, Search, Eye, ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
@@ -30,6 +30,7 @@ const Gallery = () => {
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
   const { toast } = useToast();
   const { logActivity, user } = useAuth();
   const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
@@ -108,6 +109,7 @@ const Gallery = () => {
       setName("");
       setFile(null);
       setSelectedUploadCategories([]);
+      setShowUpload(false);
       fetchImages();
       loadCategoryMap();
     } catch (error: any) {
@@ -174,7 +176,7 @@ const Gallery = () => {
         <ThemeToggle />
       </div>
 
-      <div className="container mx-auto relative z-10 max-w-6xl">
+      <div className="container mx-auto relative z-10 max-w-7xl">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
@@ -183,63 +185,79 @@ const Gallery = () => {
             </h1>
             <p className="text-muted-foreground text-sm mt-1">{images.length} classmates in the roster</p>
           </div>
-          <Link to="/">
-            <Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50 bg-card/80 backdrop-blur-sm">
-              <Home className="mr-1.5 h-3.5 w-3.5" /> Home
-            </Button>
-          </Link>
-        </div>
-
-        {/* Upload Section - compact */}
-        <div className="bg-card/70 dark:bg-card/50 backdrop-blur-sm border border-secondary/40 rounded-2xl p-5 mb-6">
-          <h2 className="text-xl font-bold mb-4 text-foreground font-['Schoolbell']">📸 Add a Classmate</h2>
-          <div className="space-y-3 max-w-2xl">
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                placeholder="Name your classmate..."
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-2 border-accent/30 rounded-xl bg-background/60 flex-1"
-              />
-              <Input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                disabled={uploading}
-                className="border-2 border-accent/30 rounded-xl bg-background/60 max-w-[200px]"
-              />
-            </div>
-            <CategoryPicker
-              categories={categories}
-              selected={selectedUploadCategories}
-              onChange={setSelectedUploadCategories}
-              onCreateCategory={async (n) => {
-                if (!user) return null;
-                try {
-                  const cat = await createCategory(n, user.id);
-                  toast({ title: "Category created! 🏷️" });
-                  return cat;
-                } catch (err: any) {
-                  toast({ title: "Couldn't create", description: err.message, variant: "destructive" });
-                  return null;
-                }
-              }}
-            />
+          <div className="flex items-center gap-2">
             <Button
-              onClick={handleFileUpload}
-              disabled={uploading || !name.trim()}
-              className="gradient-pink-blue text-white rounded-xl px-6"
+              onClick={() => setShowUpload(!showUpload)}
+              variant={showUpload ? "secondary" : "default"}
+              size="sm"
+              className="rounded-xl"
             >
-              <Upload className="mr-2 h-4 w-4" />
-              {uploading ? "Adding… ✨" : file ? "Upload with Photo 🚀" : "Add Name Only ✍️"}
+              <Upload className="mr-1.5 h-3.5 w-3.5" /> {showUpload ? 'Hide' : 'Add Classmate'}
             </Button>
+            <Link to="/">
+              <Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50 bg-card/80 backdrop-blur-sm">
+                <Home className="mr-1.5 h-3.5 w-3.5" /> Home
+              </Button>
+            </Link>
           </div>
         </div>
 
+        {/* Collapsible Upload Section */}
+        {showUpload && (
+          <div className="bg-card/70 dark:bg-card/50 backdrop-blur-sm border border-secondary/40 rounded-2xl p-5 mb-6 animate-in slide-in-from-top-2 duration-300">
+            <h2 className="text-lg font-bold mb-3 text-foreground font-['Schoolbell'] flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" /> Add a Classmate
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex gap-2 flex-1">
+                <Input
+                  type="text"
+                  placeholder="Name..."
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="border-2 border-accent/30 rounded-xl bg-background/60"
+                />
+                <Input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  disabled={uploading}
+                  className="border-2 border-accent/30 rounded-xl bg-background/60 max-w-[180px]"
+                />
+              </div>
+              <Button
+                onClick={handleFileUpload}
+                disabled={uploading || !name.trim()}
+                className="gradient-pink-blue text-white rounded-xl px-6 whitespace-nowrap"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {uploading ? "Adding…" : file ? "Upload 🚀" : "Add ✍️"}
+              </Button>
+            </div>
+            <div className="mt-3">
+              <CategoryPicker
+                categories={categories}
+                selected={selectedUploadCategories}
+                onChange={setSelectedUploadCategories}
+                onCreateCategory={async (n) => {
+                  if (!user) return null;
+                  try {
+                    const cat = await createCategory(n, user.id);
+                    toast({ title: "Category created! 🏷️" });
+                    return cat;
+                  } catch (err: any) {
+                    toast({ title: "Couldn't create", description: err.message, variant: "destructive" });
+                    return null;
+                  }
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Search + Category Filter */}
-        <div className="space-y-3 mb-6">
-          <div className="relative max-w-sm">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start">
+          <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search classmates…"
@@ -248,16 +266,18 @@ const Gallery = () => {
               className="pl-9 rounded-xl border-border/50 bg-card/50 h-9"
             />
           </div>
-          <CategoryFilter
-            categories={categories}
-            selected={filterCategories}
-            onChange={setFilterCategories}
-            allowCreate
-            onCreateCategory={handleCreateCategory}
-            allowEdit
-            onRenameCategory={handleRenameCategory}
-            onDeleteCategory={handleDeleteCategory}
-          />
+          <div className="flex-1 overflow-x-auto">
+            <CategoryFilter
+              categories={categories}
+              selected={filterCategories}
+              onChange={setFilterCategories}
+              allowCreate
+              onCreateCategory={handleCreateCategory}
+              allowEdit
+              onRenameCategory={handleRenameCategory}
+              onDeleteCategory={handleDeleteCategory}
+            />
+          </div>
         </div>
 
         {/* Gallery Grid */}
@@ -273,82 +293,82 @@ const Gallery = () => {
             {filteredImages.map((image) => {
               const imgCats = imageCategoryMap[image.id] || [];
               return (
-                <Link
-                  key={image.id}
-                  to={`/profiles/${image.id}`}
-                  className="group bg-card/70 dark:bg-card/50 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1"
-                >
-                  {/* Image */}
-                  <div className="aspect-square relative overflow-hidden">
-                    {image.image_url ? (
-                      <img
-                        src={image.image_url}
-                        alt={image.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center">
-                        <span className="text-3xl font-bold text-foreground/60">
-                          {image.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)}
-                        </span>
-                      </div>
-                    )}
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                      <div className="flex items-center gap-1 text-white/80 text-xs">
-                        <Eye className="h-3 w-3" /> View profile
-                      </div>
-                    </div>
-                  </div>
+                <div key={image.id} className="group relative">
+                  <Link
+                    to={`/profiles/${image.id}`}
+                    className="block bg-card/70 dark:bg-card/50 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1.5"
+                  >
+                    {/* Image with gradient overlay */}
+                    <div className="aspect-[3/4] relative overflow-hidden">
+                      {image.image_url ? (
+                        <img
+                          src={image.image_url}
+                          alt={image.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center">
+                          <span className="text-4xl font-bold text-foreground/40 font-['Luckiest_Guy']">
+                            {image.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)}
+                          </span>
+                        </div>
+                      )}
 
-                  {/* Info */}
-                  <div className="p-2.5 space-y-1.5">
-                    <p className="font-semibold text-sm truncate text-foreground">{image.name}</p>
-                    {imgCats.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {imgCats.slice(0, 3).map((catId) => {
-                          const cat = categories.find((c) => c.id === catId);
-                          if (!cat) return null;
-                          const color = getCategoryColor(catId);
-                          return (
-                            <span
-                              key={catId}
-                              className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border"
-                              style={{
-                                backgroundColor: color.bg,
-                                borderColor: color.border,
-                                color: color.text,
-                              }}
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              <span className="h-1 w-1 rounded-full" style={{ backgroundColor: color.dot }} />
-                              {cat.name}
-                            </span>
-                          );
-                        })}
-                        {imgCats.length > 3 && (
-                          <span className="text-[10px] text-muted-foreground">+{imgCats.length - 3}</span>
+                      {/* Gradient overlay - always visible subtle, stronger on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+
+                      {/* Name + badges overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-3">
+                        <p className="font-bold text-sm text-white drop-shadow-lg truncate mb-1.5">
+                          {image.name}
+                        </p>
+                        {imgCats.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {imgCats.slice(0, 2).map((catId) => {
+                              const cat = categories.find((c) => c.id === catId);
+                              if (!cat) return null;
+                              const color = getCategoryColor(catId);
+                              return (
+                                <span
+                                  key={catId}
+                                  className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border backdrop-blur-sm"
+                                  style={{
+                                    backgroundColor: color.bg,
+                                    borderColor: color.border,
+                                    color: color.text,
+                                  }}
+                                >
+                                  <span className="h-1 w-1 rounded-full" style={{ backgroundColor: color.dot }} />
+                                  {cat.name}
+                                </span>
+                              );
+                            })}
+                            {imgCats.length > 2 && (
+                              <span className="text-[9px] text-white/60 self-center">+{imgCats.length - 2}</span>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Delete button (only show for own/admin) */}
-                  <div className="px-2.5 pb-2.5" onClick={(e) => e.preventDefault()}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDelete(image.id, image.image_url);
-                      }}
-                      className="w-full h-7 text-xs text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                    >
-                      <Trash2 className="mr-1 h-3 w-3" /> Remove
-                    </Button>
-                  </div>
-                </Link>
+                      {/* "View profile" hover label */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="bg-primary/90 text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                          <Eye className="h-3 w-3" /> View Profile
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* Delete button floating */}
+                  <button
+                    onClick={() => handleDelete(image.id, image.image_url)}
+                    className="absolute top-2 right-2 h-7 w-7 rounded-full bg-destructive/80 text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive shadow-md"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
               );
             })}
           </div>

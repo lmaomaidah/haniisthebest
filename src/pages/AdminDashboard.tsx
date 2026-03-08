@@ -1,32 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap } from 'lucide-react';
+import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp, Clock } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, subDays, isAfter } from 'date-fns';
 import { toast } from 'sonner';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface ActivityLog {
@@ -35,9 +24,7 @@ interface ActivityLog {
   action_type: string;
   action_details: Record<string, unknown> | null;
   created_at: string;
-  profiles?: {
-    username: string;
-  };
+  profiles?: { username: string };
 }
 
 interface UserProfile {
@@ -45,13 +32,9 @@ interface UserProfile {
   username: string;
   is_approved: boolean;
   created_at: string;
-  user_roles?: {
-    id: string;
-    role: string;
-  }[];
+  avatar_url?: string | null;
+  user_roles?: { id: string; role: string }[];
 }
-
-// ─── Readable formatting helpers ───
 
 const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
   login: { icon: <LogIn className="h-3.5 w-3.5" />, label: "Logged in", color: "bg-green-500/20 text-green-400 border-green-500/40" },
@@ -78,7 +61,6 @@ function getActionConfig(actionType: string) {
 
 function formatReadableActivity(actionType: string, details: Record<string, unknown> | null): string {
   if (!details) return "";
-
   const pageName = details.page_name as string | undefined;
   const pagePath = details.page_path || details.page as string | undefined;
 
@@ -86,57 +68,38 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
     case "page_view":
     case "page_access":
       return pageName || (typeof pagePath === 'string' ? pagePath : "");
-    
     case "tier_list_save": {
       const counts = details.tierCounts as Record<string, number> | undefined;
       if (counts) {
-        const parts = Object.entries(counts)
-          .filter(([, v]) => v > 0)
-          .map(([k, v]) => `${v} in ${k}`)
-          .join(", ");
+        const parts = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${v} in ${k}`).join(", ");
         return parts ? `Ranked: ${parts}` : "Saved rankings";
       }
       return "Saved rankings";
     }
-
     case "ship_calculate": {
       const p1 = details.person1 as string | undefined;
       const p2 = details.person2 as string | undefined;
       const score = details.score as number | undefined;
-      if (p1 && p2) {
-        return `${p1} × ${p2}${score != null ? ` → ${score}%` : ""}`;
-      }
+      if (p1 && p2) return `${p1} × ${p2}${score != null ? ` → ${score}%` : ""}`;
       return "Calculated ship compatibility";
     }
-
     case "rating_save": {
       const name = details.image_name || details.name as string | undefined;
       return name ? `Rated ${name}` : "Saved ratings";
     }
-
     case "image_upload": {
       const imgName = details.name as string | undefined;
       return imgName ? `Uploaded "${imgName}"` : "Uploaded a new classmate";
     }
-
     case "admin_user_deleted": {
       const username = details.username || details.deleted_username as string | undefined;
       return username ? `Deleted user "${username}"` : "Deleted a user";
     }
-
-    case "login":
-      return "Signed into the platform";
-
-    case "logout":
-      return "Signed out";
-
+    case "login": return "Signed into the platform";
+    case "logout": return "Signed out";
     default: {
-      // Build readable string from non-context keys
       const contextKeys = new Set(['page_path', 'page_url', 'referrer', 'timezone', 'locale', 'viewport', 'user_agent', 'client_time', 'context', 'source', 'page', 'page_name']);
-      const meaningful = Object.entries(details)
-        .filter(([key]) => !contextKeys.has(key))
-        .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`)
-        .slice(0, 3);
+      const meaningful = Object.entries(details).filter(([key]) => !contextKeys.has(key)).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`).slice(0, 3);
       return meaningful.join(" · ") || "";
     }
   }
@@ -148,7 +111,7 @@ const AdminDashboard = () => {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState<'activity' | 'users'>('activity');
+  const [activeTab, setActiveTab] = useState<'activity' | 'users' | 'insights'>('insights');
   const [selectedLogs, setSelectedLogs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -158,25 +121,67 @@ const AdminDashboard = () => {
     }
   }, [user, isAdmin, loading, navigate]);
 
-  useEffect(() => {
-    if (isAdmin) fetchData();
-  }, [isAdmin]);
+  useEffect(() => { if (isAdmin) fetchData(); }, [isAdmin]);
 
   const fetchData = async () => {
     setLoadingData(true);
     try {
       const [{ data: activityData }, { data: usersData }] = await Promise.all([
-        supabase.from('activity_logs').select('*, profiles(username)').order('created_at', { ascending: false }).limit(250),
+        supabase.from('activity_logs').select('*, profiles(username)').order('created_at', { ascending: false }).limit(500),
         supabase.from('profiles').select('*, user_roles(id, role)').order('created_at', { ascending: false }),
       ]);
       if (activityData) setActivities(activityData as unknown as ActivityLog[]);
       if (usersData) setUsers(usersData as unknown as UserProfile[]);
     } catch (error) {
       console.error('Error fetching admin data:', error);
-    } finally {
-      setLoadingData(false);
-    }
+    } finally { setLoadingData(false); }
   };
+
+  // ─── Computed analytics ───
+  const analytics = useMemo(() => {
+    const now = new Date();
+    const last7 = subDays(now, 7);
+    const last24h = subDays(now, 1);
+
+    const recentActivities = activities.filter(a => isAfter(new Date(a.created_at), last7));
+    const todayActivities = activities.filter(a => new Date(a.created_at).toDateString() === now.toDateString());
+
+    // Action breakdown
+    const actionCounts: Record<string, number> = {};
+    activities.forEach(a => { actionCounts[a.action_type] = (actionCounts[a.action_type] || 0) + 1; });
+    const topActions = Object.entries(actionCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+    // Most active users (last 7 days)
+    const userActivityCounts: Record<string, { count: number; username: string }> = {};
+    recentActivities.forEach(a => {
+      const un = a.profiles?.username || 'Unknown';
+      if (!userActivityCounts[a.user_id]) userActivityCounts[a.user_id] = { count: 0, username: un };
+      userActivityCounts[a.user_id].count++;
+    });
+    const topUsers = Object.values(userActivityCounts).sort((a, b) => b.count - a.count).slice(0, 5);
+
+    // Most visited pages
+    const pageCounts: Record<string, number> = {};
+    activities.filter(a => a.action_type === 'page_view' || a.action_type === 'page_access').forEach(a => {
+      const page = (a.action_details?.page_name || a.action_details?.page_path || 'Unknown') as string;
+      pageCounts[page] = (pageCounts[page] || 0) + 1;
+    });
+    const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    // Unique active users last 24h
+    const activeUsersToday = new Set(todayActivities.map(a => a.user_id)).size;
+    const activeUsersWeek = new Set(recentActivities.map(a => a.user_id)).size;
+
+    // Daily activity for sparkline (last 7 days)
+    const dailyCounts: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = subDays(now, i);
+      const dayStr = day.toDateString();
+      dailyCounts.push(activities.filter(a => new Date(a.created_at).toDateString() === dayStr).length);
+    }
+
+    return { topActions, topUsers, topPages, activeUsersToday, activeUsersWeek, todayActivities: todayActivities.length, weeklyActivities: recentActivities.length, dailyCounts };
+  }, [activities]);
 
   const handleDeleteUser = async (userProfile: UserProfile) => {
     if (userProfile.user_id === user?.id) { toast.error("You cannot delete your own account!"); return; }
@@ -257,6 +262,22 @@ const AdminDashboard = () => {
 
   if (!isAdmin) return null;
 
+  // Mini sparkline component
+  const Sparkline = ({ data }: { data: number[] }) => {
+    const max = Math.max(...data, 1);
+    return (
+      <div className="flex items-end gap-0.5 h-8">
+        {data.map((v, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-sm bg-primary/60 min-w-[4px] transition-all"
+            style={{ height: `${(v / max) * 100}%`, minHeight: v > 0 ? '2px' : '0' }}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden p-6">
       <div className="absolute top-6 right-6 z-50"><ThemeToggle /></div>
@@ -270,240 +291,246 @@ const AdminDashboard = () => {
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <ArrowLeft className="h-6 w-6" />
-              </Button>
-            </Link>
+            <Link to="/"><Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="h-6 w-6" /></Button></Link>
             <div>
               <h1 className="text-4xl font-bold text-gradient flex items-center gap-3">
-                <Shield className="h-10 w-10 text-primary" />
-                Admin Command Center
+                <Shield className="h-10 w-10 text-primary" /> Admin Command Center
               </h1>
-              <p className="text-foreground/70 text-lg mt-1">
-                Welcome, {profile?.username} 👑 You see everything.
-              </p>
+              <p className="text-foreground/70 text-lg mt-1">Welcome, {profile?.username} 👑 You see everything.</p>
             </div>
           </div>
           <Button onClick={fetchData} className="gradient-pink-blue text-white">Refresh Data 🔄</Button>
         </div>
 
-        {/* Stats cards - enhanced */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card/80 backdrop-blur-sm border border-primary/40 overflow-hidden">
-            <div className="h-1 w-full bg-gradient-to-r from-primary to-secondary" />
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Users</p>
-                  <p className="text-3xl font-black text-primary tabular-nums">{users.length}</p>
+        {/* Stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          {[
+            { label: 'Total Users', value: users.length, sub: `${users.filter(u => u.is_approved).length} approved`, icon: <Users className="h-5 w-5" />, gradient: 'from-primary to-secondary' },
+            { label: 'Today', value: analytics.todayActivities, sub: `${analytics.activeUsersToday} active users`, icon: <Clock className="h-5 w-5" />, gradient: 'from-secondary to-accent' },
+            { label: 'This Week', value: analytics.weeklyActivities, sub: `${analytics.activeUsersWeek} active users`, icon: <TrendingUp className="h-5 w-5" />, gradient: 'from-accent to-primary' },
+            { label: 'Admins', value: users.filter(u => u.user_roles?.some(r => r.role === 'admin')).length, sub: 'with full access', icon: <Shield className="h-5 w-5" />, gradient: 'from-primary to-accent' },
+            { label: 'Pending', value: users.filter(u => !u.is_approved).length, sub: 'awaiting approval', icon: <Eye className="h-5 w-5" />, gradient: 'from-secondary to-primary' },
+          ].map((stat, i) => (
+            <Card key={i} className="bg-card/80 backdrop-blur-sm border border-border/40 overflow-hidden">
+              <div className={`h-1 w-full bg-gradient-to-r ${stat.gradient}`} />
+              <CardContent className="pt-3 pb-3 px-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{stat.label}</p>
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">{stat.icon}</div>
                 </div>
-                <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-2">
-                {users.filter(u => u.is_approved).length} approved · {users.filter(u => !u.is_approved).length} pending
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 backdrop-blur-sm border border-secondary/40 overflow-hidden">
-            <div className="h-1 w-full bg-gradient-to-r from-secondary to-accent" />
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Activities</p>
-                  <p className="text-3xl font-black text-secondary tabular-nums">{activities.length}</p>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-secondary/15 flex items-center justify-center">
-                  <Activity className="h-5 w-5 text-secondary" />
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-2">Last 250 shown</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 backdrop-blur-sm border border-accent/40 overflow-hidden">
-            <div className="h-1 w-full bg-gradient-to-r from-accent to-primary" />
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Admins</p>
-                  <p className="text-3xl font-black text-accent tabular-nums">
-                    {users.filter(u => u.user_roles?.some(r => r.role === 'admin')).length}
-                  </p>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-accent" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 backdrop-blur-sm border border-border/40 overflow-hidden">
-            <div className="h-1 w-full bg-gradient-to-r from-muted-foreground/50 to-muted-foreground/20" />
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Today</p>
-                  <p className="text-3xl font-black text-foreground tabular-nums">
-                    {activities.filter(a => {
-                      const d = new Date(a.created_at);
-                      const now = new Date();
-                      return d.toDateString() === now.toDateString();
-                    }).length}
-                  </p>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-foreground/10 flex items-center justify-center">
-                  <Eye className="h-5 w-5 text-foreground/60" />
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-2">Actions today</p>
-            </CardContent>
-          </Card>
+                <p className="text-2xl font-black text-foreground tabular-nums">{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground">{stat.sub}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Tab buttons */}
-        <div className="flex gap-4 mb-6">
-          <Button
-            onClick={() => setActiveTab('activity')}
-            className={activeTab === 'activity' ? 'gradient-pink-blue text-white' : 'bg-card border-2 border-primary/50'}
-          >
-            <Activity className="mr-2 h-4 w-4" /> Activity Feed
-          </Button>
-          <Button
-            onClick={() => setActiveTab('users')}
-            className={activeTab === 'users' ? 'gradient-pink-blue text-white' : 'bg-card border-2 border-primary/50'}
-          >
-            <Users className="mr-2 h-4 w-4" /> All Users
-          </Button>
+        <div className="flex gap-3 mb-6">
+          {[
+            { key: 'insights' as const, icon: <BarChart3 className="h-4 w-4 mr-1.5" />, label: 'Insights' },
+            { key: 'activity' as const, icon: <Activity className="h-4 w-4 mr-1.5" />, label: 'Activity Feed' },
+            { key: 'users' as const, icon: <Users className="h-4 w-4 mr-1.5" />, label: 'All Users' },
+          ].map(t => (
+            <Button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className={activeTab === t.key ? 'gradient-pink-blue text-white' : 'bg-card border-2 border-primary/50'}
+              size="sm"
+            >
+              {t.icon} {t.label}
+            </Button>
+          ))}
         </div>
 
-        <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
-          <CardContent className="p-0">
-            {activeTab === 'activity' ? (
-              <div>
-                {activities.length > 0 && (
-                  <div className="flex items-center gap-3 p-4 border-b border-border/30">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
-                          <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({selectedLogs.size})
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete {selectedLogs.size} selected log(s)? This cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm">
-                          <Trash2 className="h-4 w-4 mr-1" /> Delete All
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete ALL {activities.length} activity logs? This cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                )}
-
-                {/* Activity feed - card layout */}
-                <div className="divide-y divide-border/10">
-                  {/* Header row */}
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
-                    <div className="w-8">
-                      <Checkbox
-                        checked={activities.length > 0 && selectedLogs.size === activities.length}
-                        onCheckedChange={toggleAllLogs}
-                      />
-                    </div>
-                    <div className="w-24">User</div>
-                    <div className="w-32">Action</div>
-                    <div className="flex-1">Details</div>
-                    <div className="w-28 text-right">When</div>
-                  </div>
-
-                  {activities.length === 0 ? (
-                    <div className="text-center py-12 text-foreground/60">
-                      No activity yet. Everyone's being too quiet... 🤫
-                    </div>
-                  ) : (
-                    activities.map((activity) => {
-                      const config = getActionConfig(activity.action_type);
-                      const readable = formatReadableActivity(activity.action_type, activity.action_details);
-                      const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
-
-                      return (
-                        <div
-                          key={activity.id}
-                          className={`flex items-center gap-3 px-4 py-2.5 hover:bg-muted/10 transition-colors ${
-                            selectedLogs.has(activity.id) ? "bg-primary/5" : ""
-                          }`}
-                        >
-                          <div className="w-8">
-                            <Checkbox
-                              checked={selectedLogs.has(activity.id)}
-                              onCheckedChange={() => toggleLogSelection(activity.id)}
-                            />
-                          </div>
-
-                          {/* User with avatar dot */}
-                          <div className="w-24 flex items-center gap-1.5 min-w-0">
-                            <div
-                              className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
-                              style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
-                            >
-                              {(activity.profiles?.username || "?")[0].toUpperCase()}
-                            </div>
-                            <span className="text-sm font-medium text-foreground truncate">
-                              {activity.profiles?.username || 'Unknown'}
-                            </span>
-                          </div>
-
-                          {/* Action pill */}
-                          <div className="w-32">
-                            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border ${config.color}`}>
-                              {config.icon}
-                              {config.label}
-                            </span>
-                          </div>
-
-                          {/* Details */}
-                          <div className="flex-1 text-sm text-foreground/70 truncate min-w-0" title={readable}>
-                            {readable || <span className="text-muted-foreground/40 italic">—</span>}
-                          </div>
-
-                          {/* Time */}
-                          <div className="w-28 text-right text-[11px] text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
-                            {timeAgo}
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
+        {/* ─── Insights Tab ─── */}
+        {activeTab === 'insights' && (
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Activity trend */}
+            <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
+              <CardContent className="pt-5 pb-4">
+                <h3 className="text-sm font-bold text-foreground mb-1 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-primary" /> 7-Day Activity
+                </h3>
+                <p className="text-[10px] text-muted-foreground mb-3">{analytics.weeklyActivities} total actions this week</p>
+                <Sparkline data={analytics.dailyCounts} />
+                <div className="flex justify-between mt-1">
+                  <span className="text-[9px] text-muted-foreground">6d ago</span>
+                  <span className="text-[9px] text-muted-foreground">Today</span>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Top actions breakdown */}
+            <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
+              <CardContent className="pt-5 pb-4">
+                <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-secondary" /> Action Breakdown
+                </h3>
+                <div className="space-y-2">
+                  {analytics.topActions.map(([action, count]) => {
+                    const config = getActionConfig(action);
+                    const pct = Math.round((count / Math.max(activities.length, 1)) * 100);
+                    return (
+                      <div key={action} className="flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold border ${config.color} min-w-[90px]`}>
+                          {config.icon} {config.label}
+                        </span>
+                        <div className="flex-1 h-2 bg-muted/30 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary/60 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground font-mono w-8 text-right">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Most active users + top pages */}
+            <div className="space-y-4">
+              <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
+                <CardContent className="pt-5 pb-4">
+                  <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-accent" /> Most Active Users
+                    <span className="text-[9px] text-muted-foreground font-normal">(7 days)</span>
+                  </h3>
+                  <div className="space-y-2">
+                    {analytics.topUsers.map((u, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-primary w-4">{i + 1}.</span>
+                        <div
+                          className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
+                          style={{ backgroundColor: `hsl(${u.username.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                        >
+                          {u.username[0].toUpperCase()}
+                        </div>
+                        <span className="text-xs font-medium text-foreground flex-1 truncate">{u.username}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">{u.count} actions</span>
+                      </div>
+                    ))}
+                    {analytics.topUsers.length === 0 && <p className="text-xs text-muted-foreground">No activity this week</p>}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
+                <CardContent className="pt-5 pb-4">
+                  <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-secondary" /> Top Pages
+                  </h3>
+                  <div className="space-y-1.5">
+                    {analytics.topPages.map(([page, count], i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="text-[10px] font-medium text-foreground flex-1 truncate">{page}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">{count}</span>
+                      </div>
+                    ))}
+                    {analytics.topPages.length === 0 && <p className="text-xs text-muted-foreground">No page views yet</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Activity Feed Tab ─── */}
+        {activeTab === 'activity' && (
+          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
+            <CardContent className="p-0">
+              {activities.length > 0 && (
+                <div className="flex items-center gap-3 p-4 border-b border-border/30">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
+                        <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({selectedLogs.size})
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
+                        <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm"><Trash2 className="h-4 w-4 mr-1" /> Delete All</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
+                        <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
+
+              <div className="divide-y divide-border/10">
+                <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
+                  <div className="w-8"><Checkbox checked={activities.length > 0 && selectedLogs.size === activities.length} onCheckedChange={toggleAllLogs} /></div>
+                  <div className="w-24">User</div>
+                  <div className="w-32">Action</div>
+                  <div className="flex-1">Details</div>
+                  <div className="w-28 text-right">When</div>
+                </div>
+
+                {activities.length === 0 ? (
+                  <div className="text-center py-12 text-foreground/60">No activity yet. Everyone's being too quiet... 🤫</div>
+                ) : (
+                  activities.map((activity) => {
+                    const config = getActionConfig(activity.action_type);
+                    const readable = formatReadableActivity(activity.action_type, activity.action_details);
+                    const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
+
+                    return (
+                      <div
+                        key={activity.id}
+                        className={`flex items-center gap-3 px-4 py-2.5 hover:bg-muted/10 transition-colors ${selectedLogs.has(activity.id) ? "bg-primary/5" : ""}`}
+                      >
+                        <div className="w-8"><Checkbox checked={selectedLogs.has(activity.id)} onCheckedChange={() => toggleLogSelection(activity.id)} /></div>
+                        <div className="w-24 flex items-center gap-1.5 min-w-0">
+                          <div
+                            className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
+                            style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                          >
+                            {(activity.profiles?.username || "?")[0].toUpperCase()}
+                          </div>
+                          <span className="text-sm font-medium text-foreground truncate">{activity.profiles?.username || 'Unknown'}</span>
+                        </div>
+                        <div className="w-32">
+                          <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border ${config.color}`}>
+                            {config.icon} {config.label}
+                          </span>
+                        </div>
+                        <div className="flex-1 text-sm text-foreground/70 truncate min-w-0" title={readable}>
+                          {readable || <span className="text-muted-foreground/40 italic">—</span>}
+                        </div>
+                        <div className="w-28 text-right text-[11px] text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
+                          {timeAgo}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
-            ) : (
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ─── Users Tab ─── */}
+        {activeTab === 'users' && (
+          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50">
@@ -516,16 +543,11 @@ const AdminDashboard = () => {
                 </TableHeader>
                 <TableBody>
                   {users.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
-                        No users yet. Lonely out here... 😢
-                      </TableCell>
-                    </TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-foreground/60">No users yet 😢</TableCell></TableRow>
                   ) : (
                     users.map((userProfile) => {
                       const isCurrentUser = userProfile.user_id === user?.id;
                       const currentRole = userProfile.user_roles?.[0]?.role || 'user';
-                      
                       return (
                         <TableRow key={userProfile.user_id} className="border-border/30 hover:bg-card/50">
                           <TableCell className="font-medium text-foreground">
@@ -533,70 +555,34 @@ const AdminDashboard = () => {
                             {isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
                           </TableCell>
                           <TableCell>
-                            <Badge className={
-                              currentRole === 'admin'
-                                ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border'
-                                : 'bg-gray-500/20 text-gray-400 border-gray-500/30 border'
-                            }>
+                            <Badge className={currentRole === 'admin' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border' : 'bg-muted text-muted-foreground border-border border'}>
                               {currentRole}
                             </Badge>
                           </TableCell>
-                          <TableCell>
-                            <Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>
-                              {userProfile.is_approved ? 'approved' : 'pending'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-foreground/60 text-sm">
-                            {format(new Date(userProfile.created_at), 'MMM d, yyyy')}
-                          </TableCell>
+                          <TableCell><Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>{userProfile.is_approved ? 'approved' : 'pending'}</Badge></TableCell>
+                          <TableCell className="text-foreground/60 text-sm">{format(new Date(userProfile.created_at), 'MMM d, yyyy')}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <Button
-                                variant={userProfile.is_approved ? 'secondary' : 'default'}
-                                size="sm"
-                                disabled={isCurrentUser}
-                                className="h-8"
-                                onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}
-                              >
+                              <Button variant={userProfile.is_approved ? 'secondary' : 'default'} size="sm" disabled={isCurrentUser} className="h-8" onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}>
                                 {userProfile.is_approved ? 'Revoke' : 'Approve'}
                               </Button>
                               <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm" disabled={isCurrentUser} className="h-8">
-                                    <UserCog className="h-4 w-4 mr-1" /> Role
-                                  </Button>
-                                </DropdownMenuTrigger>
+                                <DropdownMenuTrigger asChild><Button variant="outline" size="sm" disabled={isCurrentUser} className="h-8"><UserCog className="h-4 w-4 mr-1" /> Role</Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'admin')} disabled={currentRole === 'admin'}>
-                                    <Shield className="h-4 w-4 mr-2 text-yellow-500" /> Make Admin
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'user')} disabled={currentRole === 'user'}>
-                                    <Users className="h-4 w-4 mr-2 text-gray-500" /> Make User
-                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'admin')} disabled={currentRole === 'admin'}><Shield className="h-4 w-4 mr-2 text-yellow-500" /> Make Admin</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'user')} disabled={currentRole === 'user'}><Users className="h-4 w-4 mr-2" /> Make User</DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                               <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="destructive" size="sm" disabled={isCurrentUser} className="h-8">
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
+                                <AlertDialogTrigger asChild><Button variant="destructive" size="sm" disabled={isCurrentUser} className="h-8"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete <strong>{userProfile.username}</strong>? 
-                                      This will remove their profile and roles. This action cannot be undone.
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>Delete <strong>{userProfile.username}</strong>? This removes their profile and all data. Cannot be undone.</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleDeleteUser(userProfile)}
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    >
-                                      Delete
-                                    </AlertDialogAction>
+                                    <AlertDialogAction onClick={() => handleDeleteUser(userProfile)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
@@ -608,9 +594,9 @@ const AdminDashboard = () => {
                   )}
                 </TableBody>
               </Table>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
