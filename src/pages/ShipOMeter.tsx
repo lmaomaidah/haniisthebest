@@ -452,7 +452,7 @@ const ShipOMeter = () => {
       breakdown: result.breakdown,
       strengths: result.strengths,
       challenges: result.challenges,
-    });
+    }).then(() => fetchShipHistory());
   };
 
   const updateTrait = (personNum: 1 | 2, traitId: string, value: number) => {
