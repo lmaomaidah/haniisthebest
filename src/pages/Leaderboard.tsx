@@ -98,7 +98,6 @@ const Leaderboard = () => {
   const [expandedTier, setExpandedTier] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"ships" | "tiers">("ships");
 
-  // Fetch classmate images for pictures
   const fetchClassmates = useCallback(async () => {
     const { data } = await supabase
       .from("images")
@@ -343,7 +342,6 @@ const Leaderboard = () => {
                               : "border-border/40 mt-4"
                           }`}
                         >
-                          {/* Glow effect for #1 */}
                           {isCenter && (
                             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
                           )}
@@ -351,7 +349,6 @@ const Leaderboard = () => {
                           <div className="relative z-10">
                             <span className="text-2xl md:text-3xl">{getMedal(rank)}</span>
 
-                            {/* Pair photos */}
                             <div className="flex justify-center items-center gap-1 my-3">
                               <PersonBubble name={details?.person1 || "?"} size={isCenter ? "lg" : "md"} />
                               <Heart className={`${isCenter ? "h-5 w-5" : "h-4 w-4"} text-primary -mx-1 relative z-10`} />
@@ -378,7 +375,6 @@ const Leaderboard = () => {
 
                 {/* Rest of the list */}
                 {ships.map((entry, index) => {
-                  // Skip top 3 if we showed the podium
                   if (ships.length >= 3 && index < 3) return null;
 
                   const details = entry.action_details as any;
@@ -397,22 +393,22 @@ const Leaderboard = () => {
                       transition={{ delay: Math.min(index * 0.03, 0.3) }}
                       className="bg-card/65 backdrop-blur border border-border/40 rounded-2xl overflow-hidden hover:border-primary/20 transition-colors"
                     >
-                      <button
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setExpandedShip(isExpanded ? null : entry.id)}
-                        className="w-full p-4 flex items-center gap-3 md:gap-4 text-left hover:bg-card/80 transition-colors"
+                        onKeyDown={(e) => e.key === "Enter" && setExpandedShip(isExpanded ? null : entry.id)}
+                        className="w-full p-4 flex items-center gap-3 md:gap-4 text-left hover:bg-card/80 transition-colors cursor-pointer"
                       >
-                        {/* Rank */}
                         <div className="flex-shrink-0 w-8 text-center">
                           <span className="text-sm font-bold text-muted-foreground">#{index + 1}</span>
                         </div>
 
-                        {/* Pair photos */}
                         <div className="flex items-center -space-x-3 flex-shrink-0">
                           <PersonBubble name={details?.person1 || "?"} size="sm" />
                           <PersonBubble name={details?.person2 || "?"} size="sm" />
                         </div>
 
-                        {/* Info */}
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-sm text-foreground truncate">
                             {details?.person1 || "?"} × {details?.person2 || "?"}
@@ -432,7 +428,6 @@ const Leaderboard = () => {
                           </div>
                         </div>
 
-                        {/* Score + verdict */}
                         <div className="flex items-center gap-3 flex-shrink-0">
                           <div className="text-right hidden sm:block">
                             <p className="text-[11px] text-muted-foreground">{verdict.emoji} {verdict.text}</p>
@@ -462,7 +457,7 @@ const Leaderboard = () => {
                           )}
                           {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                         </div>
-                      </button>
+                      </div>
 
                       <AnimatePresence>
                         {isExpanded && (
@@ -554,16 +549,17 @@ const Leaderboard = () => {
                     transition={{ delay: Math.min(index * 0.05, 0.4) }}
                     className="bg-card/65 backdrop-blur border border-border/40 rounded-2xl overflow-hidden hover:border-secondary/20 transition-colors"
                   >
-                    <button
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setExpandedTier(isExpanded ? null : tl.id)}
-                      className="w-full p-4 flex items-center gap-4 text-left hover:bg-card/80 transition-colors"
+                      onKeyDown={(e) => e.key === "Enter" && setExpandedTier(isExpanded ? null : tl.id)}
+                      className="w-full p-4 flex items-center gap-4 text-left hover:bg-card/80 transition-colors cursor-pointer"
                     >
-                      {/* Icon */}
                       <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/20 to-accent/10 border border-secondary/25 flex items-center justify-center">
                         <Crown className="h-6 w-6 text-secondary" />
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-foreground truncate">{tl.name}</p>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -587,7 +583,6 @@ const Leaderboard = () => {
                         </div>
                       </div>
 
-                      {/* Tier preview chips */}
                       <div className="hidden md:flex items-center gap-1 flex-shrink-0">
                         {tierKeys.slice(0, 4).map((t) => {
                           const items = (tl.tiers as any)[t];
@@ -617,7 +612,7 @@ const Leaderboard = () => {
                         )}
                         {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                       </div>
-                    </button>
+                    </div>
 
                     <AnimatePresence>
                       {isExpanded && (
@@ -629,7 +624,6 @@ const Leaderboard = () => {
                           className="overflow-hidden"
                         >
                           <div className="border-t border-border/20 px-4 py-5 space-y-4">
-                            {/* Tier rows with images */}
                             <div className="space-y-2">
                               {tierKeys.map((tier) => {
                                 const items = (tl.tiers as any)[tier];
@@ -638,12 +632,10 @@ const Leaderboard = () => {
 
                                 return (
                                   <div key={tier} className="flex items-stretch gap-2 rounded-xl overflow-hidden">
-                                    {/* Tier label */}
                                     <div className={`flex-shrink-0 w-12 bg-gradient-to-b ${colorClass} border flex items-center justify-center rounded-l-xl`}>
                                       <span className="text-sm font-black text-foreground">{tier}</span>
                                     </div>
 
-                                    {/* Items with photos */}
                                     <div className="flex-1 bg-background/20 border border-border/20 rounded-r-xl p-2 flex gap-2 flex-wrap">
                                       {items.map((item: any, i: number) => {
                                         const name = typeof item === "string" ? item : item?.name || "?";
