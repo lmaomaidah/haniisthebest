@@ -126,6 +126,7 @@ const Gallery = () => {
       }
       const { error } = await supabase.from("images").delete().eq("id", id);
       if (error) throw error;
+      void logActivity("image_deleted", { image_id: id });
       toast({ title: "💥 Deleted!" });
       fetchImages();
     } catch (error: any) {

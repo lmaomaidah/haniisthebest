@@ -178,6 +178,7 @@ export default function Classifications() {
       link.download = 'venn-diagram.png';
       link.href = canvas.toDataURL();
       link.click();
+      void logActivity("classification_exported", {});
       toast.success("📸 Venn diagram exported!");
     } catch (error) {
       console.error('Export error:', error);
@@ -198,6 +199,7 @@ export default function Classifications() {
     };
 
     setCircles([...circles, newCircle]);
+    void logActivity("classification_circle_added", { label: newLabel });
     setNewLabel("");
     toast.success(`✨ Added ${newLabel}!`);
   };

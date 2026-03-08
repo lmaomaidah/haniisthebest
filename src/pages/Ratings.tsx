@@ -65,6 +65,7 @@ const Ratings = () => {
 
   const handleSelectImage = (image: ImageWithRating) => {
     setSelectedImage(image);
+    void logActivity("rating_select_person", { person: image.name, hasExisting: !!image.rating });
     if (image.rating) setRatings({ sex_appeal: image.rating.sex_appeal || 5, character_design: image.rating.character_design || 5, iq: image.rating.iq || 5, eq: image.rating.eq || 5 });
     else setRatings({ sex_appeal: 5, character_design: 5, iq: 5, eq: 5 });
   };

@@ -155,6 +155,8 @@ export function CommentSection({ contentType, contentId }: CommentSectionProps) 
   const [replyBody, setReplyBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const { logActivity } = useAuth();
+
   const handleSubmit = async (parentId?: string) => {
     if (!user) return;
     const body = parentId ? replyBody : newBody;
@@ -163,6 +165,12 @@ export function CommentSection({ contentType, contentId }: CommentSectionProps) 
     setSubmitting(true);
     try {
       await addComment(body, user.id, parentId);
+      void logActivity("comment_post", {
+        content_type: contentType,
+        content_id: contentId,
+        is_reply: !!parentId,
+        body_length: body.trim().length,
+      });
       if (parentId) {
         setReplyBody("");
         setReplyingTo(null);
@@ -179,6 +187,7 @@ export function CommentSection({ contentType, contentId }: CommentSectionProps) 
   const handleDelete = async (id: string) => {
     try {
       await deleteComment(id);
+      void logActivity("comment_deleted", { content_type: contentType, content_id: contentId });
       toast.success("Comment deleted");
     } catch {
       toast.error("Failed to delete comment");
