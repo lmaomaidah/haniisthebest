@@ -49,14 +49,10 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 max-w-4xl mx-auto">
             {navItems.map((item) => (
               <Link key={item.to} to={item.to} className="group">
-                <div className={`relative bg-gradient-to-br ${item.gradient} rounded-2xl p-5 border border-border/30 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.25)] active:scale-95`}>
-                  {/* Shimmer on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  <div className="relative flex flex-col items-center gap-3 text-center">
-                    <div className="h-12 w-12 rounded-xl bg-background/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      {item.icon}
-                    </div>
-                    <span className={`font-bold text-sm ${item.textClass}`}>{item.label}</span>
+                <div className="relative bg-card rounded-xl p-4 border border-border hover:border-primary/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg active:scale-95">
+                  <div className="flex flex-col items-center gap-2.5 text-center">
+                    <span className="text-primary">{item.icon}</span>
+                    <span className="font-semibold text-sm text-foreground">{item.label}</span>
                   </div>
                 </div>
               </Link>
