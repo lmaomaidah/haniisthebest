@@ -132,7 +132,7 @@ const AdminDashboard = () => {
 
       if (error) {
         console.error('Error invoking delete-user function:', error);
-        toast.error('Failed to delete user');
+        toast.error(error.message || 'Failed to delete user');
         return;
       }
 
