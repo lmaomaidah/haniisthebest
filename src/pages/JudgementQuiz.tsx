@@ -334,7 +334,6 @@ export default function JudgementQuiz() {
           <PageHeader title="🔮 The Judgement" />
 
           <div className="text-center space-y-8 animate-bounce-in">
-          <div className="text-center space-y-8 animate-bounce-in">
             <div className="text-8xl">{result.emoji}</div>
             <h1 className="text-3xl md:text-5xl font-bold text-foreground">Your Cultural Profile</h1>
 
