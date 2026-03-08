@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useComments, type Comment } from "@/hooks/useComments";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   MessageCircle,
   Reply,
@@ -61,14 +62,16 @@ function SingleComment({
 
         <div className="flex gap-3 items-start">
           {/* Avatar */}
-          <div
-            className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-background"
-            style={{
-              backgroundColor: `hsl(${avatarHue} 70% 55%)`,
-            }}
-          >
-            {(comment.username || "?")[0].toUpperCase()}
-          </div>
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarImage src={comment.avatar_url || undefined} alt={comment.username} />
+            <AvatarFallback
+              style={{
+                backgroundColor: `hsl(${avatarHue} 70% 55%)`,
+              }}
+            >
+              {(comment.username || "?")[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
           {/* Body */}
           <div className="flex-1 min-w-0">
@@ -212,13 +215,14 @@ export function CommentSection({ contentType, contentId }: CommentSectionProps) 
       </div>
 
       {/* New comment input */}
-      {user && (
-        <div className="flex gap-3 items-start">
-          <div
-            className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-background bg-primary"
-          >
-            {(user.user_metadata?.username || "?")[0]?.toUpperCase() || "?"}
-          </div>
+       {user && (
+         <div className="flex gap-3 items-start">
+           <Avatar className="h-8 w-8 flex-shrink-0">
+             <AvatarImage src={user.user_metadata?.avatar_url || undefined} alt={user.user_metadata?.username} />
+             <AvatarFallback className="bg-primary text-primary-foreground">
+               {(user.user_metadata?.username || "?")[0]?.toUpperCase() || "?"}
+             </AvatarFallback>
+           </Avatar>
           <div className="flex-1 space-y-2">
             <Textarea
               value={newBody}

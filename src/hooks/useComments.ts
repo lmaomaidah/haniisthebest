@@ -11,6 +11,7 @@ export interface Comment {
   created_at: string;
   updated_at: string;
   username?: string;
+  avatar_url?: string | null;
   replies?: Comment[];
 }
 
@@ -24,7 +25,7 @@ export function useComments(contentType: string, contentId: string | undefined) 
 
     const { data } = await supabase
       .from("comments")
-      .select("*, profiles!comments_user_id_fkey(username)")
+      .select("*, profiles!comments_user_id_fkey(username, avatar_url)")
       .eq("content_type", contentType)
       .eq("content_id", contentId)
       .order("created_at", { ascending: true });
@@ -33,6 +34,7 @@ export function useComments(contentType: string, contentId: string | undefined) 
       const flat: Comment[] = (data as any[]).map((c) => ({
         ...c,
         username: c.profiles?.username || "Unknown",
+        avatar_url: c.profiles?.avatar_url || null,
         replies: [],
       }));
 
