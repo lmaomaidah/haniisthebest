@@ -7,11 +7,41 @@ const corsHeaders = {
 const PIN_ID_REGEX = /\/pin\/(\d+)/i;
 const OG_IMAGE_REGEX =
   /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)["'][^>]+content=["']([^"']+)["']/i;
+const PINIMG_URL_REGEX = /https?:\/\/i\.pinimg\.com\/[^\s"'<>\\)]+/gi;
+const ESCAPED_PINIMG_URL_REGEX =
+  /https?:\\\/\\\/i\.pinimg\.com\\\/[^\s"'<>\\)]+/gi;
+
+const sanitizePreviewUrl = (candidate: string | null | undefined): string | null => {
+  if (!candidate) return null;
+
+  const normalized = candidate
+    .replace(/\\\//g, "/")
+    .replace(/\\u002F/gi, "/")
+    .trim();
+
+  const match = normalized.match(/https?:\/\/i\.pinimg\.com\/[^\s"'<>\\)]+/i);
+  if (!match?.[0]) return null;
+
+  const cleaned = match[0].replace(/[),.;]+$/g, "");
+
+  try {
+    const parsed = new URL(cleaned);
+    if (!/(^|\.)pinimg\.com$/i.test(parsed.hostname)) return null;
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}`;
+  } catch {
+    return null;
+  }
+};
 
 const extractPinId = (value: string | null | undefined): string | null => {
   if (!value) return null;
 
-  const decoded = decodeURIComponent(value);
+  let decoded = value;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    decoded = value;
+  }
 
   const direct = decoded.match(PIN_ID_REGEX);
   if (direct) return direct[1];
@@ -27,20 +57,26 @@ const extractPinId = (value: string | null | undefined): string | null => {
 
 const extractPreviewImage = (html: string): string | null => {
   const ogMatch = html.match(OG_IMAGE_REGEX);
-  if (ogMatch?.[1]) return ogMatch[1];
+  const ogUrl = sanitizePreviewUrl(ogMatch?.[1] ?? null);
+  if (ogUrl) return ogUrl;
 
   const secureMatch = html.match(
     /<meta[^>]+property=["']og:image:secure_url["'][^>]+content=["']([^"']+)["']/i
   );
-  if (secureMatch?.[1]) return secureMatch[1];
+  const secureUrl = sanitizePreviewUrl(secureMatch?.[1] ?? null);
+  if (secureUrl) return secureUrl;
 
-  const escapedPinimgMatch = html.match(/https?:\\\/\\\/i\.pinimg\.com\\\/[^"\\]+/i);
-  if (escapedPinimgMatch?.[0]) {
-    return escapedPinimgMatch[0].replace(/\\\//g, "/").replace(/\\u002F/gi, "/");
+  for (const match of html.matchAll(ESCAPED_PINIMG_URL_REGEX)) {
+    const sanitized = sanitizePreviewUrl(match[0]);
+    if (sanitized) return sanitized;
   }
 
-  const pinimgMatch = html.match(/https?:\/\/i\.pinimg\.com\/[^"']+/i);
-  return pinimgMatch?.[0] ?? null;
+  for (const match of html.matchAll(PINIMG_URL_REGEX)) {
+    const sanitized = sanitizePreviewUrl(match[0]);
+    if (sanitized) return sanitized;
+  }
+
+  return null;
 };
 
 const fetchOEmbedPreview = async (targetUrl: string): Promise<string | null> => {
@@ -131,9 +167,11 @@ const tryResolvePinId = async (
   const resolvedPinId = fromFinalUrl ?? fromLocation ?? fromHtml ?? fromDeepLink;
 
   if (resolvedPinId) {
+    const oEmbedPreview = await fetchOEmbedPreview(response.url);
+    if (oEmbedPreview) previewImageUrl = oEmbedPreview;
+
     if (!previewImageUrl) {
-      const pagePreview = await fetchPreviewFromPage(response.url);
-      previewImageUrl = pagePreview ?? (await fetchOEmbedPreview(response.url));
+      previewImageUrl = await fetchPreviewFromPage(response.url);
     }
 
     return {
@@ -143,6 +181,11 @@ const tryResolvePinId = async (
     };
   }
 
+  const oEmbedPreview = await fetchOEmbedPreview(response.url);
+  if (oEmbedPreview) {
+    return { pinId: null, resolvedUrl: response.url, previewImageUrl: oEmbedPreview };
+  }
+
   if (previewImageUrl) {
     return { pinId: null, resolvedUrl: response.url, previewImageUrl };
   }
@@ -150,11 +193,6 @@ const tryResolvePinId = async (
   const pagePreview = await fetchPreviewFromPage(response.url);
   if (pagePreview) {
     return { pinId: null, resolvedUrl: response.url, previewImageUrl: pagePreview };
-  }
-
-  const oEmbedPreview = await fetchOEmbedPreview(response.url);
-  if (oEmbedPreview) {
-    return { pinId: null, resolvedUrl: response.url, previewImageUrl: oEmbedPreview };
   }
 
   return null;
@@ -186,8 +224,8 @@ Deno.serve(async (req) => {
     const directPinId = extractPinId(normalized);
 
     if (directPinId) {
-      const pagePreview = await fetchPreviewFromPage(normalized);
-      const directPreview = pagePreview ?? (await fetchOEmbedPreview(normalized));
+      const directPreview =
+        (await fetchOEmbedPreview(normalized)) ?? (await fetchPreviewFromPage(normalized));
 
       return new Response(
         JSON.stringify({
