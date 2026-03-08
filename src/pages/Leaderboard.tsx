@@ -188,9 +188,9 @@ const Leaderboard = () => {
   const countTierItems = (tiers: any): number => {
     if (!tiers || typeof tiers !== "object") return 0;
     return Object.values(tiers).reduce(
-      (sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0),
+      (sum, arr) => (sum as number) + (Array.isArray(arr) ? arr.length : 0),
       0
-    );
+    ) as number;
   };
 
   return (
