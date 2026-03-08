@@ -1,5 +1,5 @@
 const Marquee = () => {
-  const message = "✦ CYBER B SURVIVORS ONLY ✦ CHAOS HUSTLERS CAN LOG OFF ✦ I LOVE WOMEN ✦ ULJHO GAY NAHI TO SULJHO KAY KAISAY MERI JAAN ✦ I AM QUITE MAD WITH THE KNOWLEDGE OF ALL I CAN NEVER KNOW ✦ ";
+  const message = "✦ I hope everyone in cyber b dies a painful and slow death ✦ F the chaos hustlers and everyone in cyber except the pretty girls ✦ i love women ✦ uljho gay nahi to suljho kay kaisay meri jaan ✦ I am gone quite mad with the knowledge of accepting the overwhelming number of things I can never know, places I can never go, and people I can never be ✦ ";
   
   return (
     <div className="w-full bg-gradient-to-r from-primary via-secondary to-accent overflow-hidden py-3 z-50 relative">
