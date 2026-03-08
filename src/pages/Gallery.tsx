@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Upload, Trash2, Sparkles, Search, Eye, ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { useCategories, setImageCategories, fetchAllImageCategories } from "@/hooks/useCategories";

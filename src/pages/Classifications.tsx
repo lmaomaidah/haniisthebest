@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { DraggableImage } from "@/components/DraggableImage";
 import PageHeader from "@/components/PageHeader";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { Plus, Trash2, Save, Download } from "lucide-react";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";

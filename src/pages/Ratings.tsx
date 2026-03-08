@@ -8,6 +8,7 @@ import { Save, TrendingUp, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/PageHeader";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";

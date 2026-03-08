@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Search, Eye } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
