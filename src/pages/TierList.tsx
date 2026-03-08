@@ -179,6 +179,7 @@ const TierList = () => {
     for (const tc of tierConfigs) emptyData[tc.key] = [];
     setTierData(emptyData);
     setPool(filteredIds);
+    void logActivity("tier_list_reset", {});
     toast({ title: "🔄 Reset complete!", description: "All rankings cleared." });
   };
 
@@ -253,6 +254,7 @@ const TierList = () => {
     setIsPublic(newVal);
     if (tierListId) {
       await supabase.from("tier_lists").update({ is_public: newVal } as any).eq("id", tierListId);
+      void logActivity(newVal ? "tier_list_made_public" : "tier_list_made_private", { tier_list_id: tierListId });
       toast({ title: newVal ? "🌍 Now public!" : "🔒 Now private" });
     }
   };
@@ -266,6 +268,7 @@ const TierList = () => {
       link.download = "tier-list.png";
       link.href = canvas.toDataURL();
       link.click();
+      void logActivity("tier_list_exported", {});
       toast({ title: "📸 Exported!" });
     } catch (error: any) {
       toast({ title: "Export failed", description: error.message, variant: "destructive" });
@@ -278,6 +281,7 @@ const TierList = () => {
     const colorIndex = tierConfigs.length % CUSTOM_TIER_COLORS.length;
     setTierConfigs((prev) => [...prev, { key, label: newTierName.trim(), color: CUSTOM_TIER_COLORS[colorIndex] }]);
     setTierData((prev) => ({ ...prev, [key]: [] }));
+    void logActivity("tier_custom_added", { label: newTierName.trim() });
     setNewTierName("");
     setShowAddTier(false);
   };

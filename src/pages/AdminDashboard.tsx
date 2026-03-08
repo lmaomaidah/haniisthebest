@@ -41,13 +41,45 @@ const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; colo
   logout: { icon: <LogOut className="h-3.5 w-3.5" />, label: "Logged out", color: "bg-red-500/20 text-red-400 border-red-500/40" },
   page_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Visited", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" },
   page_access: { icon: <Eye className="h-3.5 w-3.5" />, label: "Visited", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" },
+  // Tier list
   tier_list_save: { icon: <Star className="h-3.5 w-3.5" />, label: "Saved tier list", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
+  tier_list_reset: { icon: <Star className="h-3.5 w-3.5" />, label: "Reset tier list", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  tier_list_made_public: { icon: <Star className="h-3.5 w-3.5" />, label: "Made tier public", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
+  tier_list_made_private: { icon: <Star className="h-3.5 w-3.5" />, label: "Made tier private", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  tier_list_exported: { icon: <Star className="h-3.5 w-3.5" />, label: "Exported tier list", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
+  tier_custom_added: { icon: <Star className="h-3.5 w-3.5" />, label: "Added custom tier", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  // Ratings
   rating_save: { icon: <Zap className="h-3.5 w-3.5" />, label: "Rated someone", color: "bg-blue-500/20 text-blue-400 border-blue-500/40" },
-  classification_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Classified", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
+  rating_select_person: { icon: <Zap className="h-3.5 w-3.5" />, label: "Viewing rating", color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
+  // Classifications / Venn
+  classification_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Saved classification", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
+  classification_exported: { icon: <FileText className="h-3.5 w-3.5" />, label: "Exported classification", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  classification_circle_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  venn_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Saved venn", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
+  venn_exported: { icon: <FileText className="h-3.5 w-3.5" />, label: "Exported venn", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  venn_circle_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added venn circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  // Gallery
   image_upload: { icon: <Upload className="h-3.5 w-3.5" />, label: "Uploaded image", color: "bg-pink-500/20 text-pink-400 border-pink-500/40" },
-  quiz_complete: { icon: <FileText className="h-3.5 w-3.5" />, label: "Finished quiz", color: "bg-orange-500/20 text-orange-400 border-orange-500/40" },
+  image_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted image", color: "bg-pink-500/20 text-pink-300 border-pink-500/30" },
+  // Ship
   ship_calculate: { icon: <Heart className="h-3.5 w-3.5" />, label: "Shipped", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
+  ship_reset: { icon: <Heart className="h-3.5 w-3.5" />, label: "Reset ship", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
+  // Comments
   comment_post: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Commented", color: "bg-teal-500/20 text-teal-400 border-teal-500/40" },
+  comment_deleted: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Deleted comment", color: "bg-teal-500/20 text-teal-300 border-teal-500/30" },
+  // Quiz
+  quiz_complete: { icon: <FileText className="h-3.5 w-3.5" />, label: "Finished quiz", color: "bg-orange-500/20 text-orange-400 border-orange-500/40" },
+  // Polls
+  poll_created: { icon: <FileText className="h-3.5 w-3.5" />, label: "Created poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_voted: { icon: <FileText className="h-3.5 w-3.5" />, label: "Voted on poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Viewed poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_edit_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Editing poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_editor_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added editor", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_results_revealed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Revealed results", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_results_hidden: { icon: <Eye className="h-3.5 w-3.5" />, label: "Hid results", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Joined via invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  // Admin
   admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted user", color: "bg-destructive/20 text-destructive border-destructive/40" },
 };
 
@@ -76,6 +108,14 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
       }
       return "Saved rankings";
     }
+    case "tier_list_reset": return "Cleared all tier rankings";
+    case "tier_list_made_public": return "Made tier list visible to everyone";
+    case "tier_list_made_private": return "Made tier list private";
+    case "tier_list_exported": return "Downloaded tier list as image";
+    case "tier_custom_added": {
+      const label = details.label as string | undefined;
+      return label ? `Created custom tier "${label}"` : "Added a custom tier";
+    }
     case "ship_calculate": {
       const p1 = details.person1 as string | undefined;
       const p2 = details.person2 as string | undefined;
@@ -83,13 +123,67 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
       if (p1 && p2) return `${p1} × ${p2}${score != null ? ` → ${score}%` : ""}`;
       return "Calculated ship compatibility";
     }
+    case "ship_reset": return "Reset ship-o-meter";
     case "rating_save": {
-      const name = details.image_name || details.name as string | undefined;
-      return name ? `Rated ${name}` : "Saved ratings";
+      const name = details.imageName || details.image_name || details.name as string | undefined;
+      const total = details.total as number | undefined;
+      return name ? `Rated ${name}${total != null ? ` (${total}/40)` : ""}` : "Saved ratings";
+    }
+    case "rating_select_person": {
+      const person = details.person as string | undefined;
+      return person ? `Opened rating for ${person}` : "Selected a person to rate";
     }
     case "image_upload": {
       const imgName = details.name as string | undefined;
       return imgName ? `Uploaded "${imgName}"` : "Uploaded a new classmate";
+    }
+    case "image_deleted": return "Deleted a classmate image";
+    case "classification_save": {
+      const circles = details.circles as number | undefined;
+      const placed = details.placed as number | undefined;
+      return `Saved ${circles || 0} circles, ${placed || 0} placed`;
+    }
+    case "classification_exported": return "Exported classification as image";
+    case "classification_circle_added": {
+      const label = details.label as string | undefined;
+      return label ? `Added circle "${label}"` : "Added a new circle";
+    }
+    case "venn_save": {
+      const circles = details.circles as number | undefined;
+      const placed = details.placed as number | undefined;
+      return `Saved venn: ${circles || 0} circles, ${placed || 0} placed`;
+    }
+    case "venn_exported": return "Exported venn diagram as image";
+    case "venn_circle_added": {
+      const label = details.label as string | undefined;
+      return label ? `Added venn circle "${label}"` : "Added a venn circle";
+    }
+    case "comment_post": {
+      const ct = details.content_type as string | undefined;
+      const isReply = details.is_reply as boolean | undefined;
+      const len = details.body_length as number | undefined;
+      const where = ct ? ` on ${ct.replace(/_/g, " ")}` : "";
+      return `${isReply ? "Replied" : "Commented"}${where}${len ? ` (${len} chars)` : ""}`;
+    }
+    case "comment_deleted": {
+      const ct = details.content_type as string | undefined;
+      return `Deleted a comment${ct ? ` on ${ct.replace(/_/g, " ")}` : ""}`;
+    }
+    case "poll_created": return "Created a new poll";
+    case "poll_deleted": return "Deleted a poll";
+    case "poll_voted": {
+      const count = details.votes_count as number | undefined;
+      return `Submitted ${count || 0} vote(s)`;
+    }
+    case "poll_view": return "Viewed a poll";
+    case "poll_edit_view": return "Opened poll editor";
+    case "poll_editor_added": return "Added a collaborator to poll";
+    case "poll_results_revealed": return "Revealed poll results";
+    case "poll_results_hidden": return "Hid poll results";
+    case "poll_joined_via_invite": return "Joined poll via invite link";
+    case "quiz_complete": {
+      const result = details.result as string | undefined;
+      return result ? `Quiz result: ${result}` : "Completed the quiz";
     }
     case "admin_user_deleted": {
       const username = details.username || details.deleted_username as string | undefined;
@@ -113,6 +207,9 @@ const AdminDashboard = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState<'activity' | 'users' | 'insights'>('insights');
   const [selectedLogs, setSelectedLogs] = useState<Set<string>>(new Set());
+  const [activityUserFilter, setActivityUserFilter] = useState<string>('all');
+  const [activityTypeFilter, setActivityTypeFilter] = useState<string>('all');
+  const [activitySearch, setActivitySearch] = useState('');
 
   useEffect(() => {
     if (!loading) {
@@ -127,7 +224,7 @@ const AdminDashboard = () => {
     setLoadingData(true);
     try {
       const [{ data: activityData }, { data: usersData }] = await Promise.all([
-        supabase.from('activity_logs').select('*, profiles(username)').order('created_at', { ascending: false }).limit(500),
+        supabase.from('activity_logs').select('*, profiles(username)').order('created_at', { ascending: false }).limit(1000),
         supabase.from('profiles').select('*, user_roles(id, role)').order('created_at', { ascending: false }),
       ]);
       if (activityData) setActivities(activityData as unknown as ActivityLog[]);
@@ -435,59 +532,105 @@ const AdminDashboard = () => {
         )}
 
         {/* ─── Activity Feed Tab ─── */}
-        {activeTab === 'activity' && (
+        {activeTab === 'activity' && (() => {
+          // Filter activities
+          const uniqueUsers = Array.from(new Set(activities.map(a => a.profiles?.username || 'Unknown'))).sort();
+          const uniqueTypes = Array.from(new Set(activities.map(a => a.action_type))).sort();
+          const searchLower = activitySearch.toLowerCase();
+
+          const filteredActivities = activities.filter(a => {
+            if (activityUserFilter !== 'all' && (a.profiles?.username || 'Unknown') !== activityUserFilter) return false;
+            if (activityTypeFilter !== 'all' && a.action_type !== activityTypeFilter) return false;
+            if (searchLower) {
+              const readable = formatReadableActivity(a.action_type, a.action_details).toLowerCase();
+              const username = (a.profiles?.username || '').toLowerCase();
+              const actionLabel = getActionConfig(a.action_type).label.toLowerCase();
+              if (!readable.includes(searchLower) && !username.includes(searchLower) && !actionLabel.includes(searchLower)) return false;
+            }
+            return true;
+          });
+
+          return (
           <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
             <CardContent className="p-0">
-              {activities.length > 0 && (
-                <div className="flex items-center gap-3 p-4 border-b border-border/30">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
-                        <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({selectedLogs.size})
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
-                        <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm"><Trash2 className="h-4 w-4 mr-1" /> Delete All</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
-                        <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              )}
+              {/* Filters bar */}
+              <div className="flex flex-wrap items-center gap-2 p-4 border-b border-border/30">
+                <input
+                  type="text"
+                  value={activitySearch}
+                  onChange={(e) => setActivitySearch(e.target.value)}
+                  placeholder="Search activity..."
+                  className="h-8 px-3 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50 w-40"
+                />
+                <select
+                  value={activityUserFilter}
+                  onChange={(e) => setActivityUserFilter(e.target.value)}
+                  className="h-8 px-2 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                >
+                  <option value="all">All users</option>
+                  {uniqueUsers.map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
+                <select
+                  value={activityTypeFilter}
+                  onChange={(e) => setActivityTypeFilter(e.target.value)}
+                  className="h-8 px-2 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                >
+                  <option value="all">All actions</option>
+                  {uniqueTypes.map(t => <option key={t} value={t}>{getActionConfig(t).label} ({t})</option>)}
+                </select>
+                <span className="text-[11px] text-muted-foreground ml-auto">{filteredActivities.length} of {activities.length} logs</span>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete ({selectedLogs.size})
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
+                      <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm"><Trash2 className="h-4 w-4 mr-1" /> Delete All</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
+                      <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
 
               <div className="divide-y divide-border/10">
                 <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
-                  <div className="w-8"><Checkbox checked={activities.length > 0 && selectedLogs.size === activities.length} onCheckedChange={toggleAllLogs} /></div>
+                  <div className="w-8"><Checkbox checked={filteredActivities.length > 0 && selectedLogs.size === filteredActivities.length} onCheckedChange={() => {
+                    if (selectedLogs.size === filteredActivities.length) setSelectedLogs(new Set());
+                    else setSelectedLogs(new Set(filteredActivities.map(a => a.id)));
+                  }} /></div>
                   <div className="w-24">User</div>
                   <div className="w-32">Action</div>
                   <div className="flex-1">Details</div>
                   <div className="w-28 text-right">When</div>
                 </div>
 
-                {activities.length === 0 ? (
-                  <div className="text-center py-12 text-foreground/60">No activity yet. Everyone's being too quiet... 🤫</div>
+                {filteredActivities.length === 0 ? (
+                  <div className="text-center py-12 text-foreground/60">
+                    {activities.length === 0 ? "No activity yet. Everyone's being too quiet... 🤫" : "No logs match your filters."}
+                  </div>
                 ) : (
-                  activities.map((activity) => {
+                  filteredActivities.map((activity) => {
                     const config = getActionConfig(activity.action_type);
                     const readable = formatReadableActivity(activity.action_type, activity.action_details);
                     const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
@@ -525,7 +668,8 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+          );
+        })()}
 
         {/* ─── Users Tab ─── */}
         {activeTab === 'users' && (
