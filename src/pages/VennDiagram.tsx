@@ -47,7 +47,7 @@ export default function VennDiagram() {
   const [newLabel, setNewLabel] = useState("");
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   useEffect(() => {
     loadImages();
@@ -89,6 +89,16 @@ export default function VennDiagram() {
     if (!user) return;
     try { await createCategory(name, user.id); toast.success("Category created! 🏷️"); }
     catch { toast.error("Couldn't create category"); }
+  };
+
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try { await renameCategory(id, newName); toast.success("Category renamed! ✏️"); }
+    catch { toast.error("Couldn't rename category"); }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try { await deleteCategory(id); await loadCategoryMap(); toast.success("Category deleted! 🗑️"); }
+    catch { toast.error("Couldn't delete category"); }
   };
 
   const loadVennDiagram = async () => {

@@ -30,7 +30,7 @@ const Gallery = () => {
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
   const { toast } = useToast();
   const { logActivity, user } = useAuth();
-  const { categories, createCategory } = useCategories();
+  const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
 
   useEffect(() => {
     fetchImages();
@@ -154,6 +154,25 @@ const Gallery = () => {
     }
   };
 
+  const handleRenameCategory = async (id: string, newName: string) => {
+    try {
+      await renameCategory(id, newName);
+      toast({ title: "Category renamed! ✏️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't rename category", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      await deleteCategory(id);
+      await loadCategoryMap();
+      toast({ title: "Category deleted! 🗑️" });
+    } catch (err: any) {
+      toast({ title: "Couldn't delete category", description: err.message, variant: "destructive" });
+    }
+  };
+
   const filteredImages = filterCategories.length === 0
     ? images
     : images.filter((img) => {
@@ -227,6 +246,9 @@ const Gallery = () => {
               onChange={setFilterCategories}
               allowCreate
               onCreateCategory={handleCreateCategory}
+              allowEdit
+              onRenameCategory={handleRenameCategory}
+              onDeleteCategory={handleDeleteCategory}
             />
           </div>
         )}
