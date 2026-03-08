@@ -11,7 +11,7 @@ interface CategoryFilterProps {
   onChange: (ids: string[]) => void;
   /** If true, shows a "create new" input */
   allowCreate?: boolean;
-  onCreateCategory?: (name: string) => Promise<void>;
+  onCreateCategory?: (name: string) => Promise<any>;
   /** If true, shows edit/delete controls on categories */
   allowEdit?: boolean;
   onRenameCategory?: (id: string, newName: string) => Promise<void>;

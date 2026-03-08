@@ -117,20 +117,18 @@ const Profiles = () => {
           />
         </div>
 
-        {categories.length > 0 && (
-          <div className="mb-8">
-            <CategoryFilter
-              categories={categories}
-              selected={filterCategories}
-              onChange={setFilterCategories}
-              allowCreate
-              onCreateCategory={handleCreateCategory}
-              allowEdit
-              onRenameCategory={handleRenameCategory}
-              onDeleteCategory={handleDeleteCategory}
-            />
-          </div>
-        )}
+        <div className="mb-8">
+          <CategoryFilter
+            categories={categories}
+            selected={filterCategories}
+            onChange={setFilterCategories}
+            allowCreate
+            onCreateCategory={handleCreateCategory}
+            allowEdit
+            onRenameCategory={handleRenameCategory}
+            onDeleteCategory={handleDeleteCategory}
+          />
+        </div>
 
         {loading ? (
           <div className="text-center py-20 text-muted-foreground text-2xl">Loading…</div>

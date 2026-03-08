@@ -676,10 +676,23 @@ const PersonProfile = () => {
                 categories={categories}
                 selected={personCategories}
                 onChange={handleCategoryChange}
+                onCreateCategory={async (name) => {
+                  if (!user) return null;
+                  try {
+                    const cat = await createCategory(name, user.id);
+                    if (cat && id) {
+                      const updated = [...personCategories, cat.id];
+                      await setImageCategories(id, updated);
+                      setPersonCategories(updated);
+                    }
+                    toast({ title: "Category created & assigned! 🏷️" });
+                    return cat;
+                  } catch (err: any) {
+                    toast({ title: "Couldn't create category", description: err.message, variant: "destructive" });
+                    return null;
+                  }
+                }}
               />
-              {categories.length > 0 && personCategories.length === 0 && (
-                <p className="text-xs text-muted-foreground mt-1 text-center">Tap to assign categories</p>
-              )}
             </div>
           </div>
         </div>
