@@ -19,8 +19,7 @@ const navItems = [
 
 const Index = () => {
   const count = navItems.length;
-  const radius = 170; // px from center
-  const radiusMobile = 130;
+  const orbitRadiusPercent = 37;
 
   return (
     <div className="min-h-screen relative overflow-hidden">

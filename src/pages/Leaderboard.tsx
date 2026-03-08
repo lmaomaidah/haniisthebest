@@ -106,7 +106,10 @@ const Leaderboard = () => {
     if (data) {
       const signed = await withSignedClassmateImageUrls(data);
       const map = new Map<string, ClassmateImage>();
-      signed.forEach((img) => map.set(img.name.toLowerCase(), img));
+      signed.forEach((img) => {
+        map.set(img.id, img);
+        map.set(img.name.trim().toLowerCase(), img);
+      });
       setClassmates(map);
     }
   }, []);
