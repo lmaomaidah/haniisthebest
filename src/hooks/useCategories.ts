@@ -41,7 +41,28 @@ export function useCategories() {
     return data as Category;
   };
 
-  return { categories, loading, fetchCategories, createCategory };
+  const renameCategory = async (categoryId: string, newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    const { error } = await supabase
+      .from("categories")
+      .update({ name: trimmed })
+      .eq("id", categoryId);
+
+    if (error) throw error;
+    await fetchCategories();
+  };
+
+  const deleteCategory = async (categoryId: string) => {
+    // Remove all image_categories associations first
+    await supabase.from("image_categories").delete().eq("category_id", categoryId);
+    const { error } = await supabase.from("categories").delete().eq("id", categoryId);
+    if (error) throw error;
+    await fetchCategories();
+  };
+
+  return { categories, loading, fetchCategories, createCategory, renameCategory, deleteCategory };
 }
 
 /** Fetch category IDs for a given image */
