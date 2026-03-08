@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp, Clock } from 'lucide-react';
+import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp, Clock, ChevronUp, ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow, subDays, isAfter } from 'date-fns';
 import { toast } from 'sonner';
@@ -210,6 +210,7 @@ const AdminDashboard = () => {
   const [activityUserFilter, setActivityUserFilter] = useState<string>('all');
   const [activityTypeFilter, setActivityTypeFilter] = useState<string>('all');
   const [activitySearch, setActivitySearch] = useState('');
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -672,12 +673,22 @@ const AdminDashboard = () => {
         })()}
 
         {/* ─── Users Tab ─── */}
-        {activeTab === 'users' && (
+        {activeTab === 'users' && (() => {
+          // Build per-user activity map (last 10 per user)
+          const userActivityMap = new Map<string, ActivityLog[]>();
+          activities.forEach(a => {
+            const list = userActivityMap.get(a.user_id) || [];
+            if (list.length < 10) list.push(a);
+            userActivityMap.set(a.user_id, list);
+          });
+
+          return (
           <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50">
+                    <TableHead className="text-foreground font-bold w-8"></TableHead>
                     <TableHead className="text-foreground font-bold">Username</TableHead>
                     <TableHead className="text-foreground font-bold">Role</TableHead>
                     <TableHead className="text-foreground font-bold">Approval</TableHead>
@@ -687,52 +698,104 @@ const AdminDashboard = () => {
                 </TableHeader>
                 <TableBody>
                   {users.length === 0 ? (
-                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-foreground/60">No users yet 😢</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} className="text-center py-8 text-foreground/60">No users yet 😢</TableCell></TableRow>
                   ) : (
                     users.map((userProfile) => {
                       const isCurrentUser = userProfile.user_id === user?.id;
                       const currentRole = userProfile.user_roles?.[0]?.role || 'user';
+                      const isExpanded = expandedUserId === userProfile.user_id;
+                      const userLogs = userActivityMap.get(userProfile.user_id) || [];
+
                       return (
-                        <TableRow key={userProfile.user_id} className="border-border/30 hover:bg-card/50">
-                          <TableCell className="font-medium text-foreground">
-                            {userProfile.username}
-                            {isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={currentRole === 'admin' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border' : 'bg-muted text-muted-foreground border-border border'}>
-                              {currentRole}
-                            </Badge>
-                          </TableCell>
-                          <TableCell><Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>{userProfile.is_approved ? 'approved' : 'pending'}</Badge></TableCell>
-                          <TableCell className="text-foreground/60 text-sm">{format(new Date(userProfile.created_at), 'MMM d, yyyy')}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Button variant={userProfile.is_approved ? 'secondary' : 'default'} size="sm" disabled={isCurrentUser} className="h-8" onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}>
-                                {userProfile.is_approved ? 'Revoke' : 'Approve'}
-                              </Button>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild><Button variant="outline" size="sm" disabled={isCurrentUser} className="h-8"><UserCog className="h-4 w-4 mr-1" /> Role</Button></DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'admin')} disabled={currentRole === 'admin'}><Shield className="h-4 w-4 mr-2 text-yellow-500" /> Make Admin</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'user')} disabled={currentRole === 'user'}><Users className="h-4 w-4 mr-2" /> Make User</DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild><Button variant="destructive" size="sm" disabled={isCurrentUser} className="h-8"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                    <AlertDialogDescription>Delete <strong>{userProfile.username}</strong>? This removes their profile and all data. Cannot be undone.</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteUser(userProfile)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          </TableCell>
-                        </TableRow>
+                        <React.Fragment key={userProfile.user_id}>
+                          <TableRow className="border-border/30 hover:bg-card/50">
+                            <TableCell className="w-8 px-2">
+                              <button
+                                onClick={() => setExpandedUserId(isExpanded ? null : userProfile.user_id)}
+                                className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/40 transition-colors text-muted-foreground"
+                              >
+                                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                              </button>
+                            </TableCell>
+                            <TableCell className="font-medium text-foreground">
+                              {userProfile.username}
+                              {isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
+                              <span className="ml-2 text-[10px] text-muted-foreground">{userLogs.length > 0 ? `${userLogs.length} recent` : 'no activity'}</span>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={currentRole === 'admin' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border' : 'bg-muted text-muted-foreground border-border border'}>
+                                {currentRole}
+                              </Badge>
+                            </TableCell>
+                            <TableCell><Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>{userProfile.is_approved ? 'approved' : 'pending'}</Badge></TableCell>
+                            <TableCell className="text-foreground/60 text-sm">{format(new Date(userProfile.created_at), 'MMM d, yyyy')}</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <Button variant={userProfile.is_approved ? 'secondary' : 'default'} size="sm" disabled={isCurrentUser} className="h-8" onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}>
+                                  {userProfile.is_approved ? 'Revoke' : 'Approve'}
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild><Button variant="outline" size="sm" disabled={isCurrentUser} className="h-8"><UserCog className="h-4 w-4 mr-1" /> Role</Button></DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'admin')} disabled={currentRole === 'admin'}><Shield className="h-4 w-4 mr-2 text-yellow-500" /> Make Admin</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'user')} disabled={currentRole === 'user'}><Users className="h-4 w-4 mr-2" /> Make User</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild><Button variant="destructive" size="sm" disabled={isCurrentUser} className="h-8"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                      <AlertDialogDescription>Delete <strong>{userProfile.username}</strong>? This removes their profile and all data. Cannot be undone.</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteUser(userProfile)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {/* Inline activity timeline */}
+                          {isExpanded && (
+                            <TableRow className="border-border/20 bg-muted/5">
+                              <TableCell colSpan={6} className="p-0">
+                                <div className="px-6 py-3">
+                                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                                    Recent Activity — {userProfile.username}
+                                  </p>
+                                  {userLogs.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground/50 italic py-2">No activity recorded yet.</p>
+                                  ) : (
+                                    <div className="relative pl-4 border-l-2 border-primary/20 space-y-1.5">
+                                      {userLogs.map((log) => {
+                                        const cfg = getActionConfig(log.action_type);
+                                        const detail = formatReadableActivity(log.action_type, log.action_details);
+                                        const ago = formatDistanceToNow(new Date(log.created_at), { addSuffix: true });
+                                        return (
+                                          <div key={log.id} className="relative flex items-start gap-2 group">
+                                            {/* Timeline dot */}
+                                            <div className="absolute -left-[1.3rem] top-1 h-2.5 w-2.5 rounded-full bg-primary/40 border-2 border-background group-hover:bg-primary transition-colors" />
+                                            <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold border flex-shrink-0 ${cfg.color}`}>
+                                              {cfg.icon} {cfg.label}
+                                            </span>
+                                            <span className="text-xs text-foreground/70 truncate flex-1" title={detail}>
+                                              {detail || '—'}
+                                            </span>
+                                            <span className="text-[10px] text-muted-foreground/60 whitespace-nowrap flex-shrink-0" title={format(new Date(log.created_at), 'MMM d, yyyy h:mm a')}>
+                                              {ago}
+                                            </span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
                       );
                     })
                   )}
@@ -740,7 +803,8 @@ const AdminDashboard = () => {
               </Table>
             </CardContent>
           </Card>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
