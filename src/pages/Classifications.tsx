@@ -272,7 +272,7 @@ export default function Classifications() {
               <Button onClick={saveClassifications} size="sm" className="rounded-xl gradient-pink-blue text-white">
                 <Save className="mr-1.5 h-3.5 w-3.5" /> Save
               </Button>
-              <Button onClick={exportDiagram} size="sm" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
+              <Button onClick={exportClassifications} size="sm" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
                 <Download className="mr-1.5 h-3.5 w-3.5" /> Export
               </Button>
             </>
