@@ -427,20 +427,20 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
-                {/* Activity feed as cards instead of raw table */}
-                <div className="divide-y divide-border/20">
-                  {/* Table header */}
-                  <div className="grid grid-cols-[40px_1fr_auto_2fr_auto] gap-3 px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    <div>
+                {/* Activity feed - card layout */}
+                <div className="divide-y divide-border/10">
+                  {/* Header row */}
+                  <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
+                    <div className="w-8">
                       <Checkbox
                         checked={activities.length > 0 && selectedLogs.size === activities.length}
                         onCheckedChange={toggleAllLogs}
                       />
                     </div>
-                    <div>User</div>
-                    <div>Action</div>
-                    <div>Details</div>
-                    <div>When</div>
+                    <div className="w-24">User</div>
+                    <div className="w-32">Action</div>
+                    <div className="flex-1">Details</div>
+                    <div className="w-28 text-right">When</div>
                   </div>
 
                   {activities.length === 0 ? (
@@ -456,35 +456,45 @@ const AdminDashboard = () => {
                       return (
                         <div
                           key={activity.id}
-                          className="grid grid-cols-[40px_1fr_auto_2fr_auto] gap-3 px-4 py-3 items-center hover:bg-card/50 transition-colors group"
+                          className={`flex items-center gap-3 px-4 py-2.5 hover:bg-muted/10 transition-colors ${
+                            selectedLogs.has(activity.id) ? "bg-primary/5" : ""
+                          }`}
                         >
-                          <div>
+                          <div className="w-8">
                             <Checkbox
                               checked={selectedLogs.has(activity.id)}
                               onCheckedChange={() => toggleLogSelection(activity.id)}
                             />
                           </div>
 
-                          {/* User */}
-                          <div className="font-medium text-sm text-foreground truncate">
-                            {activity.profiles?.username || 'Unknown'}
+                          {/* User with avatar dot */}
+                          <div className="w-24 flex items-center gap-1.5 min-w-0">
+                            <div
+                              className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
+                              style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                            >
+                              {(activity.profiles?.username || "?")[0].toUpperCase()}
+                            </div>
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {activity.profiles?.username || 'Unknown'}
+                            </span>
                           </div>
 
-                          {/* Action badge */}
-                          <div>
-                            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border ${config.color}`}>
+                          {/* Action pill */}
+                          <div className="w-32">
+                            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border ${config.color}`}>
                               {config.icon}
                               {config.label}
                             </span>
                           </div>
 
-                          {/* Readable details */}
-                          <div className="text-sm text-foreground/80 truncate" title={readable}>
-                            {readable || <span className="text-muted-foreground/50">—</span>}
+                          {/* Details */}
+                          <div className="flex-1 text-sm text-foreground/70 truncate min-w-0" title={readable}>
+                            {readable || <span className="text-muted-foreground/40 italic">—</span>}
                           </div>
 
                           {/* Time */}
-                          <div className="text-xs text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
+                          <div className="w-28 text-right text-[11px] text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
                             {timeAgo}
                           </div>
                         </div>
