@@ -352,10 +352,24 @@ const ShipOMeter = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  const fetchShipHistory = useCallback(async () => {
+    if (!user) return;
+    setLoadingHistory(true);
+    const { data } = await supabase
+      .from("activity_logs")
+      .select("*")
+      .eq("action_type", "ship_calculate")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setShipHistory(data || []);
+    setLoadingHistory(false);
+  }, [user]);
+
   useEffect(() => {
     void fetchImages();
     void loadCategoryMap();
-  }, []);
+    void fetchShipHistory();
+  }, [fetchShipHistory]);
 
   const loadCategoryMap = async () => {
     const map = await fetchAllImageCategories();
