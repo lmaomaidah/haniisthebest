@@ -375,6 +375,8 @@ const PersonProfile = () => {
   const [bioText, setBioText] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [personCategories, setPersonCategories] = useState<string[]>([]);
+  const { categories, createCategory } = useCategories();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
