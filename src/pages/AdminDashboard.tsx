@@ -335,11 +335,11 @@ const AdminDashboard = () => {
 
     const meaningfulDetails = Object.entries(details)
       .filter(([key]) => key !== 'context')
-      .map(([key, value]) => `${key.replaceAll('_', ' ')}: ${String(value)}`);
+      .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`);
 
     const contextDetails = Object.entries(context)
       .filter(([key]) => !contextKeys.has(key))
-      .map(([key, value]) => `${key.replaceAll('_', ' ')}: ${String(value)}`);
+      .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`);
 
     const merged = [...meaningfulDetails, ...contextDetails].filter(Boolean);
 
