@@ -224,7 +224,7 @@ const AdminDashboard = () => {
     setLoadingData(true);
     try {
       const [{ data: activityData }, { data: usersData }] = await Promise.all([
-        supabase.from('activity_logs').select('*, profiles(username)').order('created_at', { ascending: false }).limit(500),
+        supabase.from('activity_logs').select('*, profiles(username)').order('created_at', { ascending: false }).limit(1000),
         supabase.from('profiles').select('*, user_roles(id, role)').order('created_at', { ascending: false }),
       ]);
       if (activityData) setActivities(activityData as unknown as ActivityLog[]);
