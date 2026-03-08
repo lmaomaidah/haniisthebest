@@ -86,7 +86,7 @@ const AdminDashboard = () => {
           profiles(username)
         `)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(250);
       
       if (activityError) {
         console.error('Error fetching activities:', activityError);
