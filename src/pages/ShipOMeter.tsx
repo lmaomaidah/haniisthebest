@@ -565,7 +565,7 @@ const ShipOMeter = () => {
 
         {categories.length > 0 && (
           <div className="mb-6">
-            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} />
+            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
           </div>
         )}
 
