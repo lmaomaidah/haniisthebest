@@ -46,6 +46,27 @@ export type Database = {
           },
         ]
       }
+      categories: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       form_editors: {
         Row: {
           created_at: string
@@ -219,6 +240,42 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      image_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          image_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          image_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          image_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "image_categories_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "images"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       images: {
         Row: {

@@ -11,6 +11,8 @@ import { DraggableImage } from "@/components/DraggableImage";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { RotateCcw } from "lucide-react";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
 
 interface ImageType {
   id: string;
@@ -33,7 +35,8 @@ const CIRCLE_RADIUS = 150;
 
 export default function VennDiagram() {
   const navigate = useNavigate();
-  const { logActivity } = useAuth();
+  const { logActivity, user } = useAuth();
+  const [allImages, setAllImages] = useState<ImageType[]>([]);
   const [images, setImages] = useState<ImageType[]>([]);
   const [circles, setCircles] = useState<Circle[]>([
     { id: 'A', label: 'Circle A', x: 250, y: 250 },
@@ -42,11 +45,31 @@ export default function VennDiagram() {
   const [placements, setPlacements] = useState<Placements>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [newLabel, setNewLabel] = useState("");
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
+  const { categories, createCategory } = useCategories();
 
   useEffect(() => {
     loadImages();
     loadVennDiagram();
+    loadCategoryMap();
   }, []);
+
+  const loadCategoryMap = async () => {
+    const map = await fetchAllImageCategories();
+    setImageCategoryMap(map);
+  };
+
+  useEffect(() => {
+    if (filterCategories.length === 0) {
+      setImages(allImages);
+    } else {
+      setImages(allImages.filter((img) => {
+        const cats = imageCategoryMap[img.id] || [];
+        return filterCategories.some((fc) => cats.includes(fc));
+      }));
+    }
+  }, [filterCategories, allImages, imageCategoryMap]);
 
   const loadImages = async () => {
     const { data, error } = await supabase
@@ -57,8 +80,15 @@ export default function VennDiagram() {
 
     if (!error && data) {
       const signedImages = await withSignedClassmateImageUrls(data);
+      setAllImages(signedImages);
       setImages(signedImages);
     }
+  };
+
+  const handleCreateCategory = async (name: string) => {
+    if (!user) return;
+    try { await createCategory(name, user.id); toast.success("Category created! 🏷️"); }
+    catch { toast.error("Couldn't create category"); }
   };
 
   const loadVennDiagram = async () => {
