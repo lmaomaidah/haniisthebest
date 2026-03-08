@@ -288,43 +288,78 @@ const AdminDashboard = () => {
           <Button onClick={fetchData} className="gradient-pink-blue text-white">Refresh Data 🔄</Button>
         </div>
 
-        {/* Stats cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Total Users</CardTitle>
-              <Users className="h-6 w-6 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-primary">{users.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {users.filter(u => u.is_approved).length} approved
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-secondary dark:shadow-[0_0_25px_rgba(100,200,255,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Total Activities</CardTitle>
-              <Activity className="h-6 w-6 text-secondary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-secondary">{activities.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Last 250 shown
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-accent dark:shadow-[0_0_25px_rgba(255,200,100,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Admin Users</CardTitle>
-              <Shield className="h-6 w-6 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-accent">
-                {users.filter(u => u.user_roles?.some(r => r.role === 'admin')).length}
+        {/* Stats cards - enhanced */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="bg-card/80 backdrop-blur-sm border border-primary/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-primary to-secondary" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Users</p>
+                  <p className="text-3xl font-black text-primary tabular-nums">{users.length}</p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
               </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                {users.filter(u => u.is_approved).length} approved · {users.filter(u => !u.is_approved).length} pending
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/80 backdrop-blur-sm border border-secondary/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-secondary to-accent" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Activities</p>
+                  <p className="text-3xl font-black text-secondary tabular-nums">{activities.length}</p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-secondary/15 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-secondary" />
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">Last 250 shown</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/80 backdrop-blur-sm border border-accent/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-accent to-primary" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Admins</p>
+                  <p className="text-3xl font-black text-accent tabular-nums">
+                    {users.filter(u => u.user_roles?.some(r => r.role === 'admin')).length}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-accent" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/80 backdrop-blur-sm border border-border/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-muted-foreground/50 to-muted-foreground/20" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Today</p>
+                  <p className="text-3xl font-black text-foreground tabular-nums">
+                    {activities.filter(a => {
+                      const d = new Date(a.created_at);
+                      const now = new Date();
+                      return d.toDateString() === now.toDateString();
+                    }).length}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-foreground/10 flex items-center justify-center">
+                  <Eye className="h-5 w-5 text-foreground/60" />
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">Actions today</p>
             </CardContent>
           </Card>
         </div>
