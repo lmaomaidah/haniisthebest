@@ -594,84 +594,52 @@ const PersonProfile = () => {
       </div>
 
       <div className="container mx-auto relative z-10 max-w-5xl px-4 pb-20">
-        {/* Back button */}
         <div className="pt-6 mb-6">
           <Link to="/profiles">
-            <Button
-              variant="ghost"
-              className="text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground rounded-xl">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Shrine Wall
             </Button>
           </Link>
         </div>
 
-        {/* Profile Header */}
+        {/* Profile Header - enhanced */}
         <div className="relative mb-12">
-          <div className="h-40 md:h-56 rounded-3xl overflow-hidden bg-gradient-to-r from-primary/30 via-secondary/30 to-accent/30" />
+          <div className="h-44 md:h-60 rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/40" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_40%,hsl(var(--background))_100%)]" />
+          </div>
 
           <div className="flex flex-col items-center -mt-16 md:-mt-20">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-card overflow-hidden shadow-xl bg-card">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-card overflow-hidden shadow-[0_8px_30px_hsl(var(--primary)/0.25)] bg-card group hover:shadow-[0_8px_40px_hsl(var(--primary)/0.4)] transition-shadow duration-300">
               {person.image_url ? (
-                <img
-                  src={person.image_url}
-                  alt={person.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={person.image_url} alt={person.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary/50 to-secondary/50 flex items-center justify-center">
-                  <span className="text-4xl font-bold text-foreground">
-                    {person.name
-                      .split(" ")
-                      .map((w) => w[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
-                  </span>
+                  <span className="text-4xl font-bold text-foreground">{person.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)}</span>
                 </div>
               )}
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-display font-bold mt-4 text-foreground text-center">
+            <h1 className="text-4xl md:text-5xl font-['Luckiest_Guy'] font-bold mt-4 text-foreground text-center tracking-wide">
               {person.name}
             </h1>
 
-            {/* Bio */}
             <div className="mt-3 max-w-lg text-center">
               {editingBio && isAdmin ? (
                 <div className="space-y-2">
-                  <Textarea
-                    value={bioText}
-                    onChange={(e) => setBioText(e.target.value)}
-                    placeholder="Write a bio…"
-                    className="bg-card/70 border-border rounded-xl text-center"
-                    rows={3}
-                  />
+                  <Textarea value={bioText} onChange={(e) => setBioText(e.target.value)} placeholder="Write a bio…" className="bg-card/70 border-border rounded-xl text-center" rows={3} />
                   <div className="flex gap-2 justify-center">
-                    <Button size="sm" onClick={handleSaveBio}>
-                      Save
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setEditingBio(false)}
-                    >
-                      Cancel
-                    </Button>
+                    <Button size="sm" onClick={handleSaveBio}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingBio(false)}>Cancel</Button>
                   </div>
                 </div>
               ) : (
-                <p
-                  className={`text-muted-foreground italic ${isAdmin ? "cursor-pointer hover:text-foreground transition-colors" : ""}`}
-                  onClick={() => isAdmin && setEditingBio(true)}
-                >
-                  {person.bio ||
-                    (isAdmin ? "Click to add a bio…" : "No bio yet.")}
+                <p className={`text-muted-foreground italic ${isAdmin ? "cursor-pointer hover:text-foreground transition-colors" : ""}`} onClick={() => isAdmin && setEditingBio(true)}>
+                  {person.bio || (isAdmin ? "Click to add a bio…" : "No bio yet.")}
                 </p>
               )}
             </div>
 
-            {/* Categories */}
             <div className="mt-4 max-w-md">
               <CategoryPicker
                 categories={categories}
@@ -681,17 +649,10 @@ const PersonProfile = () => {
                   if (!user) return null;
                   try {
                     const cat = await createCategory(name, user.id);
-                    if (cat && id) {
-                      const updated = [...personCategories, cat.id];
-                      await setImageCategories(id, updated);
-                      setPersonCategories(updated);
-                    }
+                    if (cat && id) { const updated = [...personCategories, cat.id]; await setImageCategories(id, updated); setPersonCategories(updated); }
                     toast({ title: "Category created & assigned! 🏷️" });
                     return cat;
-                  } catch (err: any) {
-                    toast({ title: "Couldn't create category", description: err.message, variant: "destructive" });
-                    return null;
-                  }
+                  } catch (err: any) { toast({ title: "Couldn't create category", description: err.message, variant: "destructive" }); return null; }
                 }}
               />
             </div>
