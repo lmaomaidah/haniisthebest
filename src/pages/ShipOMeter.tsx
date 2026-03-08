@@ -351,7 +351,6 @@ const ShipOMeter = () => {
   const [shipHistory, setShipHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [adventurousness, setAdventurousness] = useState([50, 50]);
 
   useEffect(() => {
     void fetchImages();
