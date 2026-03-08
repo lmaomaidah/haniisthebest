@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -15,6 +15,10 @@ import {
   MessageCircle,
   Shield,
   Compass,
+  History,
+  ChevronDown,
+  ChevronUp,
+  Trophy,
 } from "lucide-react";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
@@ -22,6 +26,7 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
 import { useToast } from "@/hooks/use-toast";
 import { CommentSection } from "@/components/CommentSection";
+import { format } from "date-fns";
 
 interface ImageType {
   id: string;
