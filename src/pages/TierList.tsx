@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Save, Download, RotateCcw } from "lucide-react";
+import { Home, Save, Download, RotateCcw, Globe, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { TierRow } from "@/components/TierRow";
@@ -15,6 +15,8 @@ import html2canvas from "html2canvas";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
+import { CommentSection } from "@/components/CommentSection";
+import { Switch } from "@/components/ui/switch";
 
 interface ImageType {
   id: string;
@@ -48,6 +50,8 @@ const TierList = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
+  const [isPublic, setIsPublic] = useState(false);
+  const [tierListId, setTierListId] = useState<string | null>(null);
   const { toast } = useToast();
   const { logActivity, user } = useAuth();
   const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
@@ -84,6 +88,7 @@ const TierList = () => {
     const { data: tierData } = await supabase
       .from("tier_lists")
       .select("*")
+      .eq("user_id", (await supabase.auth.getUser()).data.user?.id ?? "")
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -96,6 +101,8 @@ const TierList = () => {
       ]);
       const newImageIds = allImageIds.filter((id) => !placedIds.has(id));
       setTiers({ ...savedTiers, F: savedTiers.F || [], pool: [...savedTiers.pool, ...newImageIds] });
+      setIsPublic((tierData as any).is_public ?? false);
+      setTierListId(tierData.id);
     } else {
       setTiers((prev) => ({ ...prev, pool: allImageIds }));
     }
@@ -181,12 +188,22 @@ const TierList = () => {
 
   const saveTierList = async () => {
     try {
-      const { error } = await supabase.from("tier_lists").insert({ name: "My Tier List", tiers: tiers as any });
+      const { data, error } = await supabase.from("tier_lists").insert({ name: "My Tier List", tiers: tiers as any, is_public: isPublic } as any).select().single();
       if (error) throw error;
+      if (data) setTierListId(data.id);
       await logActivity("tier_list_save", { tierCounts: { S: tiers.S.length, A: tiers.A.length, B: tiers.B.length, C: tiers.C.length, D: tiers.D.length } });
       toast({ title: "✨ Tier list saved!", description: "Your rankings are locked in! 🎉" });
     } catch (error: any) {
       toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const togglePublic = async () => {
+    const newVal = !isPublic;
+    setIsPublic(newVal);
+    if (tierListId) {
+      await supabase.from("tier_lists").update({ is_public: newVal } as any).eq("id", tierListId);
+      toast({ title: newVal ? "🌍 Tier list is now public!" : "🔒 Tier list is now private" });
     }
   };
 
@@ -281,6 +298,17 @@ const TierList = () => {
           />
         </div>
 
+        {/* Public toggle */}
+        <div className="flex items-center gap-3 mb-6 bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl px-4 py-3">
+          <Switch checked={isPublic} onCheckedChange={togglePublic} />
+          <div className="flex items-center gap-2">
+            {isPublic ? <Globe className="h-4 w-4 text-accent" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+            <span className="text-sm font-medium text-foreground">
+              {isPublic ? "Public — others can view & comment" : "Private — only you can see this"}
+            </span>
+          </div>
+        </div>
+
         <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-accent rounded-3xl p-6 mb-8 text-center">
           <p className="text-xl font-bold text-foreground">
             🎯 Drag and drop your classmates into tiers! S = Iconic, D = NPC Energy 💅
@@ -309,6 +337,13 @@ const TierList = () => {
             ) : null}
           </DragOverlay>
         </DndContext>
+
+        {/* Comments */}
+        {isPublic && tierListId && (
+          <div className="mt-12 bg-card/60 backdrop-blur-sm border-2 border-border/40 rounded-3xl p-6">
+            <CommentSection contentType="tier_list" contentId={tierListId} />
+          </div>
+        )}
       </div>
     </div>
   );

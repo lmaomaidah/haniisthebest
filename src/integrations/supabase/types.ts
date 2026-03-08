@@ -67,6 +67,54 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          body: string
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       form_editors: {
         Row: {
           created_at: string
@@ -414,6 +462,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          is_public: boolean
           name: string
           tiers: Json
           updated_at: string | null
@@ -422,6 +471,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          is_public?: boolean
           name?: string
           tiers?: Json
           updated_at?: string | null
@@ -430,6 +480,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          is_public?: boolean
           name?: string
           tiers?: Json
           updated_at?: string | null
@@ -468,6 +519,7 @@ export type Database = {
           circles: Json
           created_at: string
           id: string
+          is_public: boolean
           name: string
           placements: Json
           updated_at: string
@@ -477,6 +529,7 @@ export type Database = {
           circles?: Json
           created_at?: string
           id?: string
+          is_public?: boolean
           name?: string
           placements?: Json
           updated_at?: string
@@ -486,6 +539,7 @@ export type Database = {
           circles?: Json
           created_at?: string
           id?: string
+          is_public?: boolean
           name?: string
           placements?: Json
           updated_at?: string

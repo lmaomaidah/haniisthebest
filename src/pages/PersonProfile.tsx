@@ -21,6 +21,7 @@ import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { useCategories, fetchImageCategoryIds, setImageCategories } from "@/hooks/useCategories";
+import { CommentSection } from "@/components/CommentSection";
 import {
   DndContext,
   closestCenter,
@@ -775,6 +776,11 @@ const PersonProfile = () => {
             </SortableContext>
           </DndContext>
         )}
+
+        {/* Comments Section */}
+        <div className="mt-12 bg-card/60 backdrop-blur-sm border-2 border-border/40 rounded-3xl p-6">
+          <CommentSection contentType="pin" contentId={id} />
+        </div>
       </div>
 
       {/* Floating add button on mobile */}
