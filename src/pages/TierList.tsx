@@ -188,12 +188,22 @@ const TierList = () => {
 
   const saveTierList = async () => {
     try {
-      const { error } = await supabase.from("tier_lists").insert({ name: "My Tier List", tiers: tiers as any });
+      const { data, error } = await supabase.from("tier_lists").insert({ name: "My Tier List", tiers: tiers as any, is_public: isPublic } as any).select().single();
       if (error) throw error;
+      if (data) setTierListId(data.id);
       await logActivity("tier_list_save", { tierCounts: { S: tiers.S.length, A: tiers.A.length, B: tiers.B.length, C: tiers.C.length, D: tiers.D.length } });
       toast({ title: "✨ Tier list saved!", description: "Your rankings are locked in! 🎉" });
     } catch (error: any) {
       toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const togglePublic = async () => {
+    const newVal = !isPublic;
+    setIsPublic(newVal);
+    if (tierListId) {
+      await supabase.from("tier_lists").update({ is_public: newVal } as any).eq("id", tierListId);
+      toast({ title: newVal ? "🌍 Tier list is now public!" : "🔒 Tier list is now private" });
     }
   };
 
