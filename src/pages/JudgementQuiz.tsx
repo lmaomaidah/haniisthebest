@@ -401,15 +401,8 @@ export default function JudgementQuiz() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 relative overflow-hidden">
       <WhimsicalBackground />
-      <div className="absolute top-6 right-6 z-50">
-        <ThemeToggle />
-      </div>
-
-      <div className="max-w-2xl mx-auto pt-8 relative z-10">
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6">
-          <ArrowLeft className="w-5 h-5" />
-          Flee
-        </Link>
+      <div className="max-w-2xl mx-auto relative z-10">
+        <PageHeader title="🔮 The Judgement" />
 
         {/* Progress */}
         <div className="mb-8">
