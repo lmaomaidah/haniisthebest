@@ -88,6 +88,7 @@ const TierList = () => {
     const { data: tierData } = await supabase
       .from("tier_lists")
       .select("*")
+      .eq("user_id", (await supabase.auth.getUser()).data.user?.id ?? "")
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -100,6 +101,8 @@ const TierList = () => {
       ]);
       const newImageIds = allImageIds.filter((id) => !placedIds.has(id));
       setTiers({ ...savedTiers, F: savedTiers.F || [], pool: [...savedTiers.pool, ...newImageIds] });
+      setIsPublic((tierData as any).is_public ?? false);
+      setTierListId(tierData.id);
     } else {
       setTiers((prev) => ({ ...prev, pool: allImageIds }));
     }
