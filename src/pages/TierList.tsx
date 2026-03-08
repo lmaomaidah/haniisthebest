@@ -298,6 +298,17 @@ const TierList = () => {
           />
         </div>
 
+        {/* Public toggle */}
+        <div className="flex items-center gap-3 mb-6 bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl px-4 py-3">
+          <Switch checked={isPublic} onCheckedChange={togglePublic} />
+          <div className="flex items-center gap-2">
+            {isPublic ? <Globe className="h-4 w-4 text-accent" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+            <span className="text-sm font-medium text-foreground">
+              {isPublic ? "Public — others can view & comment" : "Private — only you can see this"}
+            </span>
+          </div>
+        </div>
+
         <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-4 border-accent rounded-3xl p-6 mb-8 text-center">
           <p className="text-xl font-bold text-foreground">
             🎯 Drag and drop your classmates into tiers! S = Iconic, D = NPC Energy 💅
@@ -326,6 +337,13 @@ const TierList = () => {
             ) : null}
           </DragOverlay>
         </DndContext>
+
+        {/* Comments */}
+        {isPublic && tierListId && (
+          <div className="mt-12 bg-card/60 backdrop-blur-sm border-2 border-border/40 rounded-3xl p-6">
+            <CommentSection contentType="tier_list" contentId={tierListId} />
+          </div>
+        )}
       </div>
     </div>
   );
