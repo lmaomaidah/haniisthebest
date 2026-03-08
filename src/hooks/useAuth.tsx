@@ -15,7 +15,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isApproved: boolean;
   loading: boolean;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, username: string, avatarUrl?: string) => Promise<{ error: Error | null }>;
   signIn: (username: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   logActivity: (actionType: string, actionDetails?: object) => Promise<void>;
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const [{ data: profileData }, { data: roleData }] = await Promise.all([
         supabase
           .from('profiles')
-          .select('username, is_approved')
+          .select('username, is_approved, avatar_url')
           .eq('user_id', userId)
           .maybeSingle(),
         supabase
@@ -51,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile({
           username: profileData.username,
           is_approved: profileData.is_approved,
+          avatar_url: profileData.avatar_url ?? null,
         });
         setIsApproved(profileData.is_approved);
       } else {
@@ -146,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (_email: string, password: string, username: string) => {
+  const signUp = async (_email: string, password: string, username: string, avatarUrl?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     const normalizedUsername = normalizeUsername(username);
     const email = `${normalizedUsername}@classmates.app`;
@@ -158,6 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           username: normalizedUsername,
+          avatar_url: avatarUrl || null,
         },
       },
     });
