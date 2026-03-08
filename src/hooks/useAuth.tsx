@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface UserProfile {
   username: string;
   is_approved: boolean;
+  avatar_url: string | null;
 }
 
 interface AuthContextType {
