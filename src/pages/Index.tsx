@@ -51,7 +51,7 @@ const Index = () => {
               {/* Center decoration */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-3xl md:text-4xl">👑</span>
+                  <Trophy className="h-9 w-9 md:h-10 md:w-10 text-primary" />
                 </div>
               </div>
 
