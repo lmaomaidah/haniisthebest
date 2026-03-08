@@ -52,8 +52,8 @@ export default function PendingApproval() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            Once approved, you’ll automatically get access to the full website.
+          <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">Once approved, you’ll automatically get access to the full website., also i hope that everyone in cyber b dies
+
           </div>
 
           <div className="flex gap-3">
@@ -66,6 +66,6 @@ export default function PendingApproval() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }
