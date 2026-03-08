@@ -669,6 +669,18 @@ const PersonProfile = () => {
                 </p>
               )}
             </div>
+
+            {/* Categories */}
+            <div className="mt-4 max-w-md">
+              <CategoryPicker
+                categories={categories}
+                selected={personCategories}
+                onChange={handleCategoryChange}
+              />
+              {categories.length > 0 && personCategories.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1 text-center">Tap to assign categories</p>
+              )}
+            </div>
           </div>
         </div>
 
