@@ -150,10 +150,7 @@ function PinterestEmbed({ url }: { url: string }) {
             ? payload.pinId
             : null;
         const pinId = pinIdFromResolver ?? directPinId;
-        const preview =
-          typeof payload.previewImageUrl === "string" && payload.previewImageUrl.length > 0
-            ? payload.previewImageUrl
-            : null;
+        const preview = sanitizePinPreviewUrl(payload.previewImageUrl);
         const finalUrl = pinId
           ? `https://www.pinterest.com/pin/${pinId}/`
           : typeof payload.resolvedUrl === "string"
