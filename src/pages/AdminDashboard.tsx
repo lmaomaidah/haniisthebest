@@ -108,6 +108,14 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
       }
       return "Saved rankings";
     }
+    case "tier_list_reset": return "Cleared all tier rankings";
+    case "tier_list_made_public": return "Made tier list visible to everyone";
+    case "tier_list_made_private": return "Made tier list private";
+    case "tier_list_exported": return "Downloaded tier list as image";
+    case "tier_custom_added": {
+      const label = details.label as string | undefined;
+      return label ? `Created custom tier "${label}"` : "Added a custom tier";
+    }
     case "ship_calculate": {
       const p1 = details.person1 as string | undefined;
       const p2 = details.person2 as string | undefined;
@@ -115,13 +123,67 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
       if (p1 && p2) return `${p1} × ${p2}${score != null ? ` → ${score}%` : ""}`;
       return "Calculated ship compatibility";
     }
+    case "ship_reset": return "Reset ship-o-meter";
     case "rating_save": {
-      const name = details.image_name || details.name as string | undefined;
-      return name ? `Rated ${name}` : "Saved ratings";
+      const name = details.imageName || details.image_name || details.name as string | undefined;
+      const total = details.total as number | undefined;
+      return name ? `Rated ${name}${total != null ? ` (${total}/40)` : ""}` : "Saved ratings";
+    }
+    case "rating_select_person": {
+      const person = details.person as string | undefined;
+      return person ? `Opened rating for ${person}` : "Selected a person to rate";
     }
     case "image_upload": {
       const imgName = details.name as string | undefined;
       return imgName ? `Uploaded "${imgName}"` : "Uploaded a new classmate";
+    }
+    case "image_deleted": return "Deleted a classmate image";
+    case "classification_save": {
+      const circles = details.circles as number | undefined;
+      const placed = details.placed as number | undefined;
+      return `Saved ${circles || 0} circles, ${placed || 0} placed`;
+    }
+    case "classification_exported": return "Exported classification as image";
+    case "classification_circle_added": {
+      const label = details.label as string | undefined;
+      return label ? `Added circle "${label}"` : "Added a new circle";
+    }
+    case "venn_save": {
+      const circles = details.circles as number | undefined;
+      const placed = details.placed as number | undefined;
+      return `Saved venn: ${circles || 0} circles, ${placed || 0} placed`;
+    }
+    case "venn_exported": return "Exported venn diagram as image";
+    case "venn_circle_added": {
+      const label = details.label as string | undefined;
+      return label ? `Added venn circle "${label}"` : "Added a venn circle";
+    }
+    case "comment_post": {
+      const ct = details.content_type as string | undefined;
+      const isReply = details.is_reply as boolean | undefined;
+      const len = details.body_length as number | undefined;
+      const where = ct ? ` on ${ct.replace(/_/g, " ")}` : "";
+      return `${isReply ? "Replied" : "Commented"}${where}${len ? ` (${len} chars)` : ""}`;
+    }
+    case "comment_deleted": {
+      const ct = details.content_type as string | undefined;
+      return `Deleted a comment${ct ? ` on ${ct.replace(/_/g, " ")}` : ""}`;
+    }
+    case "poll_created": return "Created a new poll";
+    case "poll_deleted": return "Deleted a poll";
+    case "poll_voted": {
+      const count = details.votes_count as number | undefined;
+      return `Submitted ${count || 0} vote(s)`;
+    }
+    case "poll_view": return "Viewed a poll";
+    case "poll_edit_view": return "Opened poll editor";
+    case "poll_editor_added": return "Added a collaborator to poll";
+    case "poll_results_revealed": return "Revealed poll results";
+    case "poll_results_hidden": return "Hid poll results";
+    case "poll_joined_via_invite": return "Joined poll via invite link";
+    case "quiz_complete": {
+      const result = details.result as string | undefined;
+      return result ? `Quiz result: ${result}` : "Completed the quiz";
     }
     case "admin_user_deleted": {
       const username = details.username || details.deleted_username as string | undefined;
