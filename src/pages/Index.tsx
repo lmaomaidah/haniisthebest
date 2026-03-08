@@ -25,7 +25,7 @@ const Index = () => {
       <div className="container mx-auto px-4 relative z-10">
         <PageHeader title="" showHome={false} />
 
-      <div className="container mx-auto px-4 py-20 relative z-10">
+        <div className="text-center space-y-6 animate-fade-in py-12">
         <div className="text-center space-y-6 animate-fade-in">
           <p className="text-lg md:text-xl font-medium text-foreground/70 tracking-widest uppercase">
             Welcome to the chaos
