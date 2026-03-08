@@ -170,21 +170,11 @@ const Gallery = () => {
   return (
     <div className="min-h-screen p-4 md:p-8 relative">
       <WhimsicalBackground />
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
-        <UserMenu />
-        <ThemeToggle />
-      </div>
-
       <div className="container mx-auto relative z-10 max-w-7xl">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide">
-              📸 Gallery
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">{images.length} classmates in the roster</p>
-          </div>
-          <div className="flex items-center gap-2">
+        <PageHeader
+          title="📸 Gallery"
+          subtitle={`${images.length} classmates in the roster`}
+          actions={
             <Button
               onClick={() => setShowUpload(!showUpload)}
               variant={showUpload ? "secondary" : "default"}
@@ -193,13 +183,8 @@ const Gallery = () => {
             >
               <Upload className="mr-1.5 h-3.5 w-3.5" /> {showUpload ? 'Hide' : 'Add Classmate'}
             </Button>
-            <Link to="/">
-              <Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50 bg-card/80 backdrop-blur-sm">
-                <Home className="mr-1.5 h-3.5 w-3.5" /> Home
-              </Button>
-            </Link>
-          </div>
-        </div>
+          }
+        />
 
         {/* Collapsible Upload Section */}
         {showUpload && (

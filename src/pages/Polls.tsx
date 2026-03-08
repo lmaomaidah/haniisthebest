@@ -63,21 +63,16 @@ const Polls = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <WhimsicalBackground />
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-3"><UserMenu /><ThemeToggle /></div>
-
       <div className="container mx-auto px-4 py-8 relative z-10 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link to="/"><Button variant="outline" size="icon" className="rounded-full border-2 border-primary/50"><ArrowLeft className="h-5 w-5" /></Button></Link>
-            <div>
-              <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide">🗳️ Crowd Verdicts</h1>
-              <p className="text-muted-foreground text-sm mt-1">{forms.length} polls created</p>
-            </div>
-          </div>
-          <Button onClick={createNewForm} className="gradient-pink-blue text-white rounded-xl px-6 hover:scale-105 transition-transform">
-            <Plus className="mr-2 h-4 w-4" /> New Poll
-          </Button>
-        </div>
+        <PageHeader
+          title="🗳️ Crowd Verdicts"
+          subtitle={`${forms.length} polls created`}
+          actions={
+            <Button onClick={createNewForm} className="gradient-pink-blue text-white rounded-xl px-6 hover:scale-105 transition-transform">
+              <Plus className="mr-2 h-4 w-4" /> New Poll
+            </Button>
+          }
+        />
 
         {loading ? (
           <div className="text-center py-20">
