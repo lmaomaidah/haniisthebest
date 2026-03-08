@@ -544,24 +544,24 @@ const ShipOMeter = () => {
     <div className="min-h-screen py-8 px-4 relative">
       <WhimsicalBackground />
 
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <UserMenu />
         <ThemeToggle />
       </div>
 
       <div className="container mx-auto max-w-6xl relative z-10">
-        <div className="flex flex-wrap items-center gap-4 mb-8">
+        <div className="flex flex-wrap items-center gap-3 mb-8">
           <Link to="/">
-            <Button variant="outline" className="rounded-2xl">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Home
+            <Button variant="outline" size="sm" className="rounded-xl border-2 border-primary/50">
+              <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Home
             </Button>
           </Link>
-          <Button onClick={resetShipOMeter} variant="outline" className="rounded-2xl">
-            <RotateCcw className="mr-2 h-4 w-4" /> Reset
+          <Button onClick={resetShipOMeter} variant="outline" size="sm" className="rounded-xl border-2 border-destructive/50">
+            <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
           </Button>
           <NavLink to="/gallery">Gallery</NavLink>
           <NavLink to="/tier-list">Tier List</NavLink>
           <NavLink to="/ratings">Ratings</NavLink>
-          <NavLink to="/venn-diagram">Venn</NavLink>
         </div>
 
         <div className="mb-6">
@@ -569,13 +569,13 @@ const ShipOMeter = () => {
         </div>
 
         <div className="text-center mb-10 space-y-3">
-          <h1 className="text-5xl md:text-7xl font-bold text-gradient flex items-center justify-center gap-4">
-            <Heart className="text-primary animate-pulse" />
+          <h1 className="text-4xl md:text-6xl font-bold text-gradient font-['Luckiest_Guy'] tracking-wide flex items-center justify-center gap-3">
+            <Heart className="text-secondary animate-pulse h-8 w-8 md:h-10 md:w-10" />
             Ship-O-Meter
-            <Heart className="text-primary animate-pulse" />
+            <Heart className="text-secondary animate-pulse h-8 w-8 md:h-10 md:w-10" />
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground">
-            Richer compatibility logic, deeper breakdown, cleaner verdict.
+          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto">
+            Advanced compatibility engine with personality vectors and dimension analysis.
           </p>
         </div>
 
