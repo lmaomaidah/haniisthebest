@@ -19,6 +19,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
+import { CategoryPicker } from "@/components/CategoryPicker";
+import { useCategories, fetchImageCategoryIds, setImageCategories } from "@/hooks/useCategories";
 import {
   DndContext,
   closestCenter,

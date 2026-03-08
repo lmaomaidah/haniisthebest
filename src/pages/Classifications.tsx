@@ -280,6 +280,12 @@ export default function Classifications() {
           🔵 Venn Diagram 🟣
         </h1>
 
+        {categories.length > 0 && (
+          <div className="mb-6">
+            <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
+          </div>
+        )}
+
         {/* Add Circle Section */}
         <div className="bg-card/80 dark:bg-card/60 backdrop-blur-sm rounded-3xl p-6 border-4 border-primary shadow-bounce mb-6 dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">
           <h3 className="text-xl font-bold mb-4 text-foreground">➕ Add Circle</h3>
