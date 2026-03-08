@@ -207,6 +207,9 @@ const AdminDashboard = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState<'activity' | 'users' | 'insights'>('insights');
   const [selectedLogs, setSelectedLogs] = useState<Set<string>>(new Set());
+  const [activityUserFilter, setActivityUserFilter] = useState<string>('all');
+  const [activityTypeFilter, setActivityTypeFilter] = useState<string>('all');
+  const [activitySearch, setActivitySearch] = useState('');
 
   useEffect(() => {
     if (!loading) {
