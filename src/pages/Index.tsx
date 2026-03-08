@@ -6,15 +6,15 @@ import Marquee from "@/components/Marquee";
 import { motion } from "framer-motion";
 
 const navItems = [
-  { to: "/gallery", icon: <Image className="h-5 w-5" />, label: "Upload Classmates", emoji: "📸" },
-  { to: "/tier-list", icon: <Star className="h-5 w-5" />, label: "Tier List", emoji: "⭐" },
-  { to: "/classifications", icon: <Sparkles className="h-5 w-5" />, label: "Classify", emoji: "✨" },
-  { to: "/ratings", icon: <TrendingUp className="h-5 w-5" />, label: "Rate & Rank", emoji: "📊" },
-  { to: "/ship-o-meter", icon: <Heart className="h-5 w-5" />, label: "Ship-O-Meter", emoji: "💘" },
-  { to: "/judgement-quiz", icon: <Brain className="h-5 w-5" />, label: "The Judgement", emoji: "🧠" },
-  { to: "/polls", icon: <Vote className="h-5 w-5" />, label: "Crowd Verdicts", emoji: "🗳️" },
-  { to: "/profiles", icon: <Pin className="h-5 w-5" />, label: "Shrine Wall", emoji: "📌" },
-  { to: "/leaderboard", icon: <Trophy className="h-5 w-5" />, label: "Leaderboard", emoji: "🏆" },
+  { to: "/gallery", icon: <Image className="h-5 w-5" />, label: "Upload Classmates" },
+  { to: "/tier-list", icon: <Star className="h-5 w-5" />, label: "Tier List" },
+  { to: "/classifications", icon: <Sparkles className="h-5 w-5" />, label: "Classify" },
+  { to: "/ratings", icon: <TrendingUp className="h-5 w-5" />, label: "Rate & Rank" },
+  { to: "/ship-o-meter", icon: <Heart className="h-5 w-5" />, label: "Ship-O-Meter" },
+  { to: "/judgement-quiz", icon: <Brain className="h-5 w-5" />, label: "The Judgement" },
+  { to: "/polls", icon: <Vote className="h-5 w-5" />, label: "Crowd Verdicts" },
+  { to: "/profiles", icon: <Pin className="h-5 w-5" />, label: "Shrine Wall" },
+  { to: "/leaderboard", icon: <Trophy className="h-5 w-5" />, label: "Leaderboard" },
 ];
 
 const Index = () => {
@@ -61,8 +61,12 @@ const Index = () => {
 
               {/* Nav items in circle */}
               {navItems.map((item, i) => {
-                const angle = (i * 360) / count - 90; // start from top
-                const rad = (angle * Math.PI) / 180;
+                const angle = (i * 360) / count - 90;
+                const radAngle = (angle * Math.PI) / 180;
+                const xMobile = Math.cos(radAngle) * radiusMobile;
+                const yMobile = Math.sin(radAngle) * radiusMobile;
+                const xDesktop = Math.cos(radAngle) * radius;
+                const yDesktop = Math.sin(radAngle) * radius;
 
                 return (
                   <motion.div
@@ -71,17 +75,22 @@ const Index = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.06, type: "spring", stiffness: 200 }}
                     className="absolute"
-                    style={{
-                      left: `calc(50% + ${Math.cos(rad) * radiusMobile}px)`,
-                      top: `calc(50% + ${Math.sin(rad) * radiusMobile}px)`,
-                      transform: "translate(-50%, -50%)",
-                    }}
+                    style={
+                      {
+                        "--x-mobile": `${xMobile}px`,
+                        "--y-mobile": `${yMobile}px`,
+                        "--x-desktop": `${xDesktop}px`,
+                        "--y-desktop": `${yDesktop}px`,
+                        left: `calc(50% + var(--x-pos))`,
+                        top: `calc(50% + var(--y-pos))`,
+                        transform: "translate(-50%, -50%)",
+                      } as React.CSSProperties
+                    }
                   >
-                    {/* Use CSS media query via className for responsive radius */}
                     <Link to={item.to} className="group block">
                       <div className="relative flex flex-col items-center gap-1">
                         <div className="h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-card border border-border hover:border-primary/50 flex items-center justify-center shadow-md group-hover:shadow-[0_4px_20px_hsl(var(--primary)/0.2)] transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-110 active:scale-95">
-                          <span className="text-xl md:text-2xl">{item.emoji}</span>
+                          <span className="text-primary">{item.icon}</span>
                         </div>
                         <span className="text-[10px] md:text-xs font-semibold text-foreground/80 whitespace-nowrap max-w-[80px] truncate text-center">
                           {item.label}
@@ -92,14 +101,16 @@ const Index = () => {
                 );
               })}
 
-              {/* Responsive: override positions for md screens */}
               <style>{`
+                .relative > .absolute {
+                  --x-pos: var(--x-mobile);
+                  --y-pos: var(--y-mobile);
+                }
                 @media (min-width: 768px) {
-                  ${navItems.map((_, i) => {
-                    const angle = (i * 360) / count - 90;
-                    const rad = (angle * Math.PI) / 180;
-                    return `.nav-orbit-${i} { left: calc(50% + ${Math.cos(rad) * radius}px) !important; top: calc(50% + ${Math.sin(rad) * radius}px) !important; }`;
-                  }).join("\n")}
+                  .relative > .absolute {
+                    --x-pos: var(--x-desktop);
+                    --y-pos: var(--y-desktop);
+                  }
                 }
               `}</style>
             </div>
