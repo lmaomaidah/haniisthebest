@@ -287,6 +287,9 @@ const AdminDashboard = () => {
         return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'logout':
         return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'page_access':
+      case 'page_view':
+        return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
       case 'tier_list_save':
         return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
       case 'rating_save':
@@ -299,17 +302,48 @@ const AdminDashboard = () => {
         return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
       case 'ship_calculate':
         return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
+      case 'admin_user_deleted':
+        return 'bg-destructive/20 text-destructive border-destructive/30';
       default:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
-  const formatActionDetails = (details: Record<string, unknown>) => {
+  const formatActionLabel = (actionType: string) =>
+    actionType
+      .split('_')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+
+  const formatWhere = (details: Record<string, unknown> | null) => {
+    if (!details) return '-';
+
+    const context = details.context as Record<string, unknown> | undefined;
+    const page =
+      (typeof details.page === 'string' && details.page) ||
+      (typeof details.page_path === 'string' && details.page_path) ||
+      (typeof context?.page_path === 'string' && context.page_path);
+
+    return page || '-';
+  };
+
+  const formatActionDetails = (details: Record<string, unknown> | null) => {
     if (!details || Object.keys(details).length === 0) return '-';
-    return Object.entries(details)
-      .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-      .join(', ')
-      .slice(0, 50) + (JSON.stringify(details).length > 50 ? '...' : '');
+
+    const context = (details.context ?? {}) as Record<string, unknown>;
+    const contextKeys = new Set(['page_path', 'page_url', 'referrer', 'timezone', 'locale', 'viewport', 'user_agent', 'client_time']);
+
+    const meaningfulDetails = Object.entries(details)
+      .filter(([key]) => key !== 'context')
+      .map(([key, value]) => `${key.replaceAll('_', ' ')}: ${String(value)}`);
+
+    const contextDetails = Object.entries(context)
+      .filter(([key]) => !contextKeys.has(key))
+      .map(([key, value]) => `${key.replaceAll('_', ' ')}: ${String(value)}`);
+
+    const merged = [...meaningfulDetails, ...contextDetails].filter(Boolean);
+
+    return merged.length > 0 ? merged.join(' • ') : '-';
   };
 
   if (loading || loadingData) {
