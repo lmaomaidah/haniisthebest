@@ -33,7 +33,7 @@ interface ActivityLog {
   id: string;
   user_id: string;
   action_type: string;
-  action_details: Record<string, unknown>;
+  action_details: Record<string, unknown> | null;
   created_at: string;
   profiles?: {
     username: string;
