@@ -78,6 +78,30 @@ type PinResolveResult = {
   error?: string;
 };
 
+const sanitizePinPreviewUrl = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const match = trimmed
+    .replace(/\\\//g, "/")
+    .replace(/\\u002F/gi, "/")
+    .match(/https?:\/\/i\.pinimg\.com\/[^\s"'<>\\)]+/i);
+
+  if (!match?.[0]) return null;
+
+  const cleaned = match[0].replace(/[),.;]+$/g, "");
+
+  try {
+    const parsed = new URL(cleaned);
+    if (!/(^|\.)pinimg\.com$/i.test(parsed.hostname)) return null;
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}`;
+  } catch {
+    return null;
+  }
+};
+
 /* ──────────── Pinterest Embed ──────────── */
 function PinterestEmbed({ url }: { url: string }) {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
