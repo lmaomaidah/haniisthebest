@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageType {
   id: string;
@@ -322,7 +325,9 @@ const getCompatibilityMessage = (score: number) => {
 };
 
 const ShipOMeter = () => {
-  const { logActivity } = useAuth();
+  const { logActivity, user } = useAuth();
+  const { toast } = useToast();
+  const [allImages, setAllImages] = useState<ImageType[]>([]);
   const [images, setImages] = useState<ImageType[]>([]);
   const [person1, setPerson1] = useState<ImageType | null>(null);
   const [person2, setPerson2] = useState<ImageType | null>(null);
@@ -331,6 +336,9 @@ const ShipOMeter = () => {
   const [compatibility, setCompatibility] = useState<number | null>(null);
   const [analysis, setAnalysis] = useState<CompatibilityAnalysis | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
+  const { categories, createCategory } = useCategories();
 
   const [physicalAffection, setPhysicalAffection] = useState([50, 50]);
   const [giftGiving, setGiftGiving] = useState([50, 50]);
@@ -338,7 +346,24 @@ const ShipOMeter = () => {
 
   useEffect(() => {
     void fetchImages();
+    void loadCategoryMap();
   }, []);
+
+  const loadCategoryMap = async () => {
+    const map = await fetchAllImageCategories();
+    setImageCategoryMap(map);
+  };
+
+  useEffect(() => {
+    if (filterCategories.length === 0) {
+      setImages(allImages);
+    } else {
+      setImages(allImages.filter((img) => {
+        const cats = imageCategoryMap[img.id] || [];
+        return filterCategories.some((fc) => cats.includes(fc));
+      }));
+    }
+  }, [filterCategories, allImages, imageCategoryMap]);
 
   const fetchImages = async () => {
     const { data } = await supabase
@@ -349,8 +374,15 @@ const ShipOMeter = () => {
 
     if (data) {
       const signedImages = await withSignedClassmateImageUrls(data);
+      setAllImages(signedImages);
       setImages(signedImages);
     }
+  };
+
+  const handleCreateCategory = async (name: string) => {
+    if (!user) return;
+    try { await createCategory(name, user.id); toast({ title: "Category created! 🏷️" }); }
+    catch (err: any) { toast({ title: "Couldn't create category", description: err.message, variant: "destructive" }); }
   };
 
   const resetShipOMeter = () => {
