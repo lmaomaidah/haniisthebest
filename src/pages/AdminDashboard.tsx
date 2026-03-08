@@ -41,13 +41,45 @@ const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; colo
   logout: { icon: <LogOut className="h-3.5 w-3.5" />, label: "Logged out", color: "bg-red-500/20 text-red-400 border-red-500/40" },
   page_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Visited", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" },
   page_access: { icon: <Eye className="h-3.5 w-3.5" />, label: "Visited", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" },
+  // Tier list
   tier_list_save: { icon: <Star className="h-3.5 w-3.5" />, label: "Saved tier list", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
+  tier_list_reset: { icon: <Star className="h-3.5 w-3.5" />, label: "Reset tier list", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  tier_list_made_public: { icon: <Star className="h-3.5 w-3.5" />, label: "Made tier public", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
+  tier_list_made_private: { icon: <Star className="h-3.5 w-3.5" />, label: "Made tier private", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  tier_list_exported: { icon: <Star className="h-3.5 w-3.5" />, label: "Exported tier list", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
+  tier_custom_added: { icon: <Star className="h-3.5 w-3.5" />, label: "Added custom tier", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  // Ratings
   rating_save: { icon: <Zap className="h-3.5 w-3.5" />, label: "Rated someone", color: "bg-blue-500/20 text-blue-400 border-blue-500/40" },
-  classification_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Classified", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
+  rating_select_person: { icon: <Zap className="h-3.5 w-3.5" />, label: "Viewing rating", color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
+  // Classifications / Venn
+  classification_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Saved classification", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
+  classification_exported: { icon: <FileText className="h-3.5 w-3.5" />, label: "Exported classification", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  classification_circle_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  venn_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Saved venn", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
+  venn_exported: { icon: <FileText className="h-3.5 w-3.5" />, label: "Exported venn", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  venn_circle_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added venn circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  // Gallery
   image_upload: { icon: <Upload className="h-3.5 w-3.5" />, label: "Uploaded image", color: "bg-pink-500/20 text-pink-400 border-pink-500/40" },
-  quiz_complete: { icon: <FileText className="h-3.5 w-3.5" />, label: "Finished quiz", color: "bg-orange-500/20 text-orange-400 border-orange-500/40" },
+  image_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted image", color: "bg-pink-500/20 text-pink-300 border-pink-500/30" },
+  // Ship
   ship_calculate: { icon: <Heart className="h-3.5 w-3.5" />, label: "Shipped", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
+  ship_reset: { icon: <Heart className="h-3.5 w-3.5" />, label: "Reset ship", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
+  // Comments
   comment_post: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Commented", color: "bg-teal-500/20 text-teal-400 border-teal-500/40" },
+  comment_deleted: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Deleted comment", color: "bg-teal-500/20 text-teal-300 border-teal-500/30" },
+  // Quiz
+  quiz_complete: { icon: <FileText className="h-3.5 w-3.5" />, label: "Finished quiz", color: "bg-orange-500/20 text-orange-400 border-orange-500/40" },
+  // Polls
+  poll_created: { icon: <FileText className="h-3.5 w-3.5" />, label: "Created poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_voted: { icon: <FileText className="h-3.5 w-3.5" />, label: "Voted on poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Viewed poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_edit_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Editing poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_editor_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added editor", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_results_revealed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Revealed results", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  poll_results_hidden: { icon: <Eye className="h-3.5 w-3.5" />, label: "Hid results", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Joined via invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
+  // Admin
   admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted user", color: "bg-destructive/20 text-destructive border-destructive/40" },
 };
 
