@@ -554,6 +554,10 @@ const ShipOMeter = () => {
           }
         />
 
+        <div className="mb-6">
+          <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
+        </div>
+
         <div className="grid md:grid-cols-2 gap-8 mb-10">
           <PersonCard person={person1} setPerson={setPerson1} label="Person 1" />
           <PersonCard person={person2} setPerson={setPerson2} label="Person 2" />

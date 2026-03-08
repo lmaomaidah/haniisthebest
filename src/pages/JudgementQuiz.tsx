@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Brain } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ArrowRight, Brain } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
+import PageHeader from "@/components/PageHeader";
 type Category = "niche" | "weird" | "performative";
 
 interface Question {
