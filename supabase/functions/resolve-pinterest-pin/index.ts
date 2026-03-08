@@ -167,9 +167,11 @@ const tryResolvePinId = async (
   const resolvedPinId = fromFinalUrl ?? fromLocation ?? fromHtml ?? fromDeepLink;
 
   if (resolvedPinId) {
+    const oEmbedPreview = await fetchOEmbedPreview(response.url);
+    if (oEmbedPreview) previewImageUrl = oEmbedPreview;
+
     if (!previewImageUrl) {
-      const pagePreview = await fetchPreviewFromPage(response.url);
-      previewImageUrl = pagePreview ?? (await fetchOEmbedPreview(response.url));
+      previewImageUrl = await fetchPreviewFromPage(response.url);
     }
 
     return {
@@ -179,6 +181,11 @@ const tryResolvePinId = async (
     };
   }
 
+  const oEmbedPreview = await fetchOEmbedPreview(response.url);
+  if (oEmbedPreview) {
+    return { pinId: null, resolvedUrl: response.url, previewImageUrl: oEmbedPreview };
+  }
+
   if (previewImageUrl) {
     return { pinId: null, resolvedUrl: response.url, previewImageUrl };
   }
@@ -186,11 +193,6 @@ const tryResolvePinId = async (
   const pagePreview = await fetchPreviewFromPage(response.url);
   if (pagePreview) {
     return { pinId: null, resolvedUrl: response.url, previewImageUrl: pagePreview };
-  }
-
-  const oEmbedPreview = await fetchOEmbedPreview(response.url);
-  if (oEmbedPreview) {
-    return { pinId: null, resolvedUrl: response.url, previewImageUrl: oEmbedPreview };
   }
 
   return null;
