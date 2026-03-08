@@ -305,43 +305,50 @@ function SortablePinCard({
     <div
       ref={setNodeRef}
       style={style}
-      className="group bg-card/70 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+      className="group relative bg-card/80 backdrop-blur-sm border border-border/30 rounded-2xl overflow-hidden shadow-md hover:shadow-[0_8px_30px_hsl(var(--primary)/0.15)] transition-all duration-500 hover:-translate-y-1 break-inside-avoid mb-5"
     >
+      {/* Gradient accent top bar */}
+      <div className="h-0.5 w-full bg-gradient-to-r from-primary via-secondary to-accent opacity-60" />
+
       {canReorder && (
         <div
           {...attributes}
           {...listeners}
-          className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute top-3 left-3 z-10 w-8 h-8 rounded-full bg-card/90 backdrop-blur-sm border border-border/50 flex items-center justify-center cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground hover:bg-card transition-all opacity-0 group-hover:opacity-100 shadow-sm"
         >
-          <GripVertical className="h-5 w-5" />
+          <GripVertical className="h-4 w-4" />
         </div>
       )}
 
       <PinterestEmbed url={pin.pin_url} />
 
-      <div className="flex items-center justify-end gap-1 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
+      {/* Action overlay at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-card/95 via-card/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-end gap-1.5">
+        <a
+          href={normalizePinterestUrl(pin.pin_url)}
+          target="_blank"
+          rel="noreferrer"
+          className="h-8 w-8 rounded-full bg-background/80 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+        <button
+          className="h-8 w-8 rounded-full bg-background/80 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
           onClick={() => onCopy(pin.pin_url, pin.id)}
         >
           {copiedId === pin.id ? (
-            <Check className="h-4 w-4 text-primary" />
+            <Check className="h-3.5 w-3.5 text-primary" />
           ) : (
-            <Copy className="h-4 w-4" />
+            <Copy className="h-3.5 w-3.5" />
           )}
-        </Button>
-
+        </button>
         {canDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive"
+          <button
+            className="h-8 w-8 rounded-full bg-background/80 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
             onClick={() => onDelete(pin.id)}
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-3.5 w-3.5" />
+          </button>
         )}
       </div>
     </div>
