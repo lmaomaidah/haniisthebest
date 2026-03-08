@@ -107,13 +107,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const normalizeUsername = (value: string) => value.trim().toLowerCase();
 
+  const buildActivityContext = () => ({
+    page_path: window.location.pathname,
+    page_url: window.location.href,
+    referrer: document.referrer || null,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    locale: navigator.language,
+    viewport: `${window.innerWidth}x${window.innerHeight}`,
+    user_agent: navigator.userAgent,
+    client_time: new Date().toISOString(),
+  });
+
   const insertActivity = async (userId: string, actionType: string, actionDetails: object = {}) => {
+    const safeDetails = JSON.parse(JSON.stringify(actionDetails ?? {}));
+    const enrichedDetails = {
+      ...safeDetails,
+      context: buildActivityContext(),
+    };
+
     try {
+      const { error } = await supabase.rpc('log_activity_event', {
+        _action_type: actionType,
+        _action_details: enrichedDetails,
+      });
+
+      if (!error) return;
+
       await supabase.from('activity_logs').insert([
         {
           user_id: userId,
           action_type: actionType,
-          action_details: JSON.parse(JSON.stringify(actionDetails)),
+          action_details: enrichedDetails,
         },
       ]);
     } catch (error) {

@@ -33,7 +33,7 @@ interface ActivityLog {
   id: string;
   user_id: string;
   action_type: string;
-  action_details: Record<string, unknown>;
+  action_details: Record<string, unknown> | null;
   created_at: string;
   profiles?: {
     username: string;
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
           profiles(username)
         `)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(250);
       
       if (activityError) {
         console.error('Error fetching activities:', activityError);
@@ -132,7 +132,7 @@ const AdminDashboard = () => {
 
       if (error) {
         console.error('Error invoking delete-user function:', error);
-        toast.error('Failed to delete user');
+        toast.error(error.message || 'Failed to delete user');
         return;
       }
 
@@ -287,6 +287,9 @@ const AdminDashboard = () => {
         return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'logout':
         return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'page_access':
+      case 'page_view':
+        return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
       case 'tier_list_save':
         return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
       case 'rating_save':
@@ -299,17 +302,48 @@ const AdminDashboard = () => {
         return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
       case 'ship_calculate':
         return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
+      case 'admin_user_deleted':
+        return 'bg-destructive/20 text-destructive border-destructive/30';
       default:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
-  const formatActionDetails = (details: Record<string, unknown>) => {
+  const formatActionLabel = (actionType: string) =>
+    actionType
+      .split('_')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+
+  const formatWhere = (details: Record<string, unknown> | null) => {
+    if (!details) return '-';
+
+    const context = details.context as Record<string, unknown> | undefined;
+    const page =
+      (typeof details.page === 'string' && details.page) ||
+      (typeof details.page_path === 'string' && details.page_path) ||
+      (typeof context?.page_path === 'string' && context.page_path);
+
+    return page || '-';
+  };
+
+  const formatActionDetails = (details: Record<string, unknown> | null) => {
     if (!details || Object.keys(details).length === 0) return '-';
-    return Object.entries(details)
-      .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-      .join(', ')
-      .slice(0, 50) + (JSON.stringify(details).length > 50 ? '...' : '');
+
+    const context = (details.context ?? {}) as Record<string, unknown>;
+    const contextKeys = new Set(['page_path', 'page_url', 'referrer', 'timezone', 'locale', 'viewport', 'user_agent', 'client_time']);
+
+    const meaningfulDetails = Object.entries(details)
+      .filter(([key]) => key !== 'context')
+      .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`);
+
+    const contextDetails = Object.entries(context)
+      .filter(([key]) => !contextKeys.has(key))
+      .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`);
+
+    const merged = [...meaningfulDetails, ...contextDetails].filter(Boolean);
+
+    return merged.length > 0 ? merged.join(' • ') : '-';
   };
 
   if (loading || loadingData) {
@@ -479,14 +513,15 @@ const AdminDashboard = () => {
                     </TableHead>
                     <TableHead className="text-foreground font-bold">User</TableHead>
                     <TableHead className="text-foreground font-bold">Action</TableHead>
-                    <TableHead className="text-foreground font-bold">Details</TableHead>
+                    <TableHead className="text-foreground font-bold">Where</TableHead>
+                    <TableHead className="text-foreground font-bold">What happened</TableHead>
                     <TableHead className="text-foreground font-bold">Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {activities.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-foreground/60">
+                      <TableCell colSpan={6} className="text-center py-8 text-foreground/60">
                         No activity yet. Everyone's being too quiet... 🤫
                       </TableCell>
                     </TableRow>
@@ -504,13 +539,16 @@ const AdminDashboard = () => {
                         </TableCell>
                         <TableCell>
                           <Badge className={`${getActionBadgeColor(activity.action_type)} border`}>
-                            {activity.action_type.replace('_', ' ')}
+                            {formatActionLabel(activity.action_type)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-foreground/70 text-sm max-w-xs truncate">
+                        <TableCell className="text-foreground/70 text-sm max-w-[220px] break-words">
+                          {formatWhere(activity.action_details)}
+                        </TableCell>
+                        <TableCell className="text-foreground/70 text-sm max-w-[340px] break-words">
                           {formatActionDetails(activity.action_details)}
                         </TableCell>
-                        <TableCell className="text-foreground/60 text-sm">
+                        <TableCell className="text-foreground/60 text-sm whitespace-nowrap">
                           {format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}
                         </TableCell>
                       </TableRow>

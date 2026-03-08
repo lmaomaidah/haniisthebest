@@ -2,7 +2,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
 Deno.serve(async (req) => {
@@ -39,13 +40,14 @@ Deno.serve(async (req) => {
     }
 
     // Check if caller is admin
-    const { data: roleData, error: roleError } = await supabaseAdmin
+    const { data: adminRole, error: roleError } = await supabaseAdmin
       .from('user_roles')
-      .select('role')
+      .select('id')
       .eq('user_id', callerUser.id)
-      .single()
+      .eq('role', 'admin')
+      .maybeSingle()
 
-    if (roleError || roleData?.role !== 'admin') {
+    if (roleError || !adminRole) {
       console.error('Caller is not admin:', roleError || 'Not admin role')
       return new Response(JSON.stringify({ error: 'Forbidden - Admin access required' }), {
         status: 403,
@@ -71,9 +73,30 @@ Deno.serve(async (req) => {
       })
     }
 
+    const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)
+    if (!isValidUuid) {
+      return new Response(JSON.stringify({ error: 'Invalid userId format' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     console.log(`Admin ${callerUser.id} deleting user ${userId}`)
 
-    // Delete auth user (this cascades to profiles, user_roles, activity_logs, etc.)
+    // Remove related app data first so admin panel reflects deletion immediately
+    await Promise.all([
+      supabaseAdmin.from('activity_logs').delete().eq('user_id', userId),
+      supabaseAdmin.from('ratings').delete().eq('user_id', userId),
+      supabaseAdmin.from('tier_lists').delete().eq('user_id', userId),
+      supabaseAdmin.from('venn_diagrams').delete().eq('user_id', userId),
+      supabaseAdmin.from('form_responses').delete().eq('user_id', userId),
+      supabaseAdmin.from('form_editors').delete().eq('user_id', userId),
+      supabaseAdmin.from('pinterest_pins').delete().eq('user_id', userId),
+      supabaseAdmin.from('user_roles').delete().eq('user_id', userId),
+      supabaseAdmin.from('profiles').delete().eq('user_id', userId),
+    ])
+
+    // Delete auth user account
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
     if (deleteError) {
@@ -83,6 +106,12 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+
+    await supabaseAdmin.from('activity_logs').insert({
+      user_id: callerUser.id,
+      action_type: 'admin_user_deleted',
+      action_details: { target_user_id: userId },
+    })
 
     console.log(`Successfully deleted user ${userId}`)
 
