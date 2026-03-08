@@ -589,7 +589,7 @@ const PersonProfile = () => {
         <ThemeToggle />
       </div>
 
-      <div className="container mx-auto relative z-10 max-w-5xl px-4 pb-20">
+      <div className="container mx-auto relative z-10 max-w-6xl px-4 pb-20">
         <div className="pt-6 mb-6">
           <Link to="/profiles">
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground rounded-xl">
@@ -598,49 +598,73 @@ const PersonProfile = () => {
           </Link>
         </div>
 
-        {/* Profile Header */}
-        <div className="relative mb-12">
-          <div className="h-44 md:h-60 rounded-2xl overflow-hidden relative">
+        {/* ── Enhanced Profile Header ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative mb-14"
+        >
+          {/* Banner with gradient overlay */}
+          <div className="h-48 md:h-64 rounded-3xl overflow-hidden relative">
             {person.image_url ? (
               <>
                 <img
                   src={person.image_url}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40"
+                  className="absolute inset-0 w-full h-full object-cover scale-125 blur-3xl opacity-50"
                 />
-                <div className="absolute inset-0 bg-background/50" />
+                <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
               </>
             ) : (
-              <div className="absolute inset-0 bg-card/80 border-b border-border/30" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10" />
             )}
+            {/* Decorative gradient line at top */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent opacity-80" />
           </div>
 
-          <div className="flex flex-col items-center -mt-16 md:-mt-20">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-card overflow-hidden shadow-[0_8px_30px_hsl(var(--primary)/0.25)] bg-card group hover:shadow-[0_8px_40px_hsl(var(--primary)/0.4)] transition-shadow duration-300">
-              {person.image_url ? (
-                <img src={person.image_url} alt={person.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/50 to-secondary/50 flex items-center justify-center">
-                  <span className="text-4xl font-bold text-foreground">{person.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)}</span>
-                </div>
-              )}
+          <div className="flex flex-col items-center -mt-20 md:-mt-24">
+            {/* Avatar with ring */}
+            <div className="relative">
+              <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-primary via-secondary to-accent opacity-70 blur-sm" />
+              <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-card overflow-hidden shadow-[0_8px_40px_hsl(var(--primary)/0.3)] bg-card group">
+                {person.image_url ? (
+                  <img src={person.image_url} alt={person.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center">
+                    <span className="text-5xl font-bold text-foreground font-['Luckiest_Guy']">{person.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-['Luckiest_Guy'] font-bold mt-4 text-foreground text-center tracking-wide">
+            <h1 className="text-4xl md:text-6xl font-['Luckiest_Guy'] font-bold mt-5 text-foreground text-center tracking-wide drop-shadow-[0_2px_10px_hsl(var(--primary)/0.2)]">
               {person.name}
             </h1>
 
-            <div className="mt-3 max-w-lg text-center">
+            {/* Pin count badge */}
+            <div className="mt-3 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                📌 {pins.length} {pins.length === 1 ? "pin" : "pins"}
+              </span>
+            </div>
+
+            {/* Bio */}
+            <div className="mt-4 max-w-lg text-center">
               {editingBio ? (
-                <div className="space-y-2">
-                  <Textarea value={bioText} onChange={(e) => setBioText(e.target.value)} placeholder="Write a bio…" className="bg-card/70 border-border rounded-xl text-center" rows={3} />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="space-y-3"
+                >
+                  <Textarea value={bioText} onChange={(e) => setBioText(e.target.value)} placeholder="Write a bio…" className="bg-card/70 border-border/50 rounded-xl text-center min-h-[80px]" rows={3} />
                   <div className="flex gap-2 justify-center">
-                    <Button size="sm" onClick={handleSaveBio}>Save</Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditingBio(false)}>Cancel</Button>
+                    <Button size="sm" onClick={handleSaveBio} className="rounded-full px-6">Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingBio(false)} className="rounded-full">Cancel</Button>
                   </div>
-                </div>
+                </motion.div>
               ) : (
-                <p className="text-muted-foreground italic cursor-pointer hover:text-foreground transition-colors" onClick={() => setEditingBio(true)}>
+                <p className="text-muted-foreground italic cursor-pointer hover:text-foreground transition-colors text-sm leading-relaxed" onClick={() => setEditingBio(true)}>
                   {person.bio || "Click to add a bio…"}
                 </p>
               )}
@@ -663,59 +687,82 @@ const PersonProfile = () => {
               />
             </div>
           </div>
+        </motion.div>
+
+        {/* ── Separator ── */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Pin Wall</span>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         </div>
 
-        {/* Add Pin Button */}
-        <div className="flex justify-center mb-8">
-          {showAddInput ? (
-            <div className="w-full max-w-lg bg-card/80 backdrop-blur-md border-2 border-secondary/40 rounded-2xl p-6 space-y-4 shadow-lg">
-              <Input
-                placeholder="Paste a Pinterest link…"
-                value={newPinUrl}
-                onChange={(e) => setNewPinUrl(e.target.value)}
-                className="border-2 border-border rounded-xl bg-background/50"
-                onKeyDown={(e) => e.key === "Enter" && handleAddPin()}
-              />
-              <div className="flex gap-2">
+        {/* ── Add Pin ── */}
+        <div className="flex justify-center mb-10">
+          <AnimatePresence mode="wait">
+            {showAddInput ? (
+              <motion.div
+                key="input"
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                className="w-full max-w-lg bg-card/90 backdrop-blur-md border border-border/50 rounded-2xl p-5 space-y-4 shadow-[0_8px_30px_hsl(var(--secondary)/0.1)]"
+              >
+                <Input
+                  placeholder="Paste a Pinterest link…"
+                  value={newPinUrl}
+                  onChange={(e) => setNewPinUrl(e.target.value)}
+                  className="border border-border/50 rounded-xl bg-background/50 h-11"
+                  onKeyDown={(e) => e.key === "Enter" && handleAddPin()}
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleAddPin}
+                    disabled={adding}
+                    className="flex-1 gradient-pink-blue text-foreground rounded-xl h-10"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    {adding ? "Adding…" : "Add Pin"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="rounded-xl"
+                    onClick={() => { setShowAddInput(false); setNewPinUrl(""); }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div key="button" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <Button
-                  onClick={handleAddPin}
-                  disabled={adding}
-                  className="flex-1 gradient-pink-blue text-foreground rounded-xl"
+                  onClick={() => setShowAddInput(true)}
+                  className="gradient-chaos text-foreground rounded-full px-8 py-5 text-base shadow-lg hover:shadow-[0_8px_30px_hsl(var(--primary)/0.3)] hover:scale-105 transition-all duration-300"
                 >
-                  <Plus className="mr-2 h-4 w-4" />{" "}
-                  {adding ? "Adding…" : "Add Pin"}
+                  <Plus className="mr-2 h-5 w-5" /> Add Pinterest Pin
                 </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setShowAddInput(false);
-                    setNewPinUrl("");
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <Button
-              onClick={() => setShowAddInput(true)}
-              className="gradient-chaos text-foreground rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-            >
-              <Plus className="mr-2 h-5 w-5" /> Add Pinterest Pin
-            </Button>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Pins Grid */}
+        {/* ── Pins Masonry Grid ── */}
         {pins.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-xl text-muted-foreground mb-2">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-24"
+          >
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/30 border border-border/30 mb-6">
+              <span className="text-4xl">💀</span>
+            </div>
+            <p className="text-xl text-muted-foreground mb-2 font-['Schoolbell']">
               This person is too NPC to have their own pin wall.
             </p>
-            <p className="text-muted-foreground/60 text-sm italic">
+            <p className="text-muted-foreground/50 text-sm italic">
               Die loser die
             </p>
-          </div>
+          </motion.div>
         ) : (
           <DndContext
             sensors={sensors}
@@ -726,27 +773,40 @@ const PersonProfile = () => {
               items={pins.map((p) => p.id)}
               strategy={rectSortingStrategy}
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pins.map((pin) => (
-                  <SortablePinCard
+              <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
+                {pins.map((pin, i) => (
+                  <motion.div
                     key={pin.id}
-                    pin={pin}
-                    isAdmin={isAdmin}
-                    canDelete={isAdmin || pin.user_id === user?.id}
-                    canReorder={isAdmin || pin.user_id === user?.id}
-                    copiedId={copiedId}
-                    onCopy={handleCopyLink}
-                    onDelete={handleDeletePin}
-                  />
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.4 }}
+                  >
+                    <SortablePinCard
+                      pin={pin}
+                      isAdmin={isAdmin}
+                      canDelete={isAdmin || pin.user_id === user?.id}
+                      canReorder={isAdmin || pin.user_id === user?.id}
+                      copiedId={copiedId}
+                      onCopy={handleCopyLink}
+                      onDelete={handleDeletePin}
+                    />
+                  </motion.div>
                 ))}
               </div>
             </SortableContext>
           </DndContext>
         )}
 
-        {/* Comments Section */}
-        <div className="mt-12 bg-card/60 backdrop-blur-sm border-2 border-border/40 rounded-3xl p-6">
-          <CommentSection contentType="pin" contentId={id} />
+        {/* ── Comments Section ── */}
+        <div className="mt-16">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Comments</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </div>
+          <div className="bg-card/60 backdrop-blur-sm border border-border/30 rounded-2xl p-6">
+            <CommentSection contentType="pin" contentId={id} />
+          </div>
         </div>
       </div>
 
@@ -754,7 +814,7 @@ const PersonProfile = () => {
       {!showAddInput && (
         <button
           onClick={() => setShowAddInput(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-chaos shadow-xl flex items-center justify-center hover:scale-110 transition-transform md:hidden"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-chaos shadow-[0_4px_20px_hsl(var(--primary)/0.4)] flex items-center justify-center hover:scale-110 transition-transform md:hidden"
         >
           <Plus className="h-6 w-6 text-foreground" />
         </button>
