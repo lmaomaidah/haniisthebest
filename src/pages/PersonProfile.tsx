@@ -196,18 +196,16 @@ function PinterestEmbed({ url }: { url: string }) {
     };
   }, [url]);
 
-
   if (status === "ready") {
     return (
-      <div className="w-full overflow-hidden rounded-xl border border-border bg-card/40">
+      <div className="w-full overflow-hidden">
         {previewImageUrl && !previewImageFailed ? (
           <a href={resolvedUrl} target="_blank" rel="noreferrer" className="block">
             <img
               src={previewImageUrl}
               alt="Pinterest pin image preview"
               loading="lazy"
-              className="w-full h-auto object-cover"
-              onError={() => setPreviewImageFailed(true)}
+              className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </a>
         ) : resolvedPinId ? (
@@ -224,31 +222,21 @@ function PinterestEmbed({ url }: { url: string }) {
             <p className="text-sm text-muted-foreground">Open this pin on Pinterest.</p>
           </div>
         )}
-
-        <div className="border-t border-border/60 p-3">
-          <a
-            href={resolvedUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors"
-          >
-            Open pin on Pinterest <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-        </div>
       </div>
     );
   }
 
   if (status === "loading") {
     return (
-      <div className="w-full overflow-hidden rounded-xl min-h-[400px] bg-card/40 flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Loading pin…</p>
+      <div className="w-full overflow-hidden min-h-[300px] flex flex-col items-center justify-center gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        <p className="text-xs text-muted-foreground">Loading pin…</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-border bg-card/40">
+    <div className="w-full overflow-hidden">
       {previewImageUrl ? (
         <img
           src={previewImageUrl}
@@ -257,23 +245,22 @@ function PinterestEmbed({ url }: { url: string }) {
           className="w-full h-auto object-cover"
         />
       ) : (
-        <div className="min-h-[260px] flex flex-col items-center justify-center px-4 text-center">
-          <p className="text-sm text-muted-foreground">Couldn’t render this pin preview.</p>
+        <div className="min-h-[200px] flex flex-col items-center justify-center px-4 text-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center">
+            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <p className="text-xs text-muted-foreground">Couldn't render preview</p>
         </div>
       )}
 
-      <div className="border-t border-border/60 p-3">
-        <p className="text-xs text-muted-foreground">
-          This short link may be invalid/expired. Try converting it to the full
-          Pinterest URL format: https://www.pinterest.com/pin/...
-        </p>
+      <div className="p-3">
         <a
           href={resolvedUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-foreground hover:text-primary transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
         >
-          Open pin on Pinterest <ExternalLink className="h-3.5 w-3.5" />
+          Open on Pinterest <ExternalLink className="h-3 w-3" />
         </a>
       </div>
     </div>
