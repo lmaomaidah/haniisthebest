@@ -265,20 +265,19 @@ export default function Classifications() {
     <div className="min-h-screen p-4 md:p-8 animate-fade-in relative overflow-hidden">
       <WhimsicalBackground />
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            onClick={() => navigate("/")}
-            variant="outline"
-            className="border-2 border-primary gap-2 bg-card/80 dark:bg-card/60 backdrop-blur-sm dark:shadow-[0_0_15px_rgba(255,100,150,0.3)]"
-          >
-            <Home className="w-4 h-4" /> Home
-          </Button>
-          <ThemeToggle />
-        </div>
-
-        <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-primary animate-bounce-in drop-shadow-[0_0_30px_rgba(255,100,150,0.5)]">
-          🔵 Venn Diagram 🟣
-        </h1>
+        <PageHeader
+          title="🔵 Venn Diagram 🟣"
+          actions={
+            <>
+              <Button onClick={saveClassifications} size="sm" className="rounded-xl gradient-pink-blue text-white">
+                <Save className="mr-1.5 h-3.5 w-3.5" /> Save
+              </Button>
+              <Button onClick={exportDiagram} size="sm" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
+                <Download className="mr-1.5 h-3.5 w-3.5" /> Export
+              </Button>
+            </>
+          }
+        />
 
         <div className="mb-6">
           <CategoryFilter categories={categories} selected={filterCategories} onChange={setFilterCategories} allowCreate onCreateCategory={handleCreateCategory} allowEdit onRenameCategory={handleRenameCategory} onDeleteCategory={handleDeleteCategory} />
