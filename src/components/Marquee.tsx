@@ -1,5 +1,5 @@
 const Marquee = () => {
-  const message = "✦ WELCOME TO THE CHAOS ✦ EARLY BIRD TICKETS ON SALE NOW ✦ RATE YOUR CLASSMATES ✦ STIR SOME SHI UP ✦ TIER LISTS ARE THE NEW DEMOCRACY ✦ SHIP-O-METER LOADING... ✦ BE ICONIC OR BE FORGOTTEN ✦ THE JUDGEMENT AWAITS ✦ ";
+  const message = "✦ CYBER B SURVIVORS ONLY ✦ CHAOS HUSTLERS CAN LOG OFF ✦ I LOVE WOMEN ✦ ULJHO GAY NAHI TO SULJHO KAY KAISAY MERI JAAN ✦ I AM QUITE MAD WITH THE KNOWLEDGE OF ALL I CAN NEVER KNOW ✦ ";
   
   return (
     <div className="w-full bg-gradient-to-r from-primary via-secondary to-accent overflow-hidden py-3 z-50 relative">
