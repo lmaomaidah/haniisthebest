@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -15,6 +15,10 @@ import {
   MessageCircle,
   Shield,
   Compass,
+  History,
+  ChevronDown,
+  ChevronUp,
+  Trophy,
 } from "lucide-react";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import { withSignedClassmateImageUrls } from "@/lib/classmateImages";
@@ -22,6 +26,7 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { useCategories, fetchAllImageCategories } from "@/hooks/useCategories";
 import { useToast } from "@/hooks/use-toast";
 import { CommentSection } from "@/components/CommentSection";
+import { format } from "date-fns";
 
 interface ImageType {
   id: string;
@@ -343,11 +348,28 @@ const ShipOMeter = () => {
   const [physicalAffection, setPhysicalAffection] = useState([50, 50]);
   const [giftGiving, setGiftGiving] = useState([50, 50]);
   const [adventurousness, setAdventurousness] = useState([50, 50]);
+  const [shipHistory, setShipHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const fetchShipHistory = useCallback(async () => {
+    if (!user) return;
+    setLoadingHistory(true);
+    const { data } = await supabase
+      .from("activity_logs")
+      .select("*")
+      .eq("action_type", "ship_calculate")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setShipHistory(data || []);
+    setLoadingHistory(false);
+  }, [user]);
 
   useEffect(() => {
     void fetchImages();
     void loadCategoryMap();
-  }, []);
+    void fetchShipHistory();
+  }, [fetchShipHistory]);
 
   const loadCategoryMap = async () => {
     const map = await fetchAllImageCategories();
@@ -430,7 +452,7 @@ const ShipOMeter = () => {
       breakdown: result.breakdown,
       strengths: result.strengths,
       challenges: result.challenges,
-    });
+    }).then(() => fetchShipHistory());
   };
 
   const updateTrait = (personNum: 1 | 2, traitId: string, value: number) => {
@@ -730,6 +752,88 @@ const ShipOMeter = () => {
             )}
           </>
         )}
+
+        {/* Shipping History */}
+        <section className="mt-12">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="w-full flex items-center justify-between bg-card/65 backdrop-blur border border-border/50 rounded-2xl px-6 py-4 hover:bg-card/80 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <History className="h-5 w-5 text-secondary" />
+              <h2 className="text-lg font-bold text-foreground font-['Schoolbell']">
+                Shipping History
+              </h2>
+              {shipHistory.length > 0 && (
+                <span className="text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded-full">
+                  {shipHistory.length}
+                </span>
+              )}
+            </div>
+            {showHistory ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            )}
+          </button>
+
+          {showHistory && (
+            <div className="mt-4 space-y-3">
+              {loadingHistory ? (
+                <p className="text-center text-sm text-muted-foreground animate-pulse py-8">
+                  Loading history…
+                </p>
+              ) : shipHistory.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground italic py-8">
+                  No ships calculated yet. Start matching! 💘
+                </p>
+              ) : (
+                shipHistory.map((entry) => {
+                  const details = entry.action_details as any;
+                  const score = details?.score ?? 0;
+                  const msg = getCompatibilityMessage(score);
+                  return (
+                    <div
+                      key={entry.id}
+                      className="bg-card/60 backdrop-blur border border-border/40 rounded-2xl p-4 flex items-center gap-4"
+                    >
+                      <div
+                        className="flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center font-bold text-lg"
+                        style={{
+                          background: `conic-gradient(hsl(var(--primary)) ${score}%, hsl(var(--muted)) ${score}% 100%)`,
+                        }}
+                      >
+                        <div className="h-9 w-9 rounded-full bg-card flex items-center justify-center text-sm font-bold text-foreground">
+                          {score}%
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground truncate">
+                          {details?.person1 || "?"} × {details?.person2 || "?"}
+                        </p>
+                        <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                          <span className={`text-xs font-medium ${msg.toneClass}`}>
+                            {msg.title}
+                          </span>
+                          {details?.strengths && (
+                            <span className="text-xs text-muted-foreground">
+                              · {(details.strengths as string[]).join(" & ")}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-xs text-muted-foreground flex-shrink-0">
+                        {format(new Date(entry.created_at), "MMM d, h:mm a")}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
