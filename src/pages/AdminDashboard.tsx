@@ -288,43 +288,78 @@ const AdminDashboard = () => {
           <Button onClick={fetchData} className="gradient-pink-blue text-white">Refresh Data 🔄</Button>
         </div>
 
-        {/* Stats cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary dark:shadow-[0_0_25px_rgba(255,100,150,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Total Users</CardTitle>
-              <Users className="h-6 w-6 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-primary">{users.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {users.filter(u => u.is_approved).length} approved
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-secondary dark:shadow-[0_0_25px_rgba(100,200,255,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Total Activities</CardTitle>
-              <Activity className="h-6 w-6 text-secondary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-secondary">{activities.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Last 250 shown
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-accent dark:shadow-[0_0_25px_rgba(255,200,100,0.3)]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">Admin Users</CardTitle>
-              <Shield className="h-6 w-6 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-accent">
-                {users.filter(u => u.user_roles?.some(r => r.role === 'admin')).length}
+        {/* Stats cards - enhanced */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="bg-card/80 backdrop-blur-sm border border-primary/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-primary to-secondary" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Users</p>
+                  <p className="text-3xl font-black text-primary tabular-nums">{users.length}</p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
               </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                {users.filter(u => u.is_approved).length} approved · {users.filter(u => !u.is_approved).length} pending
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/80 backdrop-blur-sm border border-secondary/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-secondary to-accent" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Activities</p>
+                  <p className="text-3xl font-black text-secondary tabular-nums">{activities.length}</p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-secondary/15 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-secondary" />
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">Last 250 shown</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/80 backdrop-blur-sm border border-accent/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-accent to-primary" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Admins</p>
+                  <p className="text-3xl font-black text-accent tabular-nums">
+                    {users.filter(u => u.user_roles?.some(r => r.role === 'admin')).length}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-accent" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/80 backdrop-blur-sm border border-border/40 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-muted-foreground/50 to-muted-foreground/20" />
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Today</p>
+                  <p className="text-3xl font-black text-foreground tabular-nums">
+                    {activities.filter(a => {
+                      const d = new Date(a.created_at);
+                      const now = new Date();
+                      return d.toDateString() === now.toDateString();
+                    }).length}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-foreground/10 flex items-center justify-center">
+                  <Eye className="h-5 w-5 text-foreground/60" />
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">Actions today</p>
             </CardContent>
           </Card>
         </div>
@@ -392,20 +427,20 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
-                {/* Activity feed as cards instead of raw table */}
-                <div className="divide-y divide-border/20">
-                  {/* Table header */}
-                  <div className="grid grid-cols-[40px_1fr_auto_2fr_auto] gap-3 px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    <div>
+                {/* Activity feed - card layout */}
+                <div className="divide-y divide-border/10">
+                  {/* Header row */}
+                  <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
+                    <div className="w-8">
                       <Checkbox
                         checked={activities.length > 0 && selectedLogs.size === activities.length}
                         onCheckedChange={toggleAllLogs}
                       />
                     </div>
-                    <div>User</div>
-                    <div>Action</div>
-                    <div>Details</div>
-                    <div>When</div>
+                    <div className="w-24">User</div>
+                    <div className="w-32">Action</div>
+                    <div className="flex-1">Details</div>
+                    <div className="w-28 text-right">When</div>
                   </div>
 
                   {activities.length === 0 ? (
@@ -421,35 +456,45 @@ const AdminDashboard = () => {
                       return (
                         <div
                           key={activity.id}
-                          className="grid grid-cols-[40px_1fr_auto_2fr_auto] gap-3 px-4 py-3 items-center hover:bg-card/50 transition-colors group"
+                          className={`flex items-center gap-3 px-4 py-2.5 hover:bg-muted/10 transition-colors ${
+                            selectedLogs.has(activity.id) ? "bg-primary/5" : ""
+                          }`}
                         >
-                          <div>
+                          <div className="w-8">
                             <Checkbox
                               checked={selectedLogs.has(activity.id)}
                               onCheckedChange={() => toggleLogSelection(activity.id)}
                             />
                           </div>
 
-                          {/* User */}
-                          <div className="font-medium text-sm text-foreground truncate">
-                            {activity.profiles?.username || 'Unknown'}
+                          {/* User with avatar dot */}
+                          <div className="w-24 flex items-center gap-1.5 min-w-0">
+                            <div
+                              className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
+                              style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                            >
+                              {(activity.profiles?.username || "?")[0].toUpperCase()}
+                            </div>
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {activity.profiles?.username || 'Unknown'}
+                            </span>
                           </div>
 
-                          {/* Action badge */}
-                          <div>
-                            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border ${config.color}`}>
+                          {/* Action pill */}
+                          <div className="w-32">
+                            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border ${config.color}`}>
                               {config.icon}
                               {config.label}
                             </span>
                           </div>
 
-                          {/* Readable details */}
-                          <div className="text-sm text-foreground/80 truncate" title={readable}>
-                            {readable || <span className="text-muted-foreground/50">—</span>}
+                          {/* Details */}
+                          <div className="flex-1 text-sm text-foreground/70 truncate min-w-0" title={readable}>
+                            {readable || <span className="text-muted-foreground/40 italic">—</span>}
                           </div>
 
                           {/* Time */}
-                          <div className="text-xs text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
+                          <div className="w-28 text-right text-[11px] text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
                             {timeAgo}
                           </div>
                         </div>
