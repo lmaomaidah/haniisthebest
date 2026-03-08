@@ -602,11 +602,21 @@ const PersonProfile = () => {
           </Link>
         </div>
 
-        {/* Profile Header - enhanced */}
+        {/* Profile Header */}
         <div className="relative mb-12">
           <div className="h-44 md:h-60 rounded-2xl overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/40" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_40%,hsl(var(--background))_100%)]" />
+            {person.image_url ? (
+              <>
+                <img
+                  src={person.image_url}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40"
+                />
+                <div className="absolute inset-0 bg-background/50" />
+              </>
+            ) : (
+              <div className="absolute inset-0 bg-card/80 border-b border-border/30" />
+            )}
           </div>
 
           <div className="flex flex-col items-center -mt-16 md:-mt-20">
@@ -625,7 +635,7 @@ const PersonProfile = () => {
             </h1>
 
             <div className="mt-3 max-w-lg text-center">
-              {editingBio && isAdmin ? (
+              {editingBio ? (
                 <div className="space-y-2">
                   <Textarea value={bioText} onChange={(e) => setBioText(e.target.value)} placeholder="Write a bio…" className="bg-card/70 border-border rounded-xl text-center" rows={3} />
                   <div className="flex gap-2 justify-center">
@@ -634,8 +644,8 @@ const PersonProfile = () => {
                   </div>
                 </div>
               ) : (
-                <p className={`text-muted-foreground italic ${isAdmin ? "cursor-pointer hover:text-foreground transition-colors" : ""}`} onClick={() => isAdmin && setEditingBio(true)}>
-                  {person.bio || (isAdmin ? "Click to add a bio…" : "No bio yet.")}
+                <p className="text-muted-foreground italic cursor-pointer hover:text-foreground transition-colors" onClick={() => setEditingBio(true)}>
+                  {person.bio || "Click to add a bio…"}
                 </p>
               )}
             </div>
