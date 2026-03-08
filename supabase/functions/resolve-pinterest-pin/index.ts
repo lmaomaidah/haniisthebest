@@ -224,8 +224,8 @@ Deno.serve(async (req) => {
     const directPinId = extractPinId(normalized);
 
     if (directPinId) {
-      const pagePreview = await fetchPreviewFromPage(normalized);
-      const directPreview = pagePreview ?? (await fetchOEmbedPreview(normalized));
+      const directPreview =
+        (await fetchOEmbedPreview(normalized)) ?? (await fetchPreviewFromPage(normalized));
 
       return new Response(
         JSON.stringify({
