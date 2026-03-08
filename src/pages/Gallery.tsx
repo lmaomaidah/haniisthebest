@@ -147,10 +147,12 @@ const Gallery = () => {
   const handleCreateCategory = async (catName: string) => {
     if (!user) return;
     try {
-      await createCategory(catName, user.id);
+      const cat = await createCategory(catName, user.id);
       toast({ title: "Category created! 🏷️" });
+      return cat;
     } catch (err: any) {
       toast({ title: "Couldn't create category", description: err.message, variant: "destructive" });
+      return null;
     }
   };
 
@@ -222,6 +224,17 @@ const Gallery = () => {
               categories={categories}
               selected={selectedUploadCategories}
               onChange={setSelectedUploadCategories}
+              onCreateCategory={async (n) => {
+                if (!user) return null;
+                try {
+                  const cat = await createCategory(n, user.id);
+                  toast({ title: "Category created! 🏷️" });
+                  return cat;
+                } catch (err: any) {
+                  toast({ title: "Couldn't create category", description: err.message, variant: "destructive" });
+                  return null;
+                }
+              }}
             />
             <Button
               onClick={handleFileUpload}
@@ -238,20 +251,18 @@ const Gallery = () => {
         </div>
 
         {/* Category Filter */}
-        {categories.length > 0 && (
-          <div className="mb-6">
-            <CategoryFilter
-              categories={categories}
-              selected={filterCategories}
-              onChange={setFilterCategories}
-              allowCreate
-              onCreateCategory={handleCreateCategory}
-              allowEdit
-              onRenameCategory={handleRenameCategory}
-              onDeleteCategory={handleDeleteCategory}
-            />
-          </div>
-        )}
+        <div className="mb-6">
+          <CategoryFilter
+            categories={categories}
+            selected={filterCategories}
+            onChange={setFilterCategories}
+            allowCreate
+            onCreateCategory={handleCreateCategory}
+            allowEdit
+            onRenameCategory={handleRenameCategory}
+            onDeleteCategory={handleDeleteCategory}
+          />
+        </div>
 
         {/* Gallery Grid */}
         {filteredImages.length === 0 ? (
