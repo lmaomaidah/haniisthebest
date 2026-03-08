@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp, Clock } from 'lucide-react';
+import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp, Clock, ChevronUp, ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow, subDays, isAfter } from 'date-fns';
 import { toast } from 'sonner';
@@ -210,6 +210,7 @@ const AdminDashboard = () => {
   const [activityUserFilter, setActivityUserFilter] = useState<string>('all');
   const [activityTypeFilter, setActivityTypeFilter] = useState<string>('all');
   const [activitySearch, setActivitySearch] = useState('');
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading) {
