@@ -348,6 +348,10 @@ const ShipOMeter = () => {
   const [physicalAffection, setPhysicalAffection] = useState([50, 50]);
   const [giftGiving, setGiftGiving] = useState([50, 50]);
   const [adventurousness, setAdventurousness] = useState([50, 50]);
+  const [shipHistory, setShipHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [adventurousness, setAdventurousness] = useState([50, 50]);
 
   useEffect(() => {
     void fetchImages();
