@@ -513,7 +513,8 @@ const AdminDashboard = () => {
                     </TableHead>
                     <TableHead className="text-foreground font-bold">User</TableHead>
                     <TableHead className="text-foreground font-bold">Action</TableHead>
-                    <TableHead className="text-foreground font-bold">Details</TableHead>
+                    <TableHead className="text-foreground font-bold">Where</TableHead>
+                    <TableHead className="text-foreground font-bold">What happened</TableHead>
                     <TableHead className="text-foreground font-bold">Time</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -538,13 +539,16 @@ const AdminDashboard = () => {
                         </TableCell>
                         <TableCell>
                           <Badge className={`${getActionBadgeColor(activity.action_type)} border`}>
-                            {activity.action_type.replace('_', ' ')}
+                            {formatActionLabel(activity.action_type)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-foreground/70 text-sm max-w-xs truncate">
+                        <TableCell className="text-foreground/70 text-sm max-w-[220px] break-words">
+                          {formatWhere(activity.action_details)}
+                        </TableCell>
+                        <TableCell className="text-foreground/70 text-sm max-w-[340px] break-words">
                           {formatActionDetails(activity.action_details)}
                         </TableCell>
-                        <TableCell className="text-foreground/60 text-sm">
+                        <TableCell className="text-foreground/60 text-sm whitespace-nowrap">
                           {format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}
                         </TableCell>
                       </TableRow>
