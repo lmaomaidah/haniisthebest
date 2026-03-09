@@ -7,12 +7,18 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle, Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp, Clock, ChevronUp, ChevronDown } from 'lucide-react';
+import {
+  ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle,
+  Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp,
+  Clock, ChevronUp, ChevronDown, Monitor, Smartphone, Globe, MapPin,
+  MousePointer, Info, ExternalLink, Layers
+} from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow, subDays, isAfter } from 'date-fns';
 import { toast } from 'sonner';
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -36,51 +42,43 @@ interface UserProfile {
   user_roles?: { id: string; role: string }[];
 }
 
-const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
-  login: { icon: <LogIn className="h-3.5 w-3.5" />, label: "Logged in", color: "bg-green-500/20 text-green-400 border-green-500/40" },
-  logout: { icon: <LogOut className="h-3.5 w-3.5" />, label: "Logged out", color: "bg-red-500/20 text-red-400 border-red-500/40" },
-  page_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Visited", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" },
-  page_access: { icon: <Eye className="h-3.5 w-3.5" />, label: "Visited", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" },
-  // Tier list
-  tier_list_save: { icon: <Star className="h-3.5 w-3.5" />, label: "Saved tier list", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
-  tier_list_reset: { icon: <Star className="h-3.5 w-3.5" />, label: "Reset tier list", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
-  tier_list_made_public: { icon: <Star className="h-3.5 w-3.5" />, label: "Made tier public", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
-  tier_list_made_private: { icon: <Star className="h-3.5 w-3.5" />, label: "Made tier private", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
-  tier_list_exported: { icon: <Star className="h-3.5 w-3.5" />, label: "Exported tier list", color: "bg-purple-500/20 text-purple-400 border-purple-500/40" },
-  tier_custom_added: { icon: <Star className="h-3.5 w-3.5" />, label: "Added custom tier", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
-  // Ratings
-  rating_save: { icon: <Zap className="h-3.5 w-3.5" />, label: "Rated someone", color: "bg-blue-500/20 text-blue-400 border-blue-500/40" },
-  rating_select_person: { icon: <Zap className="h-3.5 w-3.5" />, label: "Viewing rating", color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-  // Classifications / Venn
-  classification_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Saved classification", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
-  classification_exported: { icon: <FileText className="h-3.5 w-3.5" />, label: "Exported classification", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
-  classification_circle_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
-  venn_save: { icon: <FileText className="h-3.5 w-3.5" />, label: "Saved venn", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40" },
-  venn_exported: { icon: <FileText className="h-3.5 w-3.5" />, label: "Exported venn", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
-  venn_circle_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added venn circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
-  // Gallery
-  image_upload: { icon: <Upload className="h-3.5 w-3.5" />, label: "Uploaded image", color: "bg-pink-500/20 text-pink-400 border-pink-500/40" },
-  image_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted image", color: "bg-pink-500/20 text-pink-300 border-pink-500/30" },
-  // Ship
-  ship_calculate: { icon: <Heart className="h-3.5 w-3.5" />, label: "Shipped", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
-  ship_reset: { icon: <Heart className="h-3.5 w-3.5" />, label: "Reset ship", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
-  // Comments
-  comment_post: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Commented", color: "bg-teal-500/20 text-teal-400 border-teal-500/40" },
-  comment_deleted: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Deleted comment", color: "bg-teal-500/20 text-teal-300 border-teal-500/30" },
-  // Quiz
-  quiz_complete: { icon: <FileText className="h-3.5 w-3.5" />, label: "Finished quiz", color: "bg-orange-500/20 text-orange-400 border-orange-500/40" },
-  // Polls
-  poll_created: { icon: <FileText className="h-3.5 w-3.5" />, label: "Created poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
-  poll_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-  poll_voted: { icon: <FileText className="h-3.5 w-3.5" />, label: "Voted on poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
-  poll_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Viewed poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-  poll_edit_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Editing poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-  poll_editor_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Added editor", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
-  poll_results_revealed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Revealed results", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
-  poll_results_hidden: { icon: <Eye className="h-3.5 w-3.5" />, label: "Hid results", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-  poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Joined via invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" },
-  // Admin
-  admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Deleted user", color: "bg-destructive/20 text-destructive border-destructive/40" },
+// ─── Action Config ───
+const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; color: string; category: string }> = {
+  login: { icon: <LogIn className="h-3.5 w-3.5" />, label: "Sign In", color: "bg-green-500/20 text-green-400 border-green-500/40", category: "auth" },
+  logout: { icon: <LogOut className="h-3.5 w-3.5" />, label: "Sign Out", color: "bg-red-500/20 text-red-400 border-red-500/40", category: "auth" },
+  page_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Page View", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40", category: "navigation" },
+  page_access: { icon: <Eye className="h-3.5 w-3.5" />, label: "Page View", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40", category: "navigation" },
+  tier_list_save: { icon: <Star className="h-3.5 w-3.5" />, label: "Tier Save", color: "bg-purple-500/20 text-purple-400 border-purple-500/40", category: "tier" },
+  tier_list_reset: { icon: <Star className="h-3.5 w-3.5" />, label: "Tier Reset", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", category: "tier" },
+  tier_list_made_public: { icon: <Star className="h-3.5 w-3.5" />, label: "Tier Public", color: "bg-purple-500/20 text-purple-400 border-purple-500/40", category: "tier" },
+  tier_list_made_private: { icon: <Star className="h-3.5 w-3.5" />, label: "Tier Private", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", category: "tier" },
+  tier_list_exported: { icon: <Star className="h-3.5 w-3.5" />, label: "Tier Export", color: "bg-purple-500/20 text-purple-400 border-purple-500/40", category: "tier" },
+  tier_custom_added: { icon: <Star className="h-3.5 w-3.5" />, label: "Custom Tier", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", category: "tier" },
+  rating_save: { icon: <Zap className="h-3.5 w-3.5" />, label: "Rating", color: "bg-blue-500/20 text-blue-400 border-blue-500/40", category: "rating" },
+  rating_select_person: { icon: <Zap className="h-3.5 w-3.5" />, label: "View Rating", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", category: "rating" },
+  classification_save: { icon: <Layers className="h-3.5 w-3.5" />, label: "Classification", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40", category: "classify" },
+  classification_exported: { icon: <Layers className="h-3.5 w-3.5" />, label: "Export", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30", category: "classify" },
+  classification_circle_added: { icon: <Layers className="h-3.5 w-3.5" />, label: "Add Circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30", category: "classify" },
+  venn_save: { icon: <Layers className="h-3.5 w-3.5" />, label: "Venn Save", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40", category: "classify" },
+  venn_exported: { icon: <Layers className="h-3.5 w-3.5" />, label: "Venn Export", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30", category: "classify" },
+  venn_circle_added: { icon: <Layers className="h-3.5 w-3.5" />, label: "Venn Circle", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30", category: "classify" },
+  image_upload: { icon: <Upload className="h-3.5 w-3.5" />, label: "Upload", color: "bg-pink-500/20 text-pink-400 border-pink-500/40", category: "gallery" },
+  image_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Delete Image", color: "bg-pink-500/20 text-pink-300 border-pink-500/30", category: "gallery" },
+  ship_calculate: { icon: <Heart className="h-3.5 w-3.5" />, label: "Ship", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40", category: "ship" },
+  ship_reset: { icon: <Heart className="h-3.5 w-3.5" />, label: "Ship Reset", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30", category: "ship" },
+  comment_post: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Comment", color: "bg-teal-500/20 text-teal-400 border-teal-500/40", category: "social" },
+  comment_deleted: { icon: <MessageCircle className="h-3.5 w-3.5" />, label: "Del Comment", color: "bg-teal-500/20 text-teal-300 border-teal-500/30", category: "social" },
+  quiz_complete: { icon: <FileText className="h-3.5 w-3.5" />, label: "Quiz Done", color: "bg-orange-500/20 text-orange-400 border-orange-500/40", category: "quiz" },
+  poll_created: { icon: <FileText className="h-3.5 w-3.5" />, label: "New Poll", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
+  poll_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Del Poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", category: "poll" },
+  poll_voted: { icon: <FileText className="h-3.5 w-3.5" />, label: "Poll Vote", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
+  poll_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "View Poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", category: "poll" },
+  poll_edit_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Edit Poll", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", category: "poll" },
+  poll_editor_added: { icon: <FileText className="h-3.5 w-3.5" />, label: "Add Editor", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
+  poll_results_revealed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Reveal Results", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
+  poll_results_hidden: { icon: <Eye className="h-3.5 w-3.5" />, label: "Hide Results", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", category: "poll" },
+  poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Join Invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
+  admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "User Delete", color: "bg-destructive/20 text-destructive border-destructive/40", category: "admin" },
 };
 
 function getActionConfig(actionType: string) {
@@ -88,115 +86,291 @@ function getActionConfig(actionType: string) {
     icon: <Activity className="h-3.5 w-3.5" />,
     label: actionType.replace(/_/g, ' '),
     color: "bg-muted text-muted-foreground border-border",
+    category: "other",
   };
 }
 
-function formatReadableActivity(actionType: string, details: Record<string, unknown> | null): string {
-  if (!details) return "";
+// ─── Rich, human-readable activity descriptions ───
+function formatReadableActivity(actionType: string, details: Record<string, unknown> | null): { summary: string; bullets: string[] } {
+  const bullets: string[] = [];
+  if (!details) return { summary: "", bullets };
+
   const pageName = details.page_name as string | undefined;
-  const pagePath = details.page_path || details.page as string | undefined;
+  const pagePath = (details.page_path || details.page) as string | undefined;
+  const ctx = details.context as Record<string, unknown> | undefined;
 
   switch (actionType) {
     case "page_view":
-    case "page_access":
-      return pageName || (typeof pagePath === 'string' ? pagePath : "");
+    case "page_access": {
+      const name = pageName || "a page";
+      const path = (ctx?.page_path || pagePath) as string | undefined;
+      return {
+        summary: `Navigated to ${name}`,
+        bullets: path ? [`Route: ${path}`] : [],
+      };
+    }
+    case "login": {
+      const username = details.username as string | undefined;
+      return {
+        summary: `Signed into the platform${username ? ` as "${username}"` : ""}`,
+        bullets: [],
+      };
+    }
+    case "logout":
+      return { summary: "Signed out of the platform", bullets: [] };
     case "tier_list_save": {
       const counts = details.tierCounts as Record<string, number> | undefined;
       if (counts) {
-        const parts = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${v} in ${k}`).join(", ");
-        return parts ? `Ranked: ${parts}` : "Saved rankings";
+        const parts = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${k}: ${v} people`);
+        return {
+          summary: `Saved their tier list rankings`,
+          bullets: parts.length > 0 ? [`Placement breakdown — ${parts.join(", ")}`] : [],
+        };
       }
-      return "Saved rankings";
+      return { summary: "Saved their tier list rankings", bullets: [] };
     }
-    case "tier_list_reset": return "Cleared all tier rankings";
-    case "tier_list_made_public": return "Made tier list visible to everyone";
-    case "tier_list_made_private": return "Made tier list private";
-    case "tier_list_exported": return "Downloaded tier list as image";
+    case "tier_list_reset":
+      return { summary: "Reset all tier list rankings to start fresh", bullets: [] };
+    case "tier_list_made_public":
+      return { summary: "Made their tier list visible to all users", bullets: [] };
+    case "tier_list_made_private":
+      return { summary: "Changed their tier list to private (only they can see it)", bullets: [] };
+    case "tier_list_exported":
+      return { summary: "Downloaded their tier list as an image file", bullets: [] };
     case "tier_custom_added": {
       const label = details.label as string | undefined;
-      return label ? `Created custom tier "${label}"` : "Added a custom tier";
+      return {
+        summary: label ? `Created a custom tier row labeled "${label}"` : "Added a custom tier row",
+        bullets: [],
+      };
     }
     case "ship_calculate": {
       const p1 = details.person1 as string | undefined;
       const p2 = details.person2 as string | undefined;
       const score = details.score as number | undefined;
-      if (p1 && p2) return `${p1} × ${p2}${score != null ? ` → ${score}%` : ""}`;
-      return "Calculated ship compatibility";
+      if (p1 && p2) {
+        bullets.push(`Paired: ${p1} × ${p2}`);
+        if (score != null) bullets.push(`Compatibility score: ${score}%`);
+        return { summary: `Calculated ship compatibility between ${p1} and ${p2}`, bullets };
+      }
+      return { summary: "Calculated ship compatibility", bullets: [] };
     }
-    case "ship_reset": return "Reset ship-o-meter";
+    case "ship_reset":
+      return { summary: "Reset the Ship-O-Meter to try a new pairing", bullets: [] };
     case "rating_save": {
-      const name = details.imageName || details.image_name || details.name as string | undefined;
+      const name = (details.imageName || details.image_name || details.name) as string | undefined;
       const total = details.total as number | undefined;
-      return name ? `Rated ${name}${total != null ? ` (${total}/40)` : ""}` : "Saved ratings";
+      const sa = details.sex_appeal as number | undefined;
+      const cd = details.character_design as number | undefined;
+      const iq = details.iq as number | undefined;
+      const eq = details.eq as number | undefined;
+      if (name) {
+        bullets.push(`Person rated: ${name}`);
+        if (total != null) bullets.push(`Overall score: ${total}/40`);
+        const breakdown: string[] = [];
+        if (sa != null) breakdown.push(`Sex Appeal: ${sa}/10`);
+        if (cd != null) breakdown.push(`Character Design: ${cd}/10`);
+        if (iq != null) breakdown.push(`IQ: ${iq}/10`);
+        if (eq != null) breakdown.push(`EQ: ${eq}/10`);
+        if (breakdown.length > 0) bullets.push(breakdown.join(" · "));
+        return { summary: `Rated ${name}${total != null ? ` with a score of ${total}/40` : ""}`, bullets };
+      }
+      return { summary: "Submitted ratings for a classmate", bullets: [] };
     }
     case "rating_select_person": {
       const person = details.person as string | undefined;
-      return person ? `Opened rating for ${person}` : "Selected a person to rate";
+      return {
+        summary: person ? `Opened the rating panel for ${person}` : "Selected a person to rate",
+        bullets: [],
+      };
     }
     case "image_upload": {
       const imgName = details.name as string | undefined;
-      return imgName ? `Uploaded "${imgName}"` : "Uploaded a new classmate";
+      return {
+        summary: imgName ? `Uploaded a new classmate photo: "${imgName}"` : "Uploaded a new classmate photo",
+        bullets: [],
+      };
     }
-    case "image_deleted": return "Deleted a classmate image";
+    case "image_deleted":
+      return { summary: "Removed a classmate image from the gallery", bullets: [] };
     case "classification_save": {
       const circles = details.circles as number | undefined;
       const placed = details.placed as number | undefined;
-      return `Saved ${circles || 0} circles, ${placed || 0} placed`;
+      return {
+        summary: "Saved their classification diagram",
+        bullets: [
+          `${circles || 0} circle(s) configured`,
+          `${placed || 0} classmate(s) placed into circles`,
+        ],
+      };
     }
-    case "classification_exported": return "Exported classification as image";
+    case "classification_exported":
+      return { summary: "Exported their classification diagram as an image", bullets: [] };
     case "classification_circle_added": {
       const label = details.label as string | undefined;
-      return label ? `Added circle "${label}"` : "Added a new circle";
+      return {
+        summary: label ? `Added a new classification circle labeled "${label}"` : "Added a new circle to their classification",
+        bullets: [],
+      };
     }
     case "venn_save": {
       const circles = details.circles as number | undefined;
       const placed = details.placed as number | undefined;
-      return `Saved venn: ${circles || 0} circles, ${placed || 0} placed`;
+      return {
+        summary: "Saved their Venn diagram",
+        bullets: [
+          `${circles || 0} circle(s) in diagram`,
+          `${placed || 0} classmate(s) placed`,
+        ],
+      };
     }
-    case "venn_exported": return "Exported venn diagram as image";
+    case "venn_exported":
+      return { summary: "Exported their Venn diagram as an image", bullets: [] };
     case "venn_circle_added": {
       const label = details.label as string | undefined;
-      return label ? `Added venn circle "${label}"` : "Added a venn circle";
+      return {
+        summary: label ? `Added a Venn diagram circle labeled "${label}"` : "Added a new circle to their Venn diagram",
+        bullets: [],
+      };
     }
     case "comment_post": {
       const ct = details.content_type as string | undefined;
       const isReply = details.is_reply as boolean | undefined;
       const len = details.body_length as number | undefined;
-      const where = ct ? ` on ${ct.replace(/_/g, " ")}` : "";
-      return `${isReply ? "Replied" : "Commented"}${where}${len ? ` (${len} chars)` : ""}`;
+      const contentId = details.content_id as string | undefined;
+      const section = ct ? ct.replace(/_/g, " ") : "unknown section";
+      if (isReply) {
+        return {
+          summary: `Replied to a comment on ${section}`,
+          bullets: [
+            len ? `Reply length: ${len} characters` : "",
+            contentId ? `Content thread: ${contentId.slice(0, 8)}…` : "",
+          ].filter(Boolean),
+        };
+      }
+      return {
+        summary: `Posted a new comment on ${section}`,
+        bullets: [
+          len ? `Comment length: ${len} characters` : "",
+          contentId ? `Content thread: ${contentId.slice(0, 8)}…` : "",
+        ].filter(Boolean),
+      };
     }
     case "comment_deleted": {
       const ct = details.content_type as string | undefined;
-      return `Deleted a comment${ct ? ` on ${ct.replace(/_/g, " ")}` : ""}`;
+      return {
+        summary: `Deleted a comment${ct ? ` from ${ct.replace(/_/g, " ")}` : ""}`,
+        bullets: [],
+      };
     }
-    case "poll_created": return "Created a new poll";
-    case "poll_deleted": return "Deleted a poll";
+    case "poll_created": {
+      const title = details.title as string | undefined;
+      return {
+        summary: title ? `Created a new poll: "${title}"` : "Created a new poll",
+        bullets: [],
+      };
+    }
+    case "poll_deleted": {
+      const title = details.title as string | undefined;
+      return {
+        summary: title ? `Deleted the poll: "${title}"` : "Deleted a poll",
+        bullets: [],
+      };
+    }
     case "poll_voted": {
       const count = details.votes_count as number | undefined;
-      return `Submitted ${count || 0} vote(s)`;
+      const title = details.poll_title as string | undefined;
+      return {
+        summary: `Submitted ${count || 0} vote(s)${title ? ` on "${title}"` : " on a poll"}`,
+        bullets: [],
+      };
     }
-    case "poll_view": return "Viewed a poll";
-    case "poll_edit_view": return "Opened poll editor";
-    case "poll_editor_added": return "Added a collaborator to poll";
-    case "poll_results_revealed": return "Revealed poll results";
-    case "poll_results_hidden": return "Hid poll results";
-    case "poll_joined_via_invite": return "Joined poll via invite link";
+    case "poll_view": {
+      const title = details.poll_title || details.title as string | undefined;
+      return {
+        summary: title ? `Viewed the poll: "${title}"` : "Viewed a poll",
+        bullets: [],
+      };
+    }
+    case "poll_edit_view":
+      return { summary: "Opened the poll editor to modify questions", bullets: [] };
+    case "poll_editor_added": {
+      const editorName = details.editor_username as string | undefined;
+      return {
+        summary: editorName ? `Added "${editorName}" as a poll collaborator` : "Added a collaborator to their poll",
+        bullets: [],
+      };
+    }
+    case "poll_results_revealed":
+      return { summary: "Revealed the poll results to all participants", bullets: [] };
+    case "poll_results_hidden":
+      return { summary: "Hid the poll results from participants", bullets: [] };
+    case "poll_joined_via_invite":
+      return { summary: "Joined a poll through an invite link", bullets: [] };
     case "quiz_complete": {
       const result = details.result as string | undefined;
-      return result ? `Quiz result: ${result}` : "Completed the quiz";
+      const score = details.score as number | undefined;
+      if (result) bullets.push(`Result: ${result}`);
+      if (score != null) bullets.push(`Score: ${score}`);
+      return {
+        summary: result ? `Completed the Judgement Quiz — result: "${result}"` : "Completed the Judgement Quiz",
+        bullets,
+      };
     }
     case "admin_user_deleted": {
-      const username = details.username || details.deleted_username as string | undefined;
-      return username ? `Deleted user "${username}"` : "Deleted a user";
+      const username = (details.username || details.deleted_username) as string | undefined;
+      return {
+        summary: username ? `Permanently deleted user "${username}" and all their data` : "Permanently deleted a user account",
+        bullets: [],
+      };
     }
-    case "login": return "Signed into the platform";
-    case "logout": return "Signed out";
     default: {
       const contextKeys = new Set(['page_path', 'page_url', 'referrer', 'timezone', 'locale', 'viewport', 'user_agent', 'client_time', 'context', 'source', 'page', 'page_name']);
-      const meaningful = Object.entries(details).filter(([key]) => !contextKeys.has(key)).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`).slice(0, 3);
-      return meaningful.join(" · ") || "";
+      const meaningful = Object.entries(details)
+        .filter(([key]) => !contextKeys.has(key))
+        .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${String(value)}`)
+        .slice(0, 4);
+      return {
+        summary: actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        bullets: meaningful,
+      };
     }
   }
+}
+
+// ─── Parse user agent into readable device/browser ───
+function parseUserAgent(ua: string | undefined): { browser: string; device: string } {
+  if (!ua) return { browser: "Unknown", device: "Unknown" };
+  let browser = "Unknown";
+  if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+  else if (ua.includes("Firefox")) browser = "Firefox";
+  else if (ua.includes("Edg")) browser = "Edge";
+  else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
+
+  let device = "Desktop";
+  if (/iPhone|iPad/i.test(ua)) device = "iPhone/iPad";
+  else if (/Android/i.test(ua)) device = "Android";
+  else if (/Mobile/i.test(ua)) device = "Mobile";
+
+  return { browser, device };
+}
+
+// ─── Extract context metadata from activity details ───
+function extractContext(details: Record<string, unknown> | null): {
+  browser: string; device: string; viewport: string; timezone: string; pagePath: string; referrer: string; clientTime: string;
+} {
+  const ctx = (details?.context || {}) as Record<string, unknown>;
+  const ua = parseUserAgent(ctx.user_agent as string | undefined);
+  return {
+    browser: ua.browser,
+    device: ua.device,
+    viewport: (ctx.viewport as string) || "—",
+    timezone: (ctx.timezone as string) || "—",
+    pagePath: (ctx.page_path as string) || (details?.page_path as string) || "—",
+    referrer: (ctx.referrer as string) || "—",
+    clientTime: (ctx.client_time as string) || "—",
+  };
 }
 
 const AdminDashboard = () => {
@@ -211,6 +385,7 @@ const AdminDashboard = () => {
   const [activityTypeFilter, setActivityTypeFilter] = useState<string>('all');
   const [activitySearch, setActivitySearch] = useState('');
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -239,17 +414,14 @@ const AdminDashboard = () => {
   const analytics = useMemo(() => {
     const now = new Date();
     const last7 = subDays(now, 7);
-    const last24h = subDays(now, 1);
 
     const recentActivities = activities.filter(a => isAfter(new Date(a.created_at), last7));
     const todayActivities = activities.filter(a => new Date(a.created_at).toDateString() === now.toDateString());
 
-    // Action breakdown
     const actionCounts: Record<string, number> = {};
     activities.forEach(a => { actionCounts[a.action_type] = (actionCounts[a.action_type] || 0) + 1; });
     const topActions = Object.entries(actionCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-    // Most active users (last 7 days)
     const userActivityCounts: Record<string, { count: number; username: string }> = {};
     recentActivities.forEach(a => {
       const un = a.profiles?.username || 'Unknown';
@@ -258,7 +430,6 @@ const AdminDashboard = () => {
     });
     const topUsers = Object.values(userActivityCounts).sort((a, b) => b.count - a.count).slice(0, 5);
 
-    // Most visited pages
     const pageCounts: Record<string, number> = {};
     activities.filter(a => a.action_type === 'page_view' || a.action_type === 'page_access').forEach(a => {
       const page = (a.action_details?.page_name || a.action_details?.page_path || 'Unknown') as string;
@@ -266,11 +437,9 @@ const AdminDashboard = () => {
     });
     const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-    // Unique active users last 24h
     const activeUsersToday = new Set(todayActivities.map(a => a.user_id)).size;
     const activeUsersWeek = new Set(recentActivities.map(a => a.user_id)).size;
 
-    // Daily activity for sparkline (last 7 days)
     const dailyCounts: number[] = [];
     for (let i = 6; i >= 0; i--) {
       const day = subDays(now, i);
@@ -281,6 +450,7 @@ const AdminDashboard = () => {
     return { topActions, topUsers, topPages, activeUsersToday, activeUsersWeek, todayActivities: todayActivities.length, weeklyActivities: recentActivities.length, dailyCounts };
   }, [activities]);
 
+  // ─── Handlers ───
   const handleDeleteUser = async (userProfile: UserProfile) => {
     if (userProfile.user_id === user?.id) { toast.error("You cannot delete your own account!"); return; }
     try {
@@ -343,10 +513,6 @@ const AdminDashboard = () => {
     setSelectedLogs(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   };
 
-  const toggleAllLogs = () => {
-    selectedLogs.size === activities.length ? setSelectedLogs(new Set()) : setSelectedLogs(new Set(activities.map(a => a.id)));
-  };
-
   if (loading || loadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -366,12 +532,22 @@ const AdminDashboard = () => {
     return (
       <div className="flex items-end gap-0.5 h-8">
         {data.map((v, i) => (
-          <div
-            key={i}
-            className="flex-1 rounded-sm bg-primary/60 min-w-[4px] transition-all"
-            style={{ height: `${(v / max) * 100}%`, minHeight: v > 0 ? '2px' : '0' }}
-          />
+          <div key={i} className="flex-1 rounded-sm bg-primary/60 min-w-[4px] transition-all" style={{ height: `${(v / max) * 100}%`, minHeight: v > 0 ? '2px' : '0' }} />
         ))}
+      </div>
+    );
+  };
+
+  // ─── Context detail chip ───
+  const ContextChip = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => {
+    if (!value || value === "—") return null;
+    return (
+      <div className="flex items-center gap-1.5 rounded-lg bg-muted/40 border border-border/30 px-2.5 py-1.5">
+        <span className="text-muted-foreground">{icon}</span>
+        <div className="flex flex-col">
+          <span className="text-[9px] text-muted-foreground/70 uppercase tracking-wider font-semibold leading-none">{label}</span>
+          <span className="text-[11px] text-foreground/80 font-medium leading-tight truncate max-w-[180px]">{value}</span>
+        </div>
       </div>
     );
   };
@@ -444,7 +620,6 @@ const AdminDashboard = () => {
         {/* ─── Insights Tab ─── */}
         {activeTab === 'insights' && (
           <div className="grid md:grid-cols-3 gap-4">
-            {/* Activity trend */}
             <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
               <CardContent className="pt-5 pb-4">
                 <h3 className="text-sm font-bold text-foreground mb-1 flex items-center gap-2">
@@ -459,7 +634,6 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Top actions breakdown */}
             <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
               <CardContent className="pt-5 pb-4">
                 <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
@@ -485,7 +659,6 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Most active users + top pages */}
             <div className="space-y-4">
               <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
                 <CardContent className="pt-5 pb-4">
@@ -500,9 +673,7 @@ const AdminDashboard = () => {
                         <div
                           className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
                           style={{ backgroundColor: `hsl(${u.username.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
-                        >
-                          {u.username[0].toUpperCase()}
-                        </div>
+                        >{u.username[0].toUpperCase()}</div>
                         <span className="text-xs font-medium text-foreground flex-1 truncate">{u.username}</span>
                         <span className="text-[10px] text-muted-foreground font-mono">{u.count} actions</span>
                       </div>
@@ -534,7 +705,6 @@ const AdminDashboard = () => {
 
         {/* ─── Activity Feed Tab ─── */}
         {activeTab === 'activity' && (() => {
-          // Filter activities
           const uniqueUsers = Array.from(new Set(activities.map(a => a.profiles?.username || 'Unknown'))).sort();
           const uniqueTypes = Array.from(new Set(activities.map(a => a.action_type))).sort();
           const searchLower = activitySearch.toLowerCase();
@@ -543,138 +713,215 @@ const AdminDashboard = () => {
             if (activityUserFilter !== 'all' && (a.profiles?.username || 'Unknown') !== activityUserFilter) return false;
             if (activityTypeFilter !== 'all' && a.action_type !== activityTypeFilter) return false;
             if (searchLower) {
-              const readable = formatReadableActivity(a.action_type, a.action_details).toLowerCase();
+              const { summary } = formatReadableActivity(a.action_type, a.action_details);
               const username = (a.profiles?.username || '').toLowerCase();
               const actionLabel = getActionConfig(a.action_type).label.toLowerCase();
-              if (!readable.includes(searchLower) && !username.includes(searchLower) && !actionLabel.includes(searchLower)) return false;
+              if (!summary.toLowerCase().includes(searchLower) && !username.includes(searchLower) && !actionLabel.includes(searchLower)) return false;
             }
             return true;
           });
 
           return (
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
-            <CardContent className="p-0">
-              {/* Filters bar */}
-              <div className="flex flex-wrap items-center gap-2 p-4 border-b border-border/30">
-                <input
-                  type="text"
-                  value={activitySearch}
-                  onChange={(e) => setActivitySearch(e.target.value)}
-                  placeholder="Search activity..."
-                  className="h-8 px-3 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50 w-40"
-                />
-                <select
-                  value={activityUserFilter}
-                  onChange={(e) => setActivityUserFilter(e.target.value)}
-                  className="h-8 px-2 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
-                >
-                  <option value="all">All users</option>
-                  {uniqueUsers.map(u => <option key={u} value={u}>{u}</option>)}
-                </select>
-                <select
-                  value={activityTypeFilter}
-                  onChange={(e) => setActivityTypeFilter(e.target.value)}
-                  className="h-8 px-2 text-sm rounded-lg bg-muted/30 border border-border/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
-                >
-                  <option value="all">All actions</option>
-                  {uniqueTypes.map(t => <option key={t} value={t}>{getActionConfig(t).label} ({t})</option>)}
-                </select>
-                <span className="text-[11px] text-muted-foreground ml-auto">{filteredActivities.length} of {activities.length} logs</span>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
-                      <Trash2 className="h-4 w-4 mr-1" /> Delete ({selectedLogs.size})
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
-                      <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm"><Trash2 className="h-4 w-4 mr-1" /> Delete All</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
-                      <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+            <Card className="bg-card/80 backdrop-blur-sm border border-border/40 overflow-hidden">
+              <CardContent className="p-0">
+                {/* Filters bar */}
+                <div className="flex flex-wrap items-center gap-2 p-4 border-b border-border/20 bg-muted/10">
+                  <input
+                    type="text"
+                    value={activitySearch}
+                    onChange={(e) => setActivitySearch(e.target.value)}
+                    placeholder="Search activity..."
+                    className="h-8 px-3 text-sm rounded-lg bg-background/50 border border-border/40 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 w-48"
+                  />
+                  <select
+                    value={activityUserFilter}
+                    onChange={(e) => setActivityUserFilter(e.target.value)}
+                    className="h-8 px-2 text-sm rounded-lg bg-background/50 border border-border/40 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="all">All users</option>
+                    {uniqueUsers.map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                  <select
+                    value={activityTypeFilter}
+                    onChange={(e) => setActivityTypeFilter(e.target.value)}
+                    className="h-8 px-2 text-sm rounded-lg bg-background/50 border border-border/40 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="all">All actions</option>
+                    {uniqueTypes.map(t => <option key={t} value={t}>{getActionConfig(t).label} ({t})</option>)}
+                  </select>
+                  <span className="text-[11px] text-muted-foreground ml-auto font-mono">{filteredActivities.length} / {activities.length}</span>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" disabled={selectedLogs.size === 0}>
+                        <Trash2 className="h-3.5 w-3.5 mr-1" /> {selectedLogs.size}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Selected Logs</AlertDialogTitle>
+                        <AlertDialogDescription>Delete {selectedLogs.size} selected log(s)? This cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteSelectedLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm"><Trash2 className="h-3.5 w-3.5 mr-1" /> All</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete All Logs</AlertDialogTitle>
+                        <AlertDialogDescription>Delete ALL {activities.length} activity logs? This cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
 
-              <div className="divide-y divide-border/10">
-                <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/20">
-                  <div className="w-8"><Checkbox checked={filteredActivities.length > 0 && selectedLogs.size === filteredActivities.length} onCheckedChange={() => {
-                    if (selectedLogs.size === filteredActivities.length) setSelectedLogs(new Set());
-                    else setSelectedLogs(new Set(filteredActivities.map(a => a.id)));
-                  }} /></div>
+                {/* Column headers */}
+                <div className="flex items-center gap-3 px-4 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted/15 border-b border-border/15">
+                  <div className="w-7">
+                    <Checkbox
+                      checked={filteredActivities.length > 0 && selectedLogs.size === filteredActivities.length}
+                      onCheckedChange={() => {
+                        if (selectedLogs.size === filteredActivities.length) setSelectedLogs(new Set());
+                        else setSelectedLogs(new Set(filteredActivities.map(a => a.id)));
+                      }}
+                    />
+                  </div>
                   <div className="w-24">User</div>
-                  <div className="w-32">Action</div>
-                  <div className="flex-1">Details</div>
-                  <div className="w-28 text-right">When</div>
+                  <div className="w-28">Action</div>
+                  <div className="flex-1">What happened</div>
+                  <div className="w-32 text-right">When</div>
+                  <div className="w-8"></div>
                 </div>
 
                 {filteredActivities.length === 0 ? (
-                  <div className="text-center py-12 text-foreground/60">
+                  <div className="text-center py-16 text-foreground/50">
+                    <Activity className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
                     {activities.length === 0 ? "No activity yet. Everyone's being too quiet... 🤫" : "No logs match your filters."}
                   </div>
                 ) : (
-                  filteredActivities.map((activity) => {
-                    const config = getActionConfig(activity.action_type);
-                    const readable = formatReadableActivity(activity.action_type, activity.action_details);
-                    const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
+                  <div className="divide-y divide-border/10">
+                    {filteredActivities.map((activity) => {
+                      const config = getActionConfig(activity.action_type);
+                      const { summary, bullets } = formatReadableActivity(activity.action_type, activity.action_details);
+                      const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
+                      const exactTime = format(new Date(activity.created_at), 'MMM d, yyyy · h:mm:ss a');
+                      const isLogExpanded = expandedLogId === activity.id;
+                      const context = extractContext(activity.action_details);
 
-                    return (
-                      <div
-                        key={activity.id}
-                        className={`flex items-center gap-3 px-4 py-2.5 hover:bg-muted/10 transition-colors ${selectedLogs.has(activity.id) ? "bg-primary/5" : ""}`}
-                      >
-                        <div className="w-8"><Checkbox checked={selectedLogs.has(activity.id)} onCheckedChange={() => toggleLogSelection(activity.id)} /></div>
-                        <div className="w-24 flex items-center gap-1.5 min-w-0">
+                      return (
+                        <div key={activity.id}>
+                          {/* Main row */}
                           <div
-                            className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
-                            style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                            className={`flex items-center gap-3 px-4 py-3 transition-colors cursor-pointer group ${
+                              selectedLogs.has(activity.id) ? "bg-primary/5" : "hover:bg-muted/8"
+                            }`}
+                            onClick={() => setExpandedLogId(isLogExpanded ? null : activity.id)}
                           >
-                            {(activity.profiles?.username || "?")[0].toUpperCase()}
+                            <div className="w-7" onClick={(e) => e.stopPropagation()}>
+                              <Checkbox checked={selectedLogs.has(activity.id)} onCheckedChange={() => toggleLogSelection(activity.id)} />
+                            </div>
+                            <div className="w-24 flex items-center gap-1.5 min-w-0">
+                              <div
+                                className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-background shadow-sm"
+                                style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 60% 45%)` }}
+                              >
+                                {(activity.profiles?.username || "?")[0].toUpperCase()}
+                              </div>
+                              <span className="text-sm font-semibold text-foreground truncate">{activity.profiles?.username || 'Unknown'}</span>
+                            </div>
+                            <div className="w-28">
+                              <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold border ${config.color}`}>
+                                {config.icon} {config.label}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-foreground/85 truncate font-medium">
+                                {summary || <span className="text-muted-foreground/40 italic">No details</span>}
+                              </p>
+                              {bullets.length > 0 && (
+                                <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                                  {bullets[0]}
+                                </p>
+                              )}
+                            </div>
+                            <div className="w-32 text-right">
+                              <p className="text-[11px] text-muted-foreground whitespace-nowrap">{timeAgo}</p>
+                              <p className="text-[9px] text-muted-foreground/50 whitespace-nowrap">{format(new Date(activity.created_at), 'h:mm a')}</p>
+                            </div>
+                            <div className="w-8 flex items-center justify-center">
+                              <Info className={`h-3.5 w-3.5 transition-colors ${isLogExpanded ? 'text-primary' : 'text-muted-foreground/30 group-hover:text-muted-foreground/60'}`} />
+                            </div>
                           </div>
-                          <span className="text-sm font-medium text-foreground truncate">{activity.profiles?.username || 'Unknown'}</span>
+
+                          {/* Expanded detail panel */}
+                          {isLogExpanded && (
+                            <div className="bg-muted/8 border-t border-border/10 px-4 py-4">
+                              <div className="ml-7 space-y-3">
+                                {/* Full description */}
+                                <div className="bg-background/60 rounded-xl border border-border/20 p-4">
+                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-1.5">Full Description</p>
+                                  <p className="text-sm text-foreground font-medium">{summary}</p>
+                                  {bullets.length > 0 && (
+                                    <ul className="mt-2 space-y-1">
+                                      {bullets.map((b, i) => (
+                                        <li key={i} className="text-[12px] text-foreground/70 flex items-start gap-1.5">
+                                          <span className="text-primary mt-0.5">•</span>
+                                          {b}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                  <p className="text-[10px] text-muted-foreground/50 mt-2 font-mono">{exactTime}</p>
+                                </div>
+
+                                {/* Context metadata chips */}
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Session Context</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    <ContextChip icon={<Monitor className="h-3 w-3" />} label="Browser" value={context.browser} />
+                                    <ContextChip icon={<Smartphone className="h-3 w-3" />} label="Device" value={context.device} />
+                                    <ContextChip icon={<MousePointer className="h-3 w-3" />} label="Viewport" value={context.viewport} />
+                                    <ContextChip icon={<Globe className="h-3 w-3" />} label="Timezone" value={context.timezone} />
+                                    <ContextChip icon={<ExternalLink className="h-3 w-3" />} label="Page Route" value={context.pagePath} />
+                                    {context.referrer !== "—" && context.referrer && (
+                                      <ContextChip icon={<MapPin className="h-3 w-3" />} label="Referrer" value={context.referrer} />
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Raw data (collapsed) */}
+                                <details className="group">
+                                  <summary className="text-[10px] text-muted-foreground/40 cursor-pointer hover:text-muted-foreground/70 transition-colors font-mono">
+                                    View raw JSON payload
+                                  </summary>
+                                  <pre className="mt-2 text-[10px] text-muted-foreground/60 bg-background/40 rounded-lg p-3 overflow-auto max-h-48 border border-border/15 font-mono leading-relaxed">
+                                    {JSON.stringify(activity.action_details, null, 2)}
+                                  </pre>
+                                </details>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="w-32">
-                          <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border ${config.color}`}>
-                            {config.icon} {config.label}
-                          </span>
-                        </div>
-                        <div className="flex-1 text-sm text-foreground/70 truncate min-w-0" title={readable}>
-                          {readable || <span className="text-muted-foreground/40 italic">—</span>}
-                        </div>
-                        <div className="w-28 text-right text-[11px] text-muted-foreground whitespace-nowrap" title={format(new Date(activity.created_at), 'MMM d, yyyy h:mm a')}>
-                          {timeAgo}
-                        </div>
-                      </div>
-                    );
-                  })
+                      );
+                    })}
+                  </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
           );
         })()}
 
         {/* ─── Users Tab ─── */}
         {activeTab === 'users' && (() => {
-          // Build per-user activity map (last 10 per user)
           const userActivityMap = new Map<string, ActivityLog[]>();
           activities.forEach(a => {
             const list = userActivityMap.get(a.user_id) || [];
@@ -683,126 +930,135 @@ const AdminDashboard = () => {
           });
 
           return (
-          <Card className="bg-card/80 dark:bg-card/60 backdrop-blur-sm border-2 border-primary/30">
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border/50">
-                    <TableHead className="text-foreground font-bold w-8"></TableHead>
-                    <TableHead className="text-foreground font-bold">Username</TableHead>
-                    <TableHead className="text-foreground font-bold">Role</TableHead>
-                    <TableHead className="text-foreground font-bold">Approval</TableHead>
-                    <TableHead className="text-foreground font-bold">Joined</TableHead>
-                    <TableHead className="text-foreground font-bold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.length === 0 ? (
-                    <TableRow><TableCell colSpan={6} className="text-center py-8 text-foreground/60">No users yet 😢</TableCell></TableRow>
-                  ) : (
-                    users.map((userProfile) => {
-                      const isCurrentUser = userProfile.user_id === user?.id;
-                      const currentRole = userProfile.user_roles?.[0]?.role || 'user';
-                      const isExpanded = expandedUserId === userProfile.user_id;
-                      const userLogs = userActivityMap.get(userProfile.user_id) || [];
+            <Card className="bg-card/80 backdrop-blur-sm border border-border/40">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border/50">
+                      <TableHead className="text-foreground font-bold w-8"></TableHead>
+                      <TableHead className="text-foreground font-bold">Username</TableHead>
+                      <TableHead className="text-foreground font-bold">Role</TableHead>
+                      <TableHead className="text-foreground font-bold">Approval</TableHead>
+                      <TableHead className="text-foreground font-bold">Joined</TableHead>
+                      <TableHead className="text-foreground font-bold text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.length === 0 ? (
+                      <TableRow><TableCell colSpan={6} className="text-center py-8 text-foreground/60">No users yet 😢</TableCell></TableRow>
+                    ) : (
+                      users.map((userProfile) => {
+                        const isCurrentUser = userProfile.user_id === user?.id;
+                        const currentRole = userProfile.user_roles?.[0]?.role || 'user';
+                        const isExpanded = expandedUserId === userProfile.user_id;
+                        const userLogs = userActivityMap.get(userProfile.user_id) || [];
 
-                      return (
-                        <React.Fragment key={userProfile.user_id}>
-                          <TableRow className="border-border/30 hover:bg-card/50">
-                            <TableCell className="w-8 px-2">
-                              <button
-                                onClick={() => setExpandedUserId(isExpanded ? null : userProfile.user_id)}
-                                className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/40 transition-colors text-muted-foreground"
-                              >
-                                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                              </button>
-                            </TableCell>
-                            <TableCell className="font-medium text-foreground">
-                              {userProfile.username}
-                              {isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
-                              <span className="ml-2 text-[10px] text-muted-foreground">{userLogs.length > 0 ? `${userLogs.length} recent` : 'no activity'}</span>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={currentRole === 'admin' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border' : 'bg-muted text-muted-foreground border-border border'}>
-                                {currentRole}
-                              </Badge>
-                            </TableCell>
-                            <TableCell><Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>{userProfile.is_approved ? 'approved' : 'pending'}</Badge></TableCell>
-                            <TableCell className="text-foreground/60 text-sm">{format(new Date(userProfile.created_at), 'MMM d, yyyy')}</TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button variant={userProfile.is_approved ? 'secondary' : 'default'} size="sm" disabled={isCurrentUser} className="h-8" onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}>
-                                  {userProfile.is_approved ? 'Revoke' : 'Approve'}
-                                </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild><Button variant="outline" size="sm" disabled={isCurrentUser} className="h-8"><UserCog className="h-4 w-4 mr-1" /> Role</Button></DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'admin')} disabled={currentRole === 'admin'}><Shield className="h-4 w-4 mr-2 text-yellow-500" /> Make Admin</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'user')} disabled={currentRole === 'user'}><Users className="h-4 w-4 mr-2" /> Make User</DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild><Button variant="destructive" size="sm" disabled={isCurrentUser} className="h-8"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                      <AlertDialogDescription>Delete <strong>{userProfile.username}</strong>? This removes their profile and all data. Cannot be undone.</AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleDeleteUser(userProfile)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                          {/* Inline activity timeline */}
-                          {isExpanded && (
-                            <TableRow className="border-border/20 bg-muted/5">
-                              <TableCell colSpan={6} className="p-0">
-                                <div className="px-6 py-3">
-                                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                                    Recent Activity — {userProfile.username}
-                                  </p>
-                                  {userLogs.length === 0 ? (
-                                    <p className="text-xs text-muted-foreground/50 italic py-2">No activity recorded yet.</p>
-                                  ) : (
-                                    <div className="relative pl-4 border-l-2 border-primary/20 space-y-1.5">
-                                      {userLogs.map((log) => {
-                                        const cfg = getActionConfig(log.action_type);
-                                        const detail = formatReadableActivity(log.action_type, log.action_details);
-                                        const ago = formatDistanceToNow(new Date(log.created_at), { addSuffix: true });
-                                        return (
-                                          <div key={log.id} className="relative flex items-start gap-2 group">
-                                            {/* Timeline dot */}
-                                            <div className="absolute -left-[1.3rem] top-1 h-2.5 w-2.5 rounded-full bg-primary/40 border-2 border-background group-hover:bg-primary transition-colors" />
-                                            <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold border flex-shrink-0 ${cfg.color}`}>
-                                              {cfg.icon} {cfg.label}
-                                            </span>
-                                            <span className="text-xs text-foreground/70 truncate flex-1" title={detail}>
-                                              {detail || '—'}
-                                            </span>
-                                            <span className="text-[10px] text-muted-foreground/60 whitespace-nowrap flex-shrink-0" title={format(new Date(log.created_at), 'MMM d, yyyy h:mm a')}>
-                                              {ago}
-                                            </span>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
+                        return (
+                          <React.Fragment key={userProfile.user_id}>
+                            <TableRow className="border-border/30 hover:bg-card/50">
+                              <TableCell className="w-8 px-2">
+                                <button
+                                  onClick={() => setExpandedUserId(isExpanded ? null : userProfile.user_id)}
+                                  className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/40 transition-colors text-muted-foreground"
+                                >
+                                  {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                </button>
+                              </TableCell>
+                              <TableCell className="font-medium text-foreground">
+                                {userProfile.username}
+                                {isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
+                                <span className="ml-2 text-[10px] text-muted-foreground">{userLogs.length > 0 ? `${userLogs.length} recent` : 'no activity'}</span>
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={currentRole === 'admin' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border' : 'bg-muted text-muted-foreground border-border border'}>
+                                  {currentRole}
+                                </Badge>
+                              </TableCell>
+                              <TableCell><Badge variant={userProfile.is_approved ? 'default' : 'secondary'}>{userProfile.is_approved ? 'approved' : 'pending'}</Badge></TableCell>
+                              <TableCell className="text-foreground/60 text-sm">{format(new Date(userProfile.created_at), 'MMM d, yyyy')}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button variant={userProfile.is_approved ? 'secondary' : 'default'} size="sm" disabled={isCurrentUser} className="h-8" onClick={() => handleToggleApproval(userProfile, !userProfile.is_approved)}>
+                                    {userProfile.is_approved ? 'Revoke' : 'Approve'}
+                                  </Button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild><Button variant="outline" size="sm" disabled={isCurrentUser} className="h-8"><UserCog className="h-4 w-4 mr-1" /> Role</Button></DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'admin')} disabled={currentRole === 'admin'}><Shield className="h-4 w-4 mr-2 text-yellow-500" /> Make Admin</DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleChangeRole(userProfile, 'user')} disabled={currentRole === 'user'}><Users className="h-4 w-4 mr-2" /> Make User</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild><Button variant="destructive" size="sm" disabled={isCurrentUser} className="h-8"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                        <AlertDialogDescription>Delete <strong>{userProfile.username}</strong>? This removes their profile and all data. Cannot be undone.</AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteUser(userProfile)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
                                 </div>
                               </TableCell>
                             </TableRow>
-                          )}
-                        </React.Fragment>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                            {/* Inline activity timeline */}
+                            {isExpanded && (
+                              <TableRow className="border-border/20 bg-muted/5">
+                                <TableCell colSpan={6} className="p-0">
+                                  <div className="px-6 py-4">
+                                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                                      Recent Activity — {userProfile.username}
+                                    </p>
+                                    {userLogs.length === 0 ? (
+                                      <p className="text-xs text-muted-foreground/50 italic py-2">No activity recorded yet.</p>
+                                    ) : (
+                                      <div className="relative pl-5 border-l-2 border-primary/20 space-y-3">
+                                        {userLogs.map((log) => {
+                                          const cfg = getActionConfig(log.action_type);
+                                          const { summary, bullets: logBullets } = formatReadableActivity(log.action_type, log.action_details);
+                                          const ago = formatDistanceToNow(new Date(log.created_at), { addSuffix: true });
+                                          const ctx = extractContext(log.action_details);
+                                          return (
+                                            <div key={log.id} className="relative group">
+                                              {/* Timeline dot */}
+                                              <div className="absolute -left-[1.45rem] top-1.5 h-3 w-3 rounded-full bg-primary/30 border-2 border-background group-hover:bg-primary transition-colors" />
+                                              <div className="flex items-start gap-2">
+                                                <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold border flex-shrink-0 ${cfg.color}`}>
+                                                  {cfg.icon} {cfg.label}
+                                                </span>
+                                                <div className="flex-1 min-w-0">
+                                                  <p className="text-xs text-foreground/80 font-medium">{summary || '—'}</p>
+                                                  {logBullets.length > 0 && (
+                                                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">{logBullets[0]}</p>
+                                                  )}
+                                                  <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className="text-[9px] text-muted-foreground/40">{ctx.browser} · {ctx.device}</span>
+                                                  </div>
+                                                </div>
+                                                <span className="text-[10px] text-muted-foreground/50 whitespace-nowrap flex-shrink-0" title={format(new Date(log.created_at), 'MMM d, yyyy h:mm a')}>
+                                                  {ago}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </React.Fragment>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           );
         })()}
       </div>
