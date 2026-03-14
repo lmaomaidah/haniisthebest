@@ -80,6 +80,12 @@ const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; colo
   poll_results_hidden: { icon: <Eye className="h-3.5 w-3.5" />, label: "Hide Results", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", category: "poll" },
   poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Join Invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
   admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "User Delete", color: "bg-destructive/20 text-destructive border-destructive/40", category: "admin" },
+  session_idle: { icon: <Clock className="h-3.5 w-3.5" />, label: "Idle", color: "bg-muted text-muted-foreground border-border", category: "session" },
+  profile_avatar_changed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Avatar", color: "bg-pink-500/20 text-pink-400 border-pink-500/40", category: "profile" },
+  profile_bio_updated: { icon: <FileText className="h-3.5 w-3.5" />, label: "Bio Edit", color: "bg-pink-500/20 text-pink-300 border-pink-500/30", category: "profile" },
+  pin_added: { icon: <MapPin className="h-3.5 w-3.5" />, label: "Pin Add", color: "bg-rose-500/20 text-rose-400 border-rose-500/40", category: "shrine" },
+  pin_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Pin Del", color: "bg-rose-500/20 text-rose-300 border-rose-500/30", category: "shrine" },
+  category_created: { icon: <Layers className="h-3.5 w-3.5" />, label: "New Cat", color: "bg-amber-500/20 text-amber-400 border-amber-500/40", category: "classify" },
 };
 
 function getActionConfig(actionType: string) {
@@ -89,6 +95,18 @@ function getActionConfig(actionType: string) {
     color: "bg-muted text-muted-foreground border-border",
     category: "other",
   };
+}
+
+// ─── Resolve username: prefer profile join, fallback to embedded _logged_username ───
+function resolveUsername(activity: ActivityLog): { name: string; isDeleted: boolean } {
+  if (activity.profiles?.username) {
+    return { name: activity.profiles.username, isDeleted: false };
+  }
+  const embedded = (activity.action_details as Record<string, unknown>)?._logged_username as string | undefined;
+  if (embedded && embedded !== 'unknown') {
+    return { name: embedded, isDeleted: true };
+  }
+  return { name: `user-${activity.user_id.slice(0, 6)}`, isDeleted: true };
 }
 
 // ─── Rich, human-readable activity descriptions ───
