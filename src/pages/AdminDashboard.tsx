@@ -11,7 +11,8 @@ import {
   ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle,
   Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp,
   Clock, ChevronUp, ChevronDown, Monitor, Smartphone, Globe, MapPin,
-  MousePointer, Info, ExternalLink, Layers
+  MousePointer, Info, ExternalLink, Layers, Wifi, Cpu, Palette, UserX,
+  ScreenShare, Languages
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow, subDays, isAfter } from 'date-fns';
