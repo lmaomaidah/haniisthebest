@@ -713,10 +713,13 @@ const AdminDashboard = () => {
                       <div key={i} className="flex items-center gap-2">
                         <span className="text-xs font-bold text-primary w-4">{i + 1}.</span>
                         <div
-                          className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
-                          style={{ backgroundColor: `hsl(${u.username.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
-                        >{u.username[0].toUpperCase()}</div>
-                        <span className="text-xs font-medium text-foreground flex-1 truncate">{u.username}</span>
+                          className={`h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold ${u.isDeleted ? 'bg-destructive/30 text-destructive' : 'text-background'}`}
+                          style={u.isDeleted ? {} : { backgroundColor: `hsl(${u.username.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                        >{u.isDeleted ? <UserX className="h-3 w-3" /> : u.username[0].toUpperCase()}</div>
+                        <span className="text-xs font-medium text-foreground flex-1 truncate">
+                          {u.username}
+                          {u.isDeleted && <span className="text-[9px] text-destructive ml-1">(deleted)</span>}
+                        </span>
                         <span className="text-[10px] text-muted-foreground font-mono">{u.count} actions</span>
                       </div>
                     ))}
