@@ -71,7 +71,7 @@ const PollEdit = () => {
   const [form, setForm] = useState<Form | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
-  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
+  const [autoSaveTimer, setAutoSaveTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   
   // Collaboration state
   const [editors, setEditors] = useState<Editor[]>([]);

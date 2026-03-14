@@ -11,7 +11,8 @@ import {
   ArrowLeft, Users, Activity, Shield, Trash2, UserCog, Eye, MessageCircle,
   Star, Heart, Upload, LogIn, LogOut, FileText, Zap, BarChart3, TrendingUp,
   Clock, ChevronUp, ChevronDown, Monitor, Smartphone, Globe, MapPin,
-  MousePointer, Info, ExternalLink, Layers
+  MousePointer, Info, ExternalLink, Layers, Wifi, Cpu, Palette, UserX,
+  ScreenShare, Languages
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, formatDistanceToNow, subDays, isAfter } from 'date-fns';
@@ -79,6 +80,12 @@ const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; colo
   poll_results_hidden: { icon: <Eye className="h-3.5 w-3.5" />, label: "Hide Results", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", category: "poll" },
   poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Join Invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
   admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "User Delete", color: "bg-destructive/20 text-destructive border-destructive/40", category: "admin" },
+  session_idle: { icon: <Clock className="h-3.5 w-3.5" />, label: "Idle", color: "bg-muted text-muted-foreground border-border", category: "session" },
+  profile_avatar_changed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Avatar", color: "bg-pink-500/20 text-pink-400 border-pink-500/40", category: "profile" },
+  profile_bio_updated: { icon: <FileText className="h-3.5 w-3.5" />, label: "Bio Edit", color: "bg-pink-500/20 text-pink-300 border-pink-500/30", category: "profile" },
+  pin_added: { icon: <MapPin className="h-3.5 w-3.5" />, label: "Pin Add", color: "bg-rose-500/20 text-rose-400 border-rose-500/40", category: "shrine" },
+  pin_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Pin Del", color: "bg-rose-500/20 text-rose-300 border-rose-500/30", category: "shrine" },
+  category_created: { icon: <Layers className="h-3.5 w-3.5" />, label: "New Cat", color: "bg-amber-500/20 text-amber-400 border-amber-500/40", category: "classify" },
 };
 
 function getActionConfig(actionType: string) {
@@ -88,6 +95,18 @@ function getActionConfig(actionType: string) {
     color: "bg-muted text-muted-foreground border-border",
     category: "other",
   };
+}
+
+// ─── Resolve username: prefer profile join, fallback to embedded _logged_username ───
+function resolveUsername(activity: ActivityLog): { name: string; isDeleted: boolean } {
+  if (activity.profiles?.username) {
+    return { name: activity.profiles.username, isDeleted: false };
+  }
+  const embedded = (activity.action_details as Record<string, unknown>)?._logged_username as string | undefined;
+  if (embedded && embedded !== 'unknown') {
+    return { name: embedded, isDeleted: true };
+  }
+  return { name: `user-${activity.user_id.slice(0, 6)}`, isDeleted: true };
 }
 
 // ─── Rich, human-readable activity descriptions ───
@@ -118,6 +137,14 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
     }
     case "logout":
       return { summary: "Signed out of the platform", bullets: [] };
+    case "session_idle": {
+      const secs = details.idle_after_seconds as number | undefined;
+      const lastPage = details.last_page as string | undefined;
+      return {
+        summary: `Went idle${lastPage ? ` on ${lastPage}` : ""}${secs ? ` after ${secs}s` : ""}`,
+        bullets: [],
+      };
+    }
     case "tier_list_save": {
       const counts = details.tierCounts as Record<string, number> | undefined;
       if (counts) {
@@ -358,18 +385,33 @@ function parseUserAgent(ua: string | undefined): { browser: string; device: stri
 
 // ─── Extract context metadata from activity details ───
 function extractContext(details: Record<string, unknown> | null): {
-  browser: string; device: string; viewport: string; timezone: string; pagePath: string; referrer: string; clientTime: string;
+  browser: string; device: string; os: string; viewport: string; screenRes: string;
+  timezone: string; pagePath: string; referrer: string; clientTime: string;
+  pixelRatio: string; cores: string; memory: string; network: string;
+  colorScheme: string; language: string; online: string; touch: string; platform: string;
 } {
   const ctx = (details?.context || {}) as Record<string, unknown>;
   const ua = parseUserAgent(ctx.user_agent as string | undefined);
+  const net = ctx.network as Record<string, unknown> | undefined;
   return {
-    browser: ua.browser,
-    device: ua.device,
+    browser: (ctx.browser as string) || ua.browser,
+    device: (ctx.device as string) || ua.device,
+    os: (ctx.os as string) || "—",
     viewport: (ctx.viewport as string) || "—",
+    screenRes: (ctx.screen_resolution as string) || "—",
     timezone: (ctx.timezone as string) || "—",
     pagePath: (ctx.page_path as string) || (details?.page_path as string) || "—",
     referrer: (ctx.referrer as string) || "—",
     clientTime: (ctx.client_time as string) || "—",
+    pixelRatio: ctx.pixel_ratio != null ? `${ctx.pixel_ratio}x` : "—",
+    cores: ctx.cores != null ? `${ctx.cores} cores` : "—",
+    memory: ctx.memory_gb != null ? `${ctx.memory_gb} GB` : "—",
+    network: net?.type ? `${net.type}${net.downlink ? ` (${net.downlink})` : ""}` : "—",
+    colorScheme: (ctx.color_scheme as string) || "—",
+    language: (ctx.language as string) || (ctx.locale as string) || "—",
+    online: ctx.online != null ? (ctx.online ? "Online" : "Offline") : "—",
+    touch: ctx.touch_support != null ? (ctx.touch_support ? "Yes" : "No") : "—",
+    platform: (ctx.platform as string) || "—",
   };
 }
 
@@ -422,10 +464,10 @@ const AdminDashboard = () => {
     activities.forEach(a => { actionCounts[a.action_type] = (actionCounts[a.action_type] || 0) + 1; });
     const topActions = Object.entries(actionCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-    const userActivityCounts: Record<string, { count: number; username: string }> = {};
+    const userActivityCounts: Record<string, { count: number; username: string; isDeleted: boolean }> = {};
     recentActivities.forEach(a => {
-      const un = a.profiles?.username || 'Unknown';
-      if (!userActivityCounts[a.user_id]) userActivityCounts[a.user_id] = { count: 0, username: un };
+      const { name: un, isDeleted } = resolveUsername(a);
+      if (!userActivityCounts[a.user_id]) userActivityCounts[a.user_id] = { count: 0, username: un, isDeleted };
       userActivityCounts[a.user_id].count++;
     });
     const topUsers = Object.values(userActivityCounts).sort((a, b) => b.count - a.count).slice(0, 5);
@@ -671,10 +713,13 @@ const AdminDashboard = () => {
                       <div key={i} className="flex items-center gap-2">
                         <span className="text-xs font-bold text-primary w-4">{i + 1}.</span>
                         <div
-                          className="h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-background"
-                          style={{ backgroundColor: `hsl(${u.username.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
-                        >{u.username[0].toUpperCase()}</div>
-                        <span className="text-xs font-medium text-foreground flex-1 truncate">{u.username}</span>
+                          className={`h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold ${u.isDeleted ? 'bg-destructive/30 text-destructive' : 'text-background'}`}
+                          style={u.isDeleted ? {} : { backgroundColor: `hsl(${u.username.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 65% 50%)` }}
+                        >{u.isDeleted ? <UserX className="h-3 w-3" /> : u.username[0].toUpperCase()}</div>
+                        <span className="text-xs font-medium text-foreground flex-1 truncate">
+                          {u.username}
+                          {u.isDeleted && <span className="text-[9px] text-destructive ml-1">(deleted)</span>}
+                        </span>
                         <span className="text-[10px] text-muted-foreground font-mono">{u.count} actions</span>
                       </div>
                     ))}
@@ -705,18 +750,18 @@ const AdminDashboard = () => {
 
         {/* ─── Activity Feed Tab ─── */}
         {activeTab === 'activity' && (() => {
-          const uniqueUsers = Array.from(new Set(activities.map(a => a.profiles?.username || 'Unknown'))).sort();
+          const uniqueUsers = Array.from(new Set(activities.map(a => resolveUsername(a).name))).sort();
           const uniqueTypes = Array.from(new Set(activities.map(a => a.action_type))).sort();
           const searchLower = activitySearch.toLowerCase();
 
           const filteredActivities = activities.filter(a => {
-            if (activityUserFilter !== 'all' && (a.profiles?.username || 'Unknown') !== activityUserFilter) return false;
+            const { name: uName } = resolveUsername(a);
+            if (activityUserFilter !== 'all' && uName !== activityUserFilter) return false;
             if (activityTypeFilter !== 'all' && a.action_type !== activityTypeFilter) return false;
             if (searchLower) {
               const { summary } = formatReadableActivity(a.action_type, a.action_details);
-              const username = (a.profiles?.username || '').toLowerCase();
               const actionLabel = getActionConfig(a.action_type).label.toLowerCase();
-              if (!summary.toLowerCase().includes(searchLower) && !username.includes(searchLower) && !actionLabel.includes(searchLower)) return false;
+              if (!summary.toLowerCase().includes(searchLower) && !uName.toLowerCase().includes(searchLower) && !actionLabel.includes(searchLower)) return false;
             }
             return true;
           });
@@ -816,6 +861,7 @@ const AdminDashboard = () => {
                       const exactTime = format(new Date(activity.created_at), 'MMM d, yyyy · h:mm:ss a');
                       const isLogExpanded = expandedLogId === activity.id;
                       const context = extractContext(activity.action_details);
+                      const { name: displayName, isDeleted } = resolveUsername(activity);
 
                       return (
                         <div key={activity.id}>
@@ -829,14 +875,17 @@ const AdminDashboard = () => {
                             <div className="w-7" onClick={(e) => e.stopPropagation()}>
                               <Checkbox checked={selectedLogs.has(activity.id)} onCheckedChange={() => toggleLogSelection(activity.id)} />
                             </div>
-                            <div className="w-24 flex items-center gap-1.5 min-w-0">
+                            <div className="w-28 flex items-center gap-1.5 min-w-0">
                               <div
-                                className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-background shadow-sm"
-                                style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 60% 45%)` }}
+                                className={`h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold shadow-sm ${isDeleted ? 'bg-destructive/30 text-destructive' : 'text-background'}`}
+                                style={isDeleted ? {} : { backgroundColor: `hsl(${displayName.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 60% 45%)` }}
                               >
-                                {(activity.profiles?.username || "?")[0].toUpperCase()}
+                                {isDeleted ? <UserX className="h-3 w-3" /> : displayName[0].toUpperCase()}
                               </div>
-                              <span className="text-sm font-semibold text-foreground truncate">{activity.profiles?.username || 'Unknown'}</span>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-semibold text-foreground truncate">{displayName}</span>
+                                {isDeleted && <span className="text-[9px] text-destructive font-medium leading-none">deleted</span>}
+                              </div>
                             </div>
                             <div className="w-28">
                               <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold border ${config.color}`}>
@@ -866,6 +915,18 @@ const AdminDashboard = () => {
                           {isLogExpanded && (
                             <div className="bg-muted/8 border-t border-border/10 px-4 py-4">
                               <div className="ml-7 space-y-3">
+                                {/* User identity */}
+                                {isDeleted && (
+                                  <div className="bg-destructive/5 rounded-xl border border-destructive/20 p-3 flex items-center gap-2">
+                                    <UserX className="h-4 w-4 text-destructive flex-shrink-0" />
+                                    <div>
+                                      <p className="text-xs font-semibold text-destructive">Deleted User</p>
+                                      <p className="text-[10px] text-muted-foreground">This user's account has been removed. Username at time of action: <strong>{displayName}</strong></p>
+                                      <p className="text-[9px] text-muted-foreground/50 font-mono mt-0.5">User ID: {activity.user_id}</p>
+                                    </div>
+                                  </div>
+                                )}
+
                                 {/* Full description */}
                                 <div className="bg-background/60 rounded-xl border border-border/20 p-4">
                                   <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-1.5">Full Description</p>
@@ -883,14 +944,30 @@ const AdminDashboard = () => {
                                   <p className="text-[10px] text-muted-foreground/50 mt-2 font-mono">{exactTime}</p>
                                 </div>
 
-                                {/* Context metadata chips */}
+                                {/* Context metadata chips — Device & Environment */}
                                 <div>
-                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Session Context</p>
+                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Device & Environment</p>
                                   <div className="flex flex-wrap gap-2">
                                     <ContextChip icon={<Monitor className="h-3 w-3" />} label="Browser" value={context.browser} />
                                     <ContextChip icon={<Smartphone className="h-3 w-3" />} label="Device" value={context.device} />
+                                    <ContextChip icon={<Cpu className="h-3 w-3" />} label="OS" value={context.os} />
+                                    <ContextChip icon={<ScreenShare className="h-3 w-3" />} label="Screen" value={context.screenRes} />
                                     <ContextChip icon={<MousePointer className="h-3 w-3" />} label="Viewport" value={context.viewport} />
+                                    <ContextChip icon={<Eye className="h-3 w-3" />} label="Pixel Ratio" value={context.pixelRatio} />
+                                    <ContextChip icon={<Cpu className="h-3 w-3" />} label="CPU Cores" value={context.cores} />
+                                    <ContextChip icon={<Cpu className="h-3 w-3" />} label="Memory" value={context.memory} />
+                                    <ContextChip icon={<Palette className="h-3 w-3" />} label="Theme" value={context.colorScheme} />
+                                  </div>
+                                </div>
+
+                                {/* Network & Location */}
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Network & Location</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    <ContextChip icon={<Wifi className="h-3 w-3" />} label="Network" value={context.network} />
+                                    <ContextChip icon={<Wifi className="h-3 w-3" />} label="Status" value={context.online} />
                                     <ContextChip icon={<Globe className="h-3 w-3" />} label="Timezone" value={context.timezone} />
+                                    <ContextChip icon={<Languages className="h-3 w-3" />} label="Language" value={context.language} />
                                     <ContextChip icon={<ExternalLink className="h-3 w-3" />} label="Page Route" value={context.pagePath} />
                                     {context.referrer !== "—" && context.referrer && (
                                       <ContextChip icon={<MapPin className="h-3 w-3" />} label="Referrer" value={context.referrer} />
