@@ -747,18 +747,18 @@ const AdminDashboard = () => {
 
         {/* ─── Activity Feed Tab ─── */}
         {activeTab === 'activity' && (() => {
-          const uniqueUsers = Array.from(new Set(activities.map(a => a.profiles?.username || 'Unknown'))).sort();
+          const uniqueUsers = Array.from(new Set(activities.map(a => resolveUsername(a).name))).sort();
           const uniqueTypes = Array.from(new Set(activities.map(a => a.action_type))).sort();
           const searchLower = activitySearch.toLowerCase();
 
           const filteredActivities = activities.filter(a => {
-            if (activityUserFilter !== 'all' && (a.profiles?.username || 'Unknown') !== activityUserFilter) return false;
+            const { name: uName } = resolveUsername(a);
+            if (activityUserFilter !== 'all' && uName !== activityUserFilter) return false;
             if (activityTypeFilter !== 'all' && a.action_type !== activityTypeFilter) return false;
             if (searchLower) {
               const { summary } = formatReadableActivity(a.action_type, a.action_details);
-              const username = (a.profiles?.username || '').toLowerCase();
               const actionLabel = getActionConfig(a.action_type).label.toLowerCase();
-              if (!summary.toLowerCase().includes(searchLower) && !username.includes(searchLower) && !actionLabel.includes(searchLower)) return false;
+              if (!summary.toLowerCase().includes(searchLower) && !uName.toLowerCase().includes(searchLower) && !actionLabel.includes(searchLower)) return false;
             }
             return true;
           });
