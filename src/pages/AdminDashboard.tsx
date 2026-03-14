@@ -858,6 +858,7 @@ const AdminDashboard = () => {
                       const exactTime = format(new Date(activity.created_at), 'MMM d, yyyy · h:mm:ss a');
                       const isLogExpanded = expandedLogId === activity.id;
                       const context = extractContext(activity.action_details);
+                      const { name: displayName, isDeleted } = resolveUsername(activity);
 
                       return (
                         <div key={activity.id}>
@@ -871,14 +872,17 @@ const AdminDashboard = () => {
                             <div className="w-7" onClick={(e) => e.stopPropagation()}>
                               <Checkbox checked={selectedLogs.has(activity.id)} onCheckedChange={() => toggleLogSelection(activity.id)} />
                             </div>
-                            <div className="w-24 flex items-center gap-1.5 min-w-0">
+                            <div className="w-28 flex items-center gap-1.5 min-w-0">
                               <div
-                                className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-background shadow-sm"
-                                style={{ backgroundColor: `hsl(${(activity.profiles?.username || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 60% 45%)` }}
+                                className={`h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold shadow-sm ${isDeleted ? 'bg-destructive/30 text-destructive' : 'text-background'}`}
+                                style={isDeleted ? {} : { backgroundColor: `hsl(${displayName.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 60% 45%)` }}
                               >
-                                {(activity.profiles?.username || "?")[0].toUpperCase()}
+                                {isDeleted ? <UserX className="h-3 w-3" /> : displayName[0].toUpperCase()}
                               </div>
-                              <span className="text-sm font-semibold text-foreground truncate">{activity.profiles?.username || 'Unknown'}</span>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-semibold text-foreground truncate">{displayName}</span>
+                                {isDeleted && <span className="text-[9px] text-destructive font-medium leading-none">deleted</span>}
+                              </div>
                             </div>
                             <div className="w-28">
                               <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold border ${config.color}`}>
@@ -908,6 +912,18 @@ const AdminDashboard = () => {
                           {isLogExpanded && (
                             <div className="bg-muted/8 border-t border-border/10 px-4 py-4">
                               <div className="ml-7 space-y-3">
+                                {/* User identity */}
+                                {isDeleted && (
+                                  <div className="bg-destructive/5 rounded-xl border border-destructive/20 p-3 flex items-center gap-2">
+                                    <UserX className="h-4 w-4 text-destructive flex-shrink-0" />
+                                    <div>
+                                      <p className="text-xs font-semibold text-destructive">Deleted User</p>
+                                      <p className="text-[10px] text-muted-foreground">This user's account has been removed. Username at time of action: <strong>{displayName}</strong></p>
+                                      <p className="text-[9px] text-muted-foreground/50 font-mono mt-0.5">User ID: {activity.user_id}</p>
+                                    </div>
+                                  </div>
+                                )}
+
                                 {/* Full description */}
                                 <div className="bg-background/60 rounded-xl border border-border/20 p-4">
                                   <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-1.5">Full Description</p>
@@ -925,14 +941,30 @@ const AdminDashboard = () => {
                                   <p className="text-[10px] text-muted-foreground/50 mt-2 font-mono">{exactTime}</p>
                                 </div>
 
-                                {/* Context metadata chips */}
+                                {/* Context metadata chips — Device & Environment */}
                                 <div>
-                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Session Context</p>
+                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Device & Environment</p>
                                   <div className="flex flex-wrap gap-2">
                                     <ContextChip icon={<Monitor className="h-3 w-3" />} label="Browser" value={context.browser} />
                                     <ContextChip icon={<Smartphone className="h-3 w-3" />} label="Device" value={context.device} />
+                                    <ContextChip icon={<Cpu className="h-3 w-3" />} label="OS" value={context.os} />
+                                    <ContextChip icon={<ScreenShare className="h-3 w-3" />} label="Screen" value={context.screenRes} />
                                     <ContextChip icon={<MousePointer className="h-3 w-3" />} label="Viewport" value={context.viewport} />
+                                    <ContextChip icon={<Eye className="h-3 w-3" />} label="Pixel Ratio" value={context.pixelRatio} />
+                                    <ContextChip icon={<Cpu className="h-3 w-3" />} label="CPU Cores" value={context.cores} />
+                                    <ContextChip icon={<Cpu className="h-3 w-3" />} label="Memory" value={context.memory} />
+                                    <ContextChip icon={<Palette className="h-3 w-3" />} label="Theme" value={context.colorScheme} />
+                                  </div>
+                                </div>
+
+                                {/* Network & Location */}
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-bold mb-2">Network & Location</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    <ContextChip icon={<Wifi className="h-3 w-3" />} label="Network" value={context.network} />
+                                    <ContextChip icon={<Wifi className="h-3 w-3" />} label="Status" value={context.online} />
                                     <ContextChip icon={<Globe className="h-3 w-3" />} label="Timezone" value={context.timezone} />
+                                    <ContextChip icon={<Languages className="h-3 w-3" />} label="Language" value={context.language} />
                                     <ContextChip icon={<ExternalLink className="h-3 w-3" />} label="Page Route" value={context.pagePath} />
                                     {context.referrer !== "—" && context.referrer && (
                                       <ContextChip icon={<MapPin className="h-3 w-3" />} label="Referrer" value={context.referrer} />
