@@ -137,6 +137,14 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
     }
     case "logout":
       return { summary: "Signed out of the platform", bullets: [] };
+    case "session_idle": {
+      const secs = details.idle_after_seconds as number | undefined;
+      const lastPage = details.last_page as string | undefined;
+      return {
+        summary: `Went idle${lastPage ? ` on ${lastPage}` : ""}${secs ? ` after ${secs}s` : ""}`,
+        bullets: [],
+      };
+    }
     case "tier_list_save": {
       const counts = details.tierCounts as Record<string, number> | undefined;
       if (counts) {
