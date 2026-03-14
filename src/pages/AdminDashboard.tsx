@@ -359,18 +359,33 @@ function parseUserAgent(ua: string | undefined): { browser: string; device: stri
 
 // ─── Extract context metadata from activity details ───
 function extractContext(details: Record<string, unknown> | null): {
-  browser: string; device: string; viewport: string; timezone: string; pagePath: string; referrer: string; clientTime: string;
+  browser: string; device: string; os: string; viewport: string; screenRes: string;
+  timezone: string; pagePath: string; referrer: string; clientTime: string;
+  pixelRatio: string; cores: string; memory: string; network: string;
+  colorScheme: string; language: string; online: string; touch: string; platform: string;
 } {
   const ctx = (details?.context || {}) as Record<string, unknown>;
   const ua = parseUserAgent(ctx.user_agent as string | undefined);
+  const net = ctx.network as Record<string, unknown> | undefined;
   return {
-    browser: ua.browser,
-    device: ua.device,
+    browser: (ctx.browser as string) || ua.browser,
+    device: (ctx.device as string) || ua.device,
+    os: (ctx.os as string) || "—",
     viewport: (ctx.viewport as string) || "—",
+    screenRes: (ctx.screen_resolution as string) || "—",
     timezone: (ctx.timezone as string) || "—",
     pagePath: (ctx.page_path as string) || (details?.page_path as string) || "—",
     referrer: (ctx.referrer as string) || "—",
     clientTime: (ctx.client_time as string) || "—",
+    pixelRatio: ctx.pixel_ratio != null ? `${ctx.pixel_ratio}x` : "—",
+    cores: ctx.cores != null ? `${ctx.cores} cores` : "—",
+    memory: ctx.memory_gb != null ? `${ctx.memory_gb} GB` : "—",
+    network: net?.type ? `${net.type}${net.downlink ? ` (${net.downlink})` : ""}` : "—",
+    colorScheme: (ctx.color_scheme as string) || "—",
+    language: (ctx.language as string) || (ctx.locale as string) || "—",
+    online: ctx.online != null ? (ctx.online ? "Online" : "Offline") : "—",
+    touch: ctx.touch_support != null ? (ctx.touch_support ? "Yes" : "No") : "—",
+    platform: (ctx.platform as string) || "—",
   };
 }
 
