@@ -109,16 +109,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const normalizeUsername = (value: string) => value.trim().toLowerCase();
 
-  const buildActivityContext = () => ({
-    page_path: window.location.pathname,
-    page_url: window.location.href,
-    referrer: document.referrer || null,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    locale: navigator.language,
-    viewport: `${window.innerWidth}x${window.innerHeight}`,
-    user_agent: navigator.userAgent,
-    client_time: new Date().toISOString(),
-  });
+  const buildActivityContext = () => {
+    const ua = navigator.userAgent;
+    let browser = "Unknown";
+    if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+    else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+    else if (ua.includes("Firefox")) browser = "Firefox";
+    else if (ua.includes("Edg")) browser = "Edge";
+
+    let os = "Unknown";
+    if (ua.includes("Windows")) os = "Windows";
+    else if (ua.includes("Mac OS")) os = "macOS";
+    else if (ua.includes("Linux") && !ua.includes("Android")) os = "Linux";
+    else if (ua.includes("Android")) os = "Android";
+    else if (/iPhone|iPad|iPod/.test(ua)) os = "iOS";
+
+    let device = "Desktop";
+    if (/iPhone|iPod/.test(ua)) device = "iPhone";
+    else if (/iPad/.test(ua)) device = "iPad";
+    else if (/Android.*Mobile/.test(ua)) device = "Android Phone";
+    else if (/Android/.test(ua)) device = "Android Tablet";
+    else if (/Mobile/.test(ua)) device = "Mobile";
+
+    const connection = (navigator as any).connection;
+
+    return {
+      page_path: window.location.pathname,
+      page_url: window.location.href,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      client_time: new Date().toISOString(),
+      browser,
+      os,
+      device,
+      screen_resolution: `${screen.width}x${screen.height}`,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      pixel_ratio: window.devicePixelRatio,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: navigator.language,
+      platform: navigator.platform,
+      cores: navigator.hardwareConcurrency || undefined,
+      memory_gb: (navigator as any).deviceMemory || undefined,
+      touch_support: navigator.maxTouchPoints > 0,
+      online: navigator.onLine,
+      color_scheme: window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
+      network: connection ? {
+        type: connection.effectiveType || connection.type || "unknown",
+        downlink: connection.downlink ? `${connection.downlink} Mbps` : undefined,
+        save_data: connection.saveData || false,
+      } : undefined,
+    };
+  };
 
   const insertActivity = async (userId: string, actionType: string, actionDetails: object = {}) => {
     const safeDetails = JSON.parse(JSON.stringify(actionDetails ?? {}));
