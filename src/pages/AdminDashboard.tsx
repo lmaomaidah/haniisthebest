@@ -464,10 +464,10 @@ const AdminDashboard = () => {
     activities.forEach(a => { actionCounts[a.action_type] = (actionCounts[a.action_type] || 0) + 1; });
     const topActions = Object.entries(actionCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-    const userActivityCounts: Record<string, { count: number; username: string }> = {};
+    const userActivityCounts: Record<string, { count: number; username: string; isDeleted: boolean }> = {};
     recentActivities.forEach(a => {
-      const un = a.profiles?.username || 'Unknown';
-      if (!userActivityCounts[a.user_id]) userActivityCounts[a.user_id] = { count: 0, username: un };
+      const { name: un, isDeleted } = resolveUsername(a);
+      if (!userActivityCounts[a.user_id]) userActivityCounts[a.user_id] = { count: 0, username: un, isDeleted };
       userActivityCounts[a.user_id].count++;
     });
     const topUsers = Object.values(userActivityCounts).sort((a, b) => b.count - a.count).slice(0, 5);
