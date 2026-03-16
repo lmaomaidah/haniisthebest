@@ -431,8 +431,8 @@ const Leaderboard = () => {
                       <div
                         role="button"
                         tabIndex={0}
-                        onClick={() => setExpandedShip(isExpanded ? null : entry.id)}
-                        onKeyDown={(e) => e.key === "Enter" && setExpandedShip(isExpanded ? null : entry.id)}
+                        onClick={() => handleExpandShip(entry.id)}
+                        onKeyDown={(e) => e.key === "Enter" && handleExpandShip(entry.id)}
                         className="w-full p-4 flex items-center gap-3 md:gap-4 text-left hover:bg-card/80 transition-colors cursor-pointer"
                       >
                         <div className="flex-shrink-0 w-8 text-center">
