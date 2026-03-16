@@ -417,6 +417,20 @@ const PersonProfile = () => {
     fetchPersonCategories();
   }, [fetchPerson, fetchPins, fetchPersonCategories]);
 
+  // Log profile view with rich context
+  useEffect(() => {
+    if (person) {
+      void logActivity("profile_view", {
+        person_id: person.id,
+        person_name: person.name,
+        has_bio: !!person.bio,
+        has_image: !!person.image_url,
+        pin_count: pins.length,
+        category_count: personCategories.length,
+      });
+    }
+  }, [person?.id]);
+
   const handleCategoryChange = async (newCats: string[]) => {
     if (!id) return;
     try {
