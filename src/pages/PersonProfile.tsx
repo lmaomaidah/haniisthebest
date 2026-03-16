@@ -505,6 +505,7 @@ const PersonProfile = () => {
       });
     } else {
       toast({ title: "📌 Pin added!" });
+      void logActivity("pin_added", { person_id: id, person_name: person?.name, pin_url: normalizedToSave, total_pins: pins.length + 1 });
       setNewPinUrl("");
       setShowAddInput(false);
       fetchPins();
