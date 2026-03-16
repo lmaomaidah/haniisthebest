@@ -587,8 +587,8 @@ const Leaderboard = () => {
                     <div
                       role="button"
                       tabIndex={0}
-                      onClick={() => setExpandedTier(isExpanded ? null : tl.id)}
-                      onKeyDown={(e) => e.key === "Enter" && setExpandedTier(isExpanded ? null : tl.id)}
+                      onClick={() => handleExpandTier(tl.id)}
+                      onKeyDown={(e) => e.key === "Enter" && handleExpandTier(tl.id)}
                       className="w-full p-4 flex items-center gap-4 text-left hover:bg-card/80 transition-colors cursor-pointer"
                     >
                       <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/20 to-accent/10 border border-secondary/25 flex items-center justify-center">
