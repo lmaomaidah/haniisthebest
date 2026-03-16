@@ -42,7 +42,7 @@ const Profiles = () => {
   useEffect(() => {
     if (!search.trim() || search.length < 2) return;
     const timeout = setTimeout(() => {
-      void logActivity("shrine_search", { query: search.trim(), results_count: filtered.length });
+      void logActivity("shrine_search", { query: search.trim() });
     }, 1500);
     return () => clearTimeout(timeout);
   }, [search]);
