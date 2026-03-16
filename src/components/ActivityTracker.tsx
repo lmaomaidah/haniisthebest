@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -81,12 +81,111 @@ function getDeviceInfo() {
   };
 }
 
+function getScrollDepthPercent(): number {
+  const docHeight = Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight
+  );
+  const viewportHeight = window.innerHeight;
+  if (docHeight <= viewportHeight) return 100;
+  const scrolled = window.scrollY + viewportHeight;
+  return Math.min(100, Math.round((scrolled / docHeight) * 100));
+}
+
 export function ActivityTracker() {
   const location = useLocation();
   const { user, logActivity } = useAuth();
   const lastTrackedPathRef = useRef<string>("");
   const sessionStartRef = useRef<number>(Date.now());
   const lastActivityRef = useRef<number>(Date.now());
+  const pageEnterTimeRef = useRef<number>(Date.now());
+  const maxScrollDepthRef = useRef<number>(0);
+  const clickCountRef = useRef<number>(0);
+  const scrollCountRef = useRef<number>(0);
+
+  // Log time spent on page when leaving
+  const logPageExit = useCallback(() => {
+    if (!user || !lastTrackedPathRef.current) return;
+    const timeSpentSeconds = Math.round((Date.now() - pageEnterTimeRef.current) / 1000);
+    if (timeSpentSeconds < 2) return; // Skip instant navigations
+
+    void logActivity("page_exit", {
+      page_name: getReadablePageName(location.pathname),
+      page_path: lastTrackedPathRef.current,
+      time_spent_seconds: timeSpentSeconds,
+      max_scroll_depth_percent: maxScrollDepthRef.current,
+      click_count: clickCountRef.current,
+      scroll_interactions: scrollCountRef.current,
+    });
+  }, [user, logActivity, location.pathname]);
+
+  // Track scroll depth
+  useEffect(() => {
+    if (!user) return;
+    let scrollTimeout: ReturnType<typeof setTimeout>;
+
+    const handleScroll = () => {
+      const depth = getScrollDepthPercent();
+      if (depth > maxScrollDepthRef.current) {
+        maxScrollDepthRef.current = depth;
+      }
+      scrollCountRef.current++;
+      lastActivityRef.current = Date.now();
+
+      clearTimeout(scrollTimeout);
+      // Log milestone scroll depths
+      scrollTimeout = setTimeout(() => {
+        if (maxScrollDepthRef.current >= 90 && maxScrollDepthRef.current <= 100) {
+          void logActivity("scroll_bottom", {
+            page_name: getReadablePageName(location.pathname),
+            page_path: location.pathname,
+            scroll_depth: maxScrollDepthRef.current,
+          });
+        }
+      }, 1500);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      clearTimeout(scrollTimeout);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [user, logActivity, location.pathname]);
+
+  // Track clicks on interactive elements
+  useEffect(() => {
+    if (!user) return;
+
+    const handleClick = (e: MouseEvent) => {
+      clickCountRef.current++;
+      lastActivityRef.current = Date.now();
+
+      const target = e.target as HTMLElement;
+      const clickable = target.closest("a, button, [role='button'], [data-track]");
+      if (!clickable) return;
+
+      const trackLabel = clickable.getAttribute("data-track");
+      const text = (clickable.textContent || "").trim().slice(0, 80);
+      const tagName = clickable.tagName.toLowerCase();
+      const href = (clickable as HTMLAnchorElement).href || undefined;
+      const isExternal = href && !href.startsWith(window.location.origin);
+
+      // Only log meaningful clicks, not every button
+      if (trackLabel || isExternal) {
+        void logActivity("user_click", {
+          element: trackLabel || text || tagName,
+          tag: tagName,
+          href: isExternal ? href : undefined,
+          is_external: !!isExternal,
+          page_name: getReadablePageName(location.pathname),
+          page_path: location.pathname,
+        });
+      }
+    };
+
+    document.addEventListener("click", handleClick, { passive: true });
+    return () => document.removeEventListener("click", handleClick);
+  }, [user, logActivity, location.pathname]);
 
   // Track session heartbeat — log how long users stay
   useEffect(() => {
@@ -102,14 +201,28 @@ export function ActivityTracker() {
             last_page: getReadablePageName(location.pathname),
           });
         }
+        // Also log page exit on tab hide
+        logPageExit();
       } else {
         lastActivityRef.current = Date.now();
+        void logActivity("session_resume", {
+          page_name: getReadablePageName(location.pathname),
+          away_seconds: Math.round((Date.now() - lastActivityRef.current) / 1000),
+        });
       }
     };
 
+    const handleBeforeUnload = () => {
+      logPageExit();
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [user, logActivity, location.pathname]);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [user, logActivity, location.pathname, logPageExit]);
 
   // Track page views with rich context
   useEffect(() => {
@@ -118,9 +231,19 @@ export function ActivityTracker() {
     const currentPath = `${location.pathname}${location.search}${location.hash}`;
     if (lastTrackedPathRef.current === currentPath) return;
 
+    // Log exit from previous page
+    if (lastTrackedPathRef.current) {
+      logPageExit();
+    }
+
     const previousPath = lastTrackedPathRef.current;
     lastTrackedPathRef.current = currentPath;
     lastActivityRef.current = Date.now();
+    pageEnterTimeRef.current = Date.now();
+    maxScrollDepthRef.current = 0;
+    clickCountRef.current = 0;
+    scrollCountRef.current = 0;
+
     const pageName = getReadablePageName(location.pathname);
     const deviceInfo = getDeviceInfo();
 
@@ -128,17 +251,21 @@ export function ActivityTracker() {
       page_name: pageName,
       page_path: currentPath,
       previous_page: previousPath || null,
+      previous_page_name: previousPath ? getReadablePageName(previousPath.split("?")[0].split("#")[0]) : null,
       referrer: document.referrer || null,
+      navigation_type: previousPath ? "internal" : "direct",
+      tab_count: (window as any).performance?.navigation?.type === 1 ? "reload" : "navigate",
       context: {
         page_path: location.pathname,
         page_url: window.location.href,
         referrer: document.referrer || null,
         user_agent: navigator.userAgent,
         client_time: new Date().toISOString(),
+        session_duration_seconds: Math.round((Date.now() - sessionStartRef.current) / 1000),
         ...deviceInfo,
       },
     });
-  }, [location.pathname, location.search, location.hash, user, logActivity]);
+  }, [location.pathname, location.search, location.hash, user, logActivity, logPageExit]);
 
   return null;
 }

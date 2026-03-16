@@ -86,7 +86,7 @@ const tierColors: Record<string, string> = {
 };
 
 const Leaderboard = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, logActivity } = useAuth();
   const { toast } = useToast();
 
   const [ships, setShips] = useState<ShipEntry[]>([]);
@@ -97,6 +97,34 @@ const Leaderboard = () => {
   const [expandedShip, setExpandedShip] = useState<string | null>(null);
   const [expandedTier, setExpandedTier] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"ships" | "tiers">("ships");
+
+  const handleTabChange = (tab: "ships" | "tiers") => {
+    setActiveTab(tab);
+    void logActivity("leaderboard_tab_switch", { tab, ships_loaded: ships.length, tiers_loaded: tierLists.length });
+  };
+
+  const handleExpandShip = (id: string) => {
+    const next = expandedShip === id ? null : id;
+    setExpandedShip(next);
+    if (next) {
+      const ship = ships.find(s => s.id === next);
+      void logActivity("leaderboard_expand_ship", {
+        person1: ship?.action_details?.person1,
+        person2: ship?.action_details?.person2,
+        score: ship?.action_details?.score,
+        shipper: ship?.username,
+      });
+    }
+  };
+
+  const handleExpandTier = (id: string) => {
+    const next = expandedTier === id ? null : id;
+    setExpandedTier(next);
+    if (next) {
+      const tier = tierLists.find(t => t.id === next);
+      void logActivity("leaderboard_expand_tier", { tier_name: tier?.name, owner: tier?.username });
+    }
+  };
 
   const fetchClassmates = useCallback(async () => {
     const { data } = await supabase
@@ -288,7 +316,7 @@ const Leaderboard = () => {
         {/* Tab Switcher */}
         <div className="flex gap-1 mb-8 bg-card/70 backdrop-blur border border-border/40 rounded-2xl p-1">
           <button
-            onClick={() => setActiveTab("ships")}
+            onClick={() => handleTabChange("ships")}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === "ships"
                 ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/20"
@@ -299,7 +327,7 @@ const Leaderboard = () => {
             Top Ships
           </button>
           <button
-            onClick={() => setActiveTab("tiers")}
+            onClick={() => handleTabChange("tiers")}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === "tiers"
                 ? "bg-gradient-to-r from-secondary to-accent text-secondary-foreground shadow-lg shadow-secondary/20"
@@ -403,8 +431,8 @@ const Leaderboard = () => {
                       <div
                         role="button"
                         tabIndex={0}
-                        onClick={() => setExpandedShip(isExpanded ? null : entry.id)}
-                        onKeyDown={(e) => e.key === "Enter" && setExpandedShip(isExpanded ? null : entry.id)}
+                        onClick={() => handleExpandShip(entry.id)}
+                        onKeyDown={(e) => e.key === "Enter" && handleExpandShip(entry.id)}
                         className="w-full p-4 flex items-center gap-3 md:gap-4 text-left hover:bg-card/80 transition-colors cursor-pointer"
                       >
                         <div className="flex-shrink-0 w-8 text-center">
@@ -559,8 +587,8 @@ const Leaderboard = () => {
                     <div
                       role="button"
                       tabIndex={0}
-                      onClick={() => setExpandedTier(isExpanded ? null : tl.id)}
-                      onKeyDown={(e) => e.key === "Enter" && setExpandedTier(isExpanded ? null : tl.id)}
+                      onClick={() => handleExpandTier(tl.id)}
+                      onKeyDown={(e) => e.key === "Enter" && handleExpandTier(tl.id)}
                       className="w-full p-4 flex items-center gap-4 text-left hover:bg-card/80 transition-colors cursor-pointer"
                     >
                       <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/20 to-accent/10 border border-secondary/25 flex items-center justify-center">

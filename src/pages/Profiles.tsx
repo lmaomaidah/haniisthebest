@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -21,8 +21,9 @@ const Profiles = () => {
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [imageCategoryMap, setImageCategoryMap] = useState<Record<string, string[]>>({});
   const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
-  const { user } = useAuth();
+  const { user, logActivity } = useAuth();
   const { toast } = useToast();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { fetchPeople(); loadCategoryMap(); }, []);
   const loadCategoryMap = async () => { const map = await fetchAllImageCategories(); setImageCategoryMap(map); };
@@ -33,9 +34,25 @@ const Profiles = () => {
     setLoading(false);
   };
 
-  const handleCreateCategory = async (name: string) => { if (!user) return; try { await createCategory(name, user.id); toast({ title: "Category created! 🏷️" }); } catch (err: any) { toast({ title: "Couldn't create", description: err.message, variant: "destructive" }); } };
-  const handleRenameCategory = async (id: string, newName: string) => { try { await renameCategory(id, newName); } catch {} };
-  const handleDeleteCategory = async (id: string) => { try { await deleteCategory(id); await loadCategoryMap(); } catch {} };
+  const handleCreateCategory = async (name: string) => { if (!user) return; try { await createCategory(name, user.id); void logActivity("category_created", { name, page: "shrine_wall" }); toast({ title: "Category created! 🏷️" }); } catch (err: any) { toast({ title: "Couldn't create", description: err.message, variant: "destructive" }); } };
+  const handleRenameCategory = async (id: string, newName: string) => { try { await renameCategory(id, newName); void logActivity("category_renamed", { category_id: id, new_name: newName }); } catch {} };
+  const handleDeleteCategory = async (id: string) => { try { await deleteCategory(id); void logActivity("category_deleted", { category_id: id }); await loadCategoryMap(); } catch {} };
+
+  // Track search queries (debounced)
+  useEffect(() => {
+    if (!search.trim() || search.length < 2) return;
+    const timeout = setTimeout(() => {
+      void logActivity("shrine_search", { query: search.trim() });
+    }, 1500);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  // Track filter changes
+  useEffect(() => {
+    if (filterCategories.length === 0) return;
+    const catNames = filterCategories.map(id => categories.find(c => c.id === id)?.name || id);
+    void logActivity("shrine_filter", { categories: catNames, filter_count: filterCategories.length });
+  }, [filterCategories]);
 
   const filtered = people
     .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
@@ -70,7 +87,7 @@ const Profiles = () => {
               const personCats = imageCategoryMap[person.id] || [];
               return (
                 <div key={person.id} className="group relative">
-                  <Link to={`/profiles/${person.id}`} className="block bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1.5">
+                  <Link to={`/profiles/${person.id}`} onClick={() => void logActivity("profile_click", { person_id: person.id, person_name: person.name, from_search: !!search.trim(), categories_filtered: filterCategories.length })} className="block bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1.5">
                     <div className="aspect-[3/4] relative overflow-hidden">
                       {person.image_url ? (
                         <img src={person.image_url} alt={person.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" loading="lazy" />

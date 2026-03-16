@@ -359,7 +359,7 @@ function SortablePinCard({
 /* ──────────── Main Page ──────────── */
 const PersonProfile = () => {
   const { id } = useParams<{ id: string }>();
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user, logActivity } = useAuth();
   const { toast } = useToast();
 
   const [person, setPerson] = useState<PersonData | null>(null);
@@ -417,11 +417,27 @@ const PersonProfile = () => {
     fetchPersonCategories();
   }, [fetchPerson, fetchPins, fetchPersonCategories]);
 
+  // Log profile view with rich context
+  useEffect(() => {
+    if (person) {
+      void logActivity("profile_view", {
+        person_id: person.id,
+        person_name: person.name,
+        has_bio: !!person.bio,
+        has_image: !!person.image_url,
+        pin_count: pins.length,
+        category_count: personCategories.length,
+      });
+    }
+  }, [person?.id]);
+
   const handleCategoryChange = async (newCats: string[]) => {
     if (!id) return;
     try {
       await setImageCategories(id, newCats);
       setPersonCategories(newCats);
+      const catNames = newCats.map(cid => categories.find(c => c.id === cid)?.name || cid);
+      void logActivity("profile_categories_changed", { person_id: id, person_name: person?.name, categories: catNames, count: newCats.length });
       toast({ title: "Categories updated! 🏷️" });
     } catch (err: any) {
       toast({ title: "Couldn't update categories", description: err.message, variant: "destructive" });
@@ -491,6 +507,7 @@ const PersonProfile = () => {
       });
     } else {
       toast({ title: "📌 Pin added!" });
+      void logActivity("pin_added", { person_id: id, person_name: person?.name, pin_url: normalizedToSave, total_pins: pins.length + 1 });
       setNewPinUrl("");
       setShowAddInput(false);
       fetchPins();
@@ -505,6 +522,7 @@ const PersonProfile = () => {
       .eq("id", pinId);
     if (!error) {
       setPins((prev) => prev.filter((p) => p.id !== pinId));
+      void logActivity("pin_deleted", { person_id: id, person_name: person?.name, pin_id: pinId });
       toast({ title: "Pin removed 🗑️" });
     }
   };
@@ -551,6 +569,7 @@ const PersonProfile = () => {
         prev ? { ...prev, bio: bioText.trim() || null } : prev
       );
       setEditingBio(false);
+      void logActivity("profile_bio_updated", { person_id: id, person_name: person?.name, bio_length: bioText.trim().length });
       toast({ title: "Bio saved ✨" });
     }
   };

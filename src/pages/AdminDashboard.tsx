@@ -81,11 +81,25 @@ const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; colo
   poll_joined_via_invite: { icon: <FileText className="h-3.5 w-3.5" />, label: "Join Invite", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", category: "poll" },
   admin_user_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "User Delete", color: "bg-destructive/20 text-destructive border-destructive/40", category: "admin" },
   session_idle: { icon: <Clock className="h-3.5 w-3.5" />, label: "Idle", color: "bg-muted text-muted-foreground border-border", category: "session" },
+  session_resume: { icon: <Zap className="h-3.5 w-3.5" />, label: "Resume", color: "bg-green-500/20 text-green-300 border-green-500/30", category: "session" },
+  page_exit: { icon: <LogOut className="h-3.5 w-3.5" />, label: "Page Exit", color: "bg-slate-500/20 text-slate-300 border-slate-500/30", category: "navigation" },
+  scroll_bottom: { icon: <ChevronDown className="h-3.5 w-3.5" />, label: "Scrolled Down", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30", category: "navigation" },
+  user_click: { icon: <MousePointer className="h-3.5 w-3.5" />, label: "Click", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", category: "interaction" },
+  profile_view: { icon: <Eye className="h-3.5 w-3.5" />, label: "Profile View", color: "bg-rose-500/20 text-rose-400 border-rose-500/40", category: "shrine" },
+  profile_click: { icon: <MousePointer className="h-3.5 w-3.5" />, label: "Profile Click", color: "bg-rose-500/20 text-rose-300 border-rose-500/30", category: "shrine" },
   profile_avatar_changed: { icon: <Eye className="h-3.5 w-3.5" />, label: "Avatar", color: "bg-pink-500/20 text-pink-400 border-pink-500/40", category: "profile" },
   profile_bio_updated: { icon: <FileText className="h-3.5 w-3.5" />, label: "Bio Edit", color: "bg-pink-500/20 text-pink-300 border-pink-500/30", category: "profile" },
+  profile_categories_changed: { icon: <Layers className="h-3.5 w-3.5" />, label: "Profile Tags", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", category: "shrine" },
   pin_added: { icon: <MapPin className="h-3.5 w-3.5" />, label: "Pin Add", color: "bg-rose-500/20 text-rose-400 border-rose-500/40", category: "shrine" },
   pin_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Pin Del", color: "bg-rose-500/20 text-rose-300 border-rose-500/30", category: "shrine" },
+  shrine_search: { icon: <Eye className="h-3.5 w-3.5" />, label: "Search", color: "bg-sky-500/20 text-sky-300 border-sky-500/30", category: "shrine" },
+  shrine_filter: { icon: <Layers className="h-3.5 w-3.5" />, label: "Filter", color: "bg-sky-500/20 text-sky-300 border-sky-500/30", category: "shrine" },
+  leaderboard_tab_switch: { icon: <BarChart3 className="h-3.5 w-3.5" />, label: "Tab Switch", color: "bg-amber-500/20 text-amber-400 border-amber-500/40", category: "leaderboard" },
+  leaderboard_expand_ship: { icon: <Heart className="h-3.5 w-3.5" />, label: "Expand Ship", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30", category: "leaderboard" },
+  leaderboard_expand_tier: { icon: <Star className="h-3.5 w-3.5" />, label: "Expand Tier", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", category: "leaderboard" },
   category_created: { icon: <Layers className="h-3.5 w-3.5" />, label: "New Cat", color: "bg-amber-500/20 text-amber-400 border-amber-500/40", category: "classify" },
+  category_renamed: { icon: <Layers className="h-3.5 w-3.5" />, label: "Rename Cat", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", category: "classify" },
+  category_deleted: { icon: <Trash2 className="h-3.5 w-3.5" />, label: "Delete Cat", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", category: "classify" },
 };
 
 function getActionConfig(actionType: string) {
@@ -349,6 +363,143 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
       return {
         summary: username ? `Permanently deleted user "${username}" and all their data` : "Permanently deleted a user account",
         bullets: [],
+      };
+    }
+    case "page_exit": {
+      const timeSpent = details.time_spent_seconds as number | undefined;
+      const scrollDepth = details.max_scroll_depth_percent as number | undefined;
+      const clicks = details.click_count as number | undefined;
+      const scrolls = details.scroll_interactions as number | undefined;
+      const exitPage = (details.page_name || details.page_path) as string | undefined;
+      return {
+        summary: `Left ${exitPage || "a page"}${timeSpent ? ` after ${timeSpent}s` : ""}`,
+        bullets: [
+          timeSpent ? `Time on page: ${timeSpent} seconds` : "",
+          scrollDepth != null ? `Max scroll depth: ${scrollDepth}%` : "",
+          clicks != null ? `Clicks: ${clicks}` : "",
+          scrolls != null ? `Scroll interactions: ${scrolls}` : "",
+        ].filter(Boolean),
+      };
+    }
+    case "scroll_bottom": {
+      const scrollPage = details.page_name as string | undefined;
+      return { summary: `Scrolled to the bottom of ${scrollPage || "a page"}`, bullets: [] };
+    }
+    case "session_resume": {
+      const resumePage = details.page_name as string | undefined;
+      const awaySecs = details.away_seconds as number | undefined;
+      return {
+        summary: `Returned to the tab${resumePage ? ` on ${resumePage}` : ""}${awaySecs ? ` after ${awaySecs}s away` : ""}`,
+        bullets: [],
+      };
+    }
+    case "user_click": {
+      const element = details.element as string | undefined;
+      const clickPage = details.page_name as string | undefined;
+      const isExternal = details.is_external as boolean | undefined;
+      const href = details.href as string | undefined;
+      return {
+        summary: `Clicked "${element || "an element"}" on ${clickPage || "a page"}${isExternal ? " (external link)" : ""}`,
+        bullets: href ? [`Destination: ${href}`] : [],
+      };
+    }
+    case "profile_view": {
+      const personName = details.person_name as string | undefined;
+      const pinCount = details.pin_count as number | undefined;
+      const hasBio = details.has_bio as boolean | undefined;
+      return {
+        summary: personName ? `Viewed ${personName}'s shrine profile` : "Viewed a classmate's profile",
+        bullets: [
+          pinCount != null ? `${pinCount} pin(s) on their wall` : "",
+          hasBio != null ? (hasBio ? "Has a bio" : "No bio yet") : "",
+        ].filter(Boolean),
+      };
+    }
+    case "profile_click": {
+      const personName = details.person_name as string | undefined;
+      const fromSearch = details.from_search as boolean | undefined;
+      return {
+        summary: personName ? `Clicked on ${personName}'s profile card` : "Clicked on a profile",
+        bullets: fromSearch ? ["Found via search"] : [],
+      };
+    }
+    case "profile_categories_changed": {
+      const personName = details.person_name as string | undefined;
+      const cats = details.categories as string[] | undefined;
+      return {
+        summary: personName ? `Updated categories on ${personName}'s profile` : "Updated profile categories",
+        bullets: cats?.length ? [`Tags: ${cats.join(", ")}`] : [],
+      };
+    }
+    case "shrine_search": {
+      const query = details.query as string | undefined;
+      const resultsCount = details.results_count as number | undefined;
+      return {
+        summary: query ? `Searched for "${query}" on the Shrine Wall` : "Searched on the Shrine Wall",
+        bullets: resultsCount != null ? [`${resultsCount} result(s) found`] : [],
+      };
+    }
+    case "shrine_filter": {
+      const cats = details.categories as string[] | undefined;
+      return {
+        summary: "Filtered the Shrine Wall by categories",
+        bullets: cats?.length ? [`Active filters: ${cats.join(", ")}`] : [],
+      };
+    }
+    case "leaderboard_tab_switch": {
+      const tab = details.tab as string | undefined;
+      return {
+        summary: `Switched to the "${tab === "ships" ? "Top Ships" : "Public Tier Lists"}" leaderboard tab`,
+        bullets: [],
+      };
+    }
+    case "leaderboard_expand_ship": {
+      const p1 = details.person1 as string | undefined;
+      const p2 = details.person2 as string | undefined;
+      const score = details.score as number | undefined;
+      return {
+        summary: p1 && p2 ? `Expanded the ship entry for ${p1} × ${p2}` : "Expanded a ship entry on the leaderboard",
+        bullets: score != null ? [`Score: ${score}%`] : [],
+      };
+    }
+    case "leaderboard_expand_tier": {
+      const tierName = details.tier_name as string | undefined;
+      const owner = details.owner as string | undefined;
+      return {
+        summary: tierName ? `Expanded "${tierName}" tier list by ${owner || "unknown"}` : "Expanded a tier list on the leaderboard",
+        bullets: [],
+      };
+    }
+    case "category_renamed": {
+      const newName = details.new_name as string | undefined;
+      return {
+        summary: newName ? `Renamed a category to "${newName}"` : "Renamed a category",
+        bullets: [],
+      };
+    }
+    case "category_deleted":
+      return { summary: "Deleted a category", bullets: [] };
+    case "pin_added": {
+      const personName = details.person_name as string | undefined;
+      const totalPins = details.total_pins as number | undefined;
+      return {
+        summary: personName ? `Added a Pinterest pin to ${personName}'s shrine` : "Added a Pinterest pin to a profile",
+        bullets: totalPins != null ? [`Total pins now: ${totalPins}`] : [],
+      };
+    }
+    case "pin_deleted": {
+      const personName = details.person_name as string | undefined;
+      return {
+        summary: personName ? `Removed a pin from ${personName}'s shrine` : "Removed a Pinterest pin",
+        bullets: [],
+      };
+    }
+    case "profile_bio_updated": {
+      const personName = details.person_name as string | undefined;
+      const bioLen = details.bio_length as number | undefined;
+      return {
+        summary: personName ? `Updated ${personName}'s bio` : "Updated a profile bio",
+        bullets: bioLen != null ? [`Bio length: ${bioLen} characters`] : [],
       };
     }
     default: {
