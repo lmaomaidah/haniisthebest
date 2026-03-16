@@ -359,7 +359,7 @@ function SortablePinCard({
 /* ──────────── Main Page ──────────── */
 const PersonProfile = () => {
   const { id } = useParams<{ id: string }>();
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user, logActivity } = useAuth();
   const { toast } = useToast();
 
   const [person, setPerson] = useState<PersonData | null>(null);
