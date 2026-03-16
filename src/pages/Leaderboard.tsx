@@ -316,7 +316,7 @@ const Leaderboard = () => {
         {/* Tab Switcher */}
         <div className="flex gap-1 mb-8 bg-card/70 backdrop-blur border border-border/40 rounded-2xl p-1">
           <button
-            onClick={() => setActiveTab("ships")}
+            onClick={() => handleTabChange("ships")}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === "ships"
                 ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/20"
