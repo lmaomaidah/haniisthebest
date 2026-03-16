@@ -34,9 +34,25 @@ const Profiles = () => {
     setLoading(false);
   };
 
-  const handleCreateCategory = async (name: string) => { if (!user) return; try { await createCategory(name, user.id); toast({ title: "Category created! 🏷️" }); } catch (err: any) { toast({ title: "Couldn't create", description: err.message, variant: "destructive" }); } };
-  const handleRenameCategory = async (id: string, newName: string) => { try { await renameCategory(id, newName); } catch {} };
-  const handleDeleteCategory = async (id: string) => { try { await deleteCategory(id); await loadCategoryMap(); } catch {} };
+  const handleCreateCategory = async (name: string) => { if (!user) return; try { await createCategory(name, user.id); void logActivity("category_created", { name, page: "shrine_wall" }); toast({ title: "Category created! 🏷️" }); } catch (err: any) { toast({ title: "Couldn't create", description: err.message, variant: "destructive" }); } };
+  const handleRenameCategory = async (id: string, newName: string) => { try { await renameCategory(id, newName); void logActivity("category_renamed", { category_id: id, new_name: newName }); } catch {} };
+  const handleDeleteCategory = async (id: string) => { try { await deleteCategory(id); void logActivity("category_deleted", { category_id: id }); await loadCategoryMap(); } catch {} };
+
+  // Track search queries (debounced)
+  useEffect(() => {
+    if (!search.trim() || search.length < 2) return;
+    const timeout = setTimeout(() => {
+      void logActivity("shrine_search", { query: search.trim(), results_count: filtered.length });
+    }, 1500);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  // Track filter changes
+  useEffect(() => {
+    if (filterCategories.length === 0) return;
+    const catNames = filterCategories.map(id => categories.find(c => c.id === id)?.name || id);
+    void logActivity("shrine_filter", { categories: catNames, filter_count: filterCategories.length });
+  }, [filterCategories]);
 
   const filtered = people
     .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
