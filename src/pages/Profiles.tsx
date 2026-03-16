@@ -23,7 +23,7 @@ const Profiles = () => {
   const { categories, createCategory, renameCategory, deleteCategory } = useCategories();
   const { user, logActivity } = useAuth();
   const { toast } = useToast();
-  const searchTimeoutRef = useState<ReturnType<typeof setTimeout> | null>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { fetchPeople(); loadCategoryMap(); }, []);
   const loadCategoryMap = async () => { const map = await fetchAllImageCategories(); setImageCategoryMap(map); };
