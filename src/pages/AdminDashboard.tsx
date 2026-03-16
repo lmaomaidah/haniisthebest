@@ -365,6 +365,143 @@ function formatReadableActivity(actionType: string, details: Record<string, unkn
         bullets: [],
       };
     }
+    case "page_exit": {
+      const timeSpent = details.time_spent_seconds as number | undefined;
+      const scrollDepth = details.max_scroll_depth_percent as number | undefined;
+      const clicks = details.click_count as number | undefined;
+      const scrolls = details.scroll_interactions as number | undefined;
+      const exitPage = (details.page_name || details.page_path) as string | undefined;
+      return {
+        summary: `Left ${exitPage || "a page"}${timeSpent ? ` after ${timeSpent}s` : ""}`,
+        bullets: [
+          timeSpent ? `Time on page: ${timeSpent} seconds` : "",
+          scrollDepth != null ? `Max scroll depth: ${scrollDepth}%` : "",
+          clicks != null ? `Clicks: ${clicks}` : "",
+          scrolls != null ? `Scroll interactions: ${scrolls}` : "",
+        ].filter(Boolean),
+      };
+    }
+    case "scroll_bottom": {
+      const scrollPage = details.page_name as string | undefined;
+      return { summary: `Scrolled to the bottom of ${scrollPage || "a page"}`, bullets: [] };
+    }
+    case "session_resume": {
+      const resumePage = details.page_name as string | undefined;
+      const awaySecs = details.away_seconds as number | undefined;
+      return {
+        summary: `Returned to the tab${resumePage ? ` on ${resumePage}` : ""}${awaySecs ? ` after ${awaySecs}s away` : ""}`,
+        bullets: [],
+      };
+    }
+    case "user_click": {
+      const element = details.element as string | undefined;
+      const clickPage = details.page_name as string | undefined;
+      const isExternal = details.is_external as boolean | undefined;
+      const href = details.href as string | undefined;
+      return {
+        summary: `Clicked "${element || "an element"}" on ${clickPage || "a page"}${isExternal ? " (external link)" : ""}`,
+        bullets: href ? [`Destination: ${href}`] : [],
+      };
+    }
+    case "profile_view": {
+      const personName = details.person_name as string | undefined;
+      const pinCount = details.pin_count as number | undefined;
+      const hasBio = details.has_bio as boolean | undefined;
+      return {
+        summary: personName ? `Viewed ${personName}'s shrine profile` : "Viewed a classmate's profile",
+        bullets: [
+          pinCount != null ? `${pinCount} pin(s) on their wall` : "",
+          hasBio != null ? (hasBio ? "Has a bio" : "No bio yet") : "",
+        ].filter(Boolean),
+      };
+    }
+    case "profile_click": {
+      const personName = details.person_name as string | undefined;
+      const fromSearch = details.from_search as boolean | undefined;
+      return {
+        summary: personName ? `Clicked on ${personName}'s profile card` : "Clicked on a profile",
+        bullets: fromSearch ? ["Found via search"] : [],
+      };
+    }
+    case "profile_categories_changed": {
+      const personName = details.person_name as string | undefined;
+      const cats = details.categories as string[] | undefined;
+      return {
+        summary: personName ? `Updated categories on ${personName}'s profile` : "Updated profile categories",
+        bullets: cats?.length ? [`Tags: ${cats.join(", ")}`] : [],
+      };
+    }
+    case "shrine_search": {
+      const query = details.query as string | undefined;
+      const resultsCount = details.results_count as number | undefined;
+      return {
+        summary: query ? `Searched for "${query}" on the Shrine Wall` : "Searched on the Shrine Wall",
+        bullets: resultsCount != null ? [`${resultsCount} result(s) found`] : [],
+      };
+    }
+    case "shrine_filter": {
+      const cats = details.categories as string[] | undefined;
+      return {
+        summary: "Filtered the Shrine Wall by categories",
+        bullets: cats?.length ? [`Active filters: ${cats.join(", ")}`] : [],
+      };
+    }
+    case "leaderboard_tab_switch": {
+      const tab = details.tab as string | undefined;
+      return {
+        summary: `Switched to the "${tab === "ships" ? "Top Ships" : "Public Tier Lists"}" leaderboard tab`,
+        bullets: [],
+      };
+    }
+    case "leaderboard_expand_ship": {
+      const p1 = details.person1 as string | undefined;
+      const p2 = details.person2 as string | undefined;
+      const score = details.score as number | undefined;
+      return {
+        summary: p1 && p2 ? `Expanded the ship entry for ${p1} × ${p2}` : "Expanded a ship entry on the leaderboard",
+        bullets: score != null ? [`Score: ${score}%`] : [],
+      };
+    }
+    case "leaderboard_expand_tier": {
+      const tierName = details.tier_name as string | undefined;
+      const owner = details.owner as string | undefined;
+      return {
+        summary: tierName ? `Expanded "${tierName}" tier list by ${owner || "unknown"}` : "Expanded a tier list on the leaderboard",
+        bullets: [],
+      };
+    }
+    case "category_renamed": {
+      const newName = details.new_name as string | undefined;
+      return {
+        summary: newName ? `Renamed a category to "${newName}"` : "Renamed a category",
+        bullets: [],
+      };
+    }
+    case "category_deleted":
+      return { summary: "Deleted a category", bullets: [] };
+    case "pin_added": {
+      const personName = details.person_name as string | undefined;
+      const totalPins = details.total_pins as number | undefined;
+      return {
+        summary: personName ? `Added a Pinterest pin to ${personName}'s shrine` : "Added a Pinterest pin to a profile",
+        bullets: totalPins != null ? [`Total pins now: ${totalPins}`] : [],
+      };
+    }
+    case "pin_deleted": {
+      const personName = details.person_name as string | undefined;
+      return {
+        summary: personName ? `Removed a pin from ${personName}'s shrine` : "Removed a Pinterest pin",
+        bullets: [],
+      };
+    }
+    case "profile_bio_updated": {
+      const personName = details.person_name as string | undefined;
+      const bioLen = details.bio_length as number | undefined;
+      return {
+        summary: personName ? `Updated ${personName}'s bio` : "Updated a profile bio",
+        bullets: bioLen != null ? [`Bio length: ${bioLen} characters`] : [],
+      };
+    }
     default: {
       const contextKeys = new Set(['page_path', 'page_url', 'referrer', 'timezone', 'locale', 'viewport', 'user_agent', 'client_time', 'context', 'source', 'page', 'page_name']);
       const meaningful = Object.entries(details)
