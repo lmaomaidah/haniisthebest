@@ -520,6 +520,7 @@ const PersonProfile = () => {
       .eq("id", pinId);
     if (!error) {
       setPins((prev) => prev.filter((p) => p.id !== pinId));
+      void logActivity("pin_deleted", { person_id: id, person_name: person?.name, pin_id: pinId });
       toast({ title: "Pin removed 🗑️" });
     }
   };
