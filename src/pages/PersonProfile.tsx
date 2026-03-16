@@ -567,6 +567,7 @@ const PersonProfile = () => {
         prev ? { ...prev, bio: bioText.trim() || null } : prev
       );
       setEditingBio(false);
+      void logActivity("profile_bio_updated", { person_id: id, person_name: person?.name, bio_length: bioText.trim().length });
       toast({ title: "Bio saved ✨" });
     }
   };
