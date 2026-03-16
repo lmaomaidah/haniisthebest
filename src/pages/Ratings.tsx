@@ -75,7 +75,18 @@ const Ratings = () => {
     try {
       if (selectedImage.rating) { const { error } = await supabase.from("ratings").update(ratings).eq("id", selectedImage.rating.id); if (error) throw error; }
       else { const { error } = await supabase.from("ratings").insert({ image_id: selectedImage.id, ...ratings }); if (error) throw error; }
-      await logActivity("rating_save", { imageName: selectedImage.name, total: ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq });
+      await logActivity("rating_save", {
+        imageName: selectedImage.name,
+        image_id: selectedImage.id,
+        total: ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq,
+        sex_appeal: ratings.sex_appeal,
+        character_design: ratings.character_design,
+        iq: ratings.iq,
+        eq: ratings.eq,
+        is_update: !!selectedImage.rating,
+        previous_total: selectedImage.rating ? (selectedImage.rating.sex_appeal || 0) + (selectedImage.rating.character_design || 0) + (selectedImage.rating.iq || 0) + (selectedImage.rating.eq || 0) : null,
+        badge: getBadge(ratings.sex_appeal + ratings.character_design + ratings.iq + ratings.eq).name,
+      });
       toast({ title: "✨ Rating saved!", description: "Your judgment is FINAL! 💅" });
       fetchImagesWithRatings();
       setSelectedImage(null);

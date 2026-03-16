@@ -86,7 +86,7 @@ const tierColors: Record<string, string> = {
 };
 
 const Leaderboard = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, logActivity } = useAuth();
   const { toast } = useToast();
 
   const [ships, setShips] = useState<ShipEntry[]>([]);
@@ -97,6 +97,34 @@ const Leaderboard = () => {
   const [expandedShip, setExpandedShip] = useState<string | null>(null);
   const [expandedTier, setExpandedTier] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"ships" | "tiers">("ships");
+
+  const handleTabChange = (tab: "ships" | "tiers") => {
+    setActiveTab(tab);
+    void logActivity("leaderboard_tab_switch", { tab, ships_loaded: ships.length, tiers_loaded: tierLists.length });
+  };
+
+  const handleExpandShip = (id: string) => {
+    const next = expandedShip === id ? null : id;
+    setExpandedShip(next);
+    if (next) {
+      const ship = ships.find(s => s.id === next);
+      void logActivity("leaderboard_expand_ship", {
+        person1: ship?.action_details?.person1,
+        person2: ship?.action_details?.person2,
+        score: ship?.action_details?.score,
+        shipper: ship?.username,
+      });
+    }
+  };
+
+  const handleExpandTier = (id: string) => {
+    const next = expandedTier === id ? null : id;
+    setExpandedTier(next);
+    if (next) {
+      const tier = tierLists.find(t => t.id === next);
+      void logActivity("leaderboard_expand_tier", { tier_name: tier?.name, owner: tier?.username });
+    }
+  };
 
   const fetchClassmates = useCallback(async () => {
     const { data } = await supabase
