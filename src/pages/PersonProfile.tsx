@@ -436,6 +436,8 @@ const PersonProfile = () => {
     try {
       await setImageCategories(id, newCats);
       setPersonCategories(newCats);
+      const catNames = newCats.map(cid => categories.find(c => c.id === cid)?.name || cid);
+      void logActivity("profile_categories_changed", { person_id: id, person_name: person?.name, categories: catNames, count: newCats.length });
       toast({ title: "Categories updated! 🏷️" });
     } catch (err: any) {
       toast({ title: "Couldn't update categories", description: err.message, variant: "destructive" });
