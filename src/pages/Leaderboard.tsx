@@ -327,7 +327,7 @@ const Leaderboard = () => {
             Top Ships
           </button>
           <button
-            onClick={() => setActiveTab("tiers")}
+            onClick={() => handleTabChange("tiers")}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === "tiers"
                 ? "bg-gradient-to-r from-secondary to-accent text-secondary-foreground shadow-lg shadow-secondary/20"
