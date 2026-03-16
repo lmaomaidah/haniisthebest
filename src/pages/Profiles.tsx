@@ -87,7 +87,7 @@ const Profiles = () => {
               const personCats = imageCategoryMap[person.id] || [];
               return (
                 <div key={person.id} className="group relative">
-                  <Link to={`/profiles/${person.id}`} className="block bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1.5">
+                  <Link to={`/profiles/${person.id}`} onClick={() => void logActivity("profile_click", { person_id: person.id, person_name: person.name, from_search: !!search.trim(), categories_filtered: filterCategories.length })} className="block bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1.5">
                     <div className="aspect-[3/4] relative overflow-hidden">
                       {person.image_url ? (
                         <img src={person.image_url} alt={person.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" loading="lazy" />
