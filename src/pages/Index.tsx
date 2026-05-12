@@ -14,6 +14,7 @@ const navItems = [
   { to: "/polls", icon: <Vote className="h-6 w-6" />, label: "Crowd Verdicts" },
   { to: "/profiles", icon: <Pin className="h-6 w-6" />, label: "Shrine Wall" },
   { to: "/leaderboard", icon: <Trophy className="h-6 w-6" />, label: "Leaderboard" },
+  { to: "/wordle", icon: <Type className="h-6 w-6" />, label: "Wordle" },
 ];
 
 const Index = () => {
