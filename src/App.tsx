@@ -25,6 +25,7 @@ import Profiles from "./pages/Profiles";
 import PersonProfile from "./pages/PersonProfile";
 import PendingApproval from "./pages/PendingApproval";
 import Leaderboard from "./pages/Leaderboard";
+import Wordle from "./pages/Wordle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
