@@ -550,6 +550,77 @@ export type Database = {
         }
         Relationships: []
       }
+      wordle_guesses: {
+        Row: {
+          created_at: string
+          green_count: number
+          guess: string
+          id: string
+          is_correct: boolean
+          round_id: string
+          user_id: string
+          yellow_count: number
+        }
+        Insert: {
+          created_at?: string
+          green_count: number
+          guess: string
+          id?: string
+          is_correct?: boolean
+          round_id: string
+          user_id: string
+          yellow_count: number
+        }
+        Update: {
+          created_at?: string
+          green_count?: number
+          guess?: string
+          id?: string
+          is_correct?: boolean
+          round_id?: string
+          user_id?: string
+          yellow_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wordle_guesses_round_id_fkey"
+            columns: ["round_id"]
+            isOneToOne: false
+            referencedRelation: "wordle_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wordle_rounds: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          host_id: string
+          id: string
+          is_active: boolean
+          word: string
+          word_length: number
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          is_active?: boolean
+          word: string
+          word_length: number
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          is_active?: boolean
+          word?: string
+          word_length?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -563,6 +634,17 @@ export type Database = {
           p_sex_appeal: number
         }
         Returns: number
+      }
+      end_wordle_round: { Args: { _round_id: string }; Returns: undefined }
+      get_active_wordle_round: {
+        Args: never
+        Returns: {
+          created_at: string
+          host_id: string
+          host_username: string
+          id: string
+          word_length: number
+        }[]
       }
       has_role: {
         Args: {
@@ -583,6 +665,16 @@ export type Database = {
       log_activity_event: {
         Args: { _action_details?: Json; _action_type: string }
         Returns: undefined
+      }
+      start_wordle_round: { Args: { _word: string }; Returns: string }
+      submit_wordle_guess: {
+        Args: { _guess: string; _round_id: string }
+        Returns: {
+          green_count: number
+          guess_number: number
+          is_correct: boolean
+          yellow_count: number
+        }[]
       }
     }
     Enums: {

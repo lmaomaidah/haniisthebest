@@ -25,6 +25,7 @@ import Profiles from "./pages/Profiles";
 import PersonProfile from "./pages/PersonProfile";
 import PendingApproval from "./pages/PendingApproval";
 import Leaderboard from "./pages/Leaderboard";
+import Wordle from "./pages/Wordle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const AnimatedRoutes = () => {
         <Route path="/profiles" element={<ProtectedRoute><PageTransition><Profiles /></PageTransition></ProtectedRoute>} />
         <Route path="/profiles/:id" element={<ProtectedRoute><PageTransition><PersonProfile /></PageTransition></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/wordle" element={<ProtectedRoute><PageTransition><Wordle /></PageTransition></ProtectedRoute>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
