@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin, Trophy } from "lucide-react";
+import { Sparkles, Star, Image, TrendingUp, Heart, Brain, Vote, Pin, Trophy, Type } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import WhimsicalBackground from "@/components/WhimsicalBackground";
 import Marquee from "@/components/Marquee";
