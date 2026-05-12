@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Crown, Square, X, Send, Sparkles } from "lucide-react";
+import { Loader2, Crown, X, Send, Sparkles, PartyPopper, Users, Clock, Hash, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import PageHeader from "@/components/PageHeader";
@@ -30,20 +30,26 @@ interface Guess {
 }
 
 const INSULTS = [
-  "Bro really thinks letters are random vibes.",
-  "A toddler with a fridge magnet set would be ahead by now.",
-  "You're not guessing, you're auditioning for clown college.",
-  "At this point the dictionary is filing a restraining order.",
-  "Even autocorrect has given up on you.",
-  "The word is not 'cope' but maybe it should be — for you.",
-  "Your IQ just unsubscribed.",
-  "Genuinely impressive how wrong one human can be.",
-  "GTA Hani is somewhere shaking his head.",
-  "Each guess of yours adds a new wrinkle to my brain — out of pity.",
-  "Are you guessing or sneezing on the keyboard?",
-  "I've seen captchas with more strategy.",
-  "This is a war crime against vowels.",
-  "You couldn't spell 'L' without three attempts and a hint.",
+  "That guess was so bad the alphabet asked to be unlinked from your name.",
+  "A concussed pigeon pecking at the keyboard would be three rows ahead of you.",
+  "Your brain just blue-screened and somehow your guess got worse.",
+  "Genuinely, watching you play is the saddest thing to happen to language since emojis.",
+  "The dictionary saw your guess and chose voluntary deletion.",
+  "If stupidity were letters, you'd be solving this in one try.",
+  "Mensa just sent you a cease and desist for impersonating a thinker.",
+  "Your guesses are giving 'phonics class dropout with a vendetta.'",
+  "I asked an AI to rate that guess. It crashed and apologised to me.",
+  "GTA Hani invented this game and even he wouldn't waste a turn on you.",
+  "You type like every key is a personal enemy and the word is the witness.",
+  "At this rate the word will rot before you find it. Carbon-date your next guess.",
+  "Your vocabulary is being sued by the Oxford English Dictionary for defamation.",
+  "Toddlers eating fridge magnets are out-performing you in real time.",
+  "I'd call that a guess but guesses imply thought was involved.",
+  "Bro is speedrunning embarrassment with no glitches.",
+  "Every wrong guess takes a year off my life and adds one to your sentence.",
+  "Even the letters you got right are embarrassed to be associated with you.",
+  "This isn't Wordle anymore, it's a public humiliation kink and you're the star.",
+  "The word is right there. You are not.",
 ];
 
 const insultFor = (n: number) => INSULTS[(n * 7) % INSULTS.length];
@@ -58,6 +64,7 @@ const Wordle = () => {
   const [guessInput, setGuessInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [victoryDismissed, setVictoryDismissed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isHost = !!user && !!round && round.host_id === user.id;
@@ -111,6 +118,11 @@ const Wordle = () => {
     })();
   }, []);
 
+  // Reset victory dismiss when round changes
+  useEffect(() => {
+    setVictoryDismissed(false);
+  }, [round?.id]);
+
   // Realtime
   useEffect(() => {
     if (!round) return;
@@ -151,6 +163,13 @@ const Wordle = () => {
   const myGuesses = useMemo(
     () => (user ? guesses.filter((g) => g.user_id === user.id) : []),
     [guesses, user]
+  );
+
+  const myWin = useMemo(() => myGuesses.find((g) => g.is_correct) || null, [myGuesses]);
+  const winners = useMemo(() => guesses.filter((g) => g.is_correct), [guesses]);
+  const uniquePlayers = useMemo(
+    () => new Set(guesses.map((g) => g.user_id)).size,
+    [guesses]
   );
 
   const handleStart = async (e: React.FormEvent) => {
@@ -203,7 +222,7 @@ const Wordle = () => {
 
   const handleEndRound = async () => {
     if (!round) return;
-    if (!confirm("End this round? The word will be revealed.")) return;
+    if (!confirm("End this round? The word will be revealed to everyone.")) return;
     const { error } = await supabase.rpc("end_wordle_round", { _round_id: round.id });
     if (error) toast.error(error.message);
     else {
@@ -211,6 +230,12 @@ const Wordle = () => {
       await fetchRound();
     }
   };
+
+  const roundAgeMin = round
+    ? Math.max(0, Math.floor((Date.now() - new Date(round.created_at).getTime()) / 60000))
+    : 0;
+
+  const showVictoryOverlay = !!myWin && !victoryDismissed;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -235,11 +260,11 @@ const Wordle = () => {
           <Card className="max-w-xl mx-auto p-8 bg-card/80 backdrop-blur border-2 border-primary/30">
             <div className="flex items-center gap-2 mb-4">
               <Crown className="h-5 w-5 text-primary" />
-              <h2 className="text-2xl font-bold">No active round</h2>
+              <h2 className="text-2xl font-bold">No active round — be the host</h2>
             </div>
             <p className="text-muted-foreground mb-6">
-              Be the host. Pick a secret word (2–15 letters, a–z only). Everyone else guesses
-              it — unlimited tries, but the more you flop, the meaner it gets.
+              Pick a secret word (2–15 letters, a–z only). Everyone else guesses it — unlimited
+              tries, but the more you flop, the meaner it gets.
             </p>
             <form onSubmit={handleStart} className="flex gap-2">
               <Input
@@ -259,6 +284,7 @@ const Wordle = () => {
           <div className="grid lg:grid-cols-[1fr_320px] gap-6 max-w-5xl mx-auto">
             {/* Main board */}
             <div className="space-y-4">
+              {/* Status bar */}
               <Card className="p-5 bg-card/80 backdrop-blur border-2 border-primary/30">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-2">
@@ -267,9 +293,18 @@ const Wordle = () => {
                       Host: <span className="font-semibold">{round.host_username || "?"}</span>
                     </span>
                   </div>
-                  <Badge variant="outline" className="font-mono">
-                    {round.word_length} letters
-                  </Badge>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Hash className="h-3 w-3" />
+                    <Badge variant="outline" className="font-mono">
+                      {round.word_length} letters
+                    </Badge>
+                    <Users className="h-3 w-3 ml-2" />
+                    <span>{uniquePlayers} playing</span>
+                    <Clock className="h-3 w-3 ml-2" />
+                    <span>{roundAgeMin}m</span>
+                    <Trophy className="h-3 w-3 ml-2 text-emerald-400" />
+                    <span>{winners.length} cracked</span>
+                  </div>
                   {(isHost || isAdmin) && (
                     <Button size="sm" variant="destructive" onClick={handleEndRound}>
                       <X className="h-3 w-3 mr-1" /> End round
@@ -278,10 +313,38 @@ const Wordle = () => {
                 </div>
               </Card>
 
+              {/* Host panel — always visible to host/admin during round */}
+              {(isHost || isAdmin) && (
+                <Card className="p-5 bg-amber-500/5 backdrop-blur border-2 border-amber-500/40">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Crown className="h-4 w-4 text-amber-400" />
+                    <h3 className="text-sm uppercase tracking-widest text-amber-300/90 font-semibold">
+                      Host panel
+                    </h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Starting a new round will end the current one. The current word is hidden from
+                    everyone (including you in the activity log) until the round ends.
+                  </p>
+                  <form onSubmit={handleStart} className="flex gap-2">
+                    <Input
+                      value={newWord}
+                      onChange={(e) => setNewWord(e.target.value.replace(/[^a-zA-Z]/g, ""))}
+                      placeholder="next secret word…"
+                      maxLength={15}
+                      className="font-mono uppercase tracking-widest"
+                    />
+                    <Button type="submit" disabled={starting || newWord.length < 2} variant="secondary">
+                      {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Replace round"}
+                    </Button>
+                  </form>
+                </Card>
+              )}
+
               {/* Guess board */}
               <Card className="p-6 bg-card/80 backdrop-blur border-2 border-border">
                 <h3 className="text-sm uppercase tracking-widest text-muted-foreground mb-4">
-                  Your guesses
+                  Your guess history ({myGuesses.length})
                 </h3>
 
                 {isHost ? (
@@ -308,36 +371,38 @@ const Wordle = () => {
                       ))}
                     </div>
 
-                    <form onSubmit={handleGuess} className="flex gap-2">
-                      <Input
-                        ref={inputRef}
-                        value={guessInput}
-                        onChange={(e) =>
-                          setGuessInput(
-                            e.target.value.replace(/[^a-zA-Z]/g, "").slice(0, round.word_length)
-                          )
-                        }
-                        placeholder={`${round.word_length}-letter guess`}
-                        maxLength={round.word_length}
-                        className="font-mono uppercase tracking-[0.4em] text-center text-lg"
-                        autoFocus
-                      />
-                      <Button
-                        type="submit"
-                        disabled={submitting || guessInput.length !== round.word_length}
-                      >
-                        {submitting ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Send className="h-4 w-4 mr-1" /> Guess
-                          </>
-                        )}
-                      </Button>
-                    </form>
+                    {!myWin && (
+                      <form onSubmit={handleGuess} className="flex gap-2">
+                        <Input
+                          ref={inputRef}
+                          value={guessInput}
+                          onChange={(e) =>
+                            setGuessInput(
+                              e.target.value.replace(/[^a-zA-Z]/g, "").slice(0, round.word_length)
+                            )
+                          }
+                          placeholder={`${round.word_length}-letter guess`}
+                          maxLength={round.word_length}
+                          className="font-mono uppercase tracking-[0.4em] text-center text-lg"
+                          autoFocus
+                        />
+                        <Button
+                          type="submit"
+                          disabled={submitting || guessInput.length !== round.word_length}
+                        >
+                          {submitting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-1" /> Guess
+                            </>
+                          )}
+                        </Button>
+                      </form>
+                    )}
 
-                    {myGuesses.length >= 3 && (
-                      <p className="text-xs italic text-rose-400/80 mt-3 text-center">
+                    {!myWin && myGuesses.length >= 3 && (
+                      <p className="text-xs italic text-rose-400/90 mt-3 text-center">
                         🤡 {insultFor(myGuesses.length)}
                       </p>
                     )}
@@ -396,8 +461,85 @@ const Wordle = () => {
           </div>
         )}
       </div>
+
+      {/* Persistent victory overlay — lingers until user dismisses */}
+      <AnimatePresence>
+        {showVictoryOverlay && round && myWin && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.85, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 18 }}
+              className="max-w-lg w-full"
+            >
+              <Card className="p-8 bg-gradient-to-br from-emerald-500/20 via-amber-500/10 to-primary/20 border-4 border-emerald-400 shadow-2xl">
+                <div className="text-center">
+                  <PartyPopper className="h-16 w-16 mx-auto text-amber-400 mb-3" />
+                  <h2 className="text-4xl font-display font-bold text-gradient mb-2">
+                    YOU CRACKED IT
+                  </h2>
+                  <p className="text-emerald-300 font-mono text-2xl uppercase tracking-[0.3em] my-4">
+                    {myWin.guess}
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-5">
+                    Solved in <span className="font-bold text-foreground">{myGuesses.length}</span>{" "}
+                    {myGuesses.length === 1 ? "guess" : "guesses"} ·{" "}
+                    {winners.findIndex((w) => w.user_id === user?.id) + 1}
+                    {ordinal(winners.findIndex((w) => w.user_id === user?.id) + 1)} to crack it
+                  </p>
+
+                  <div className="bg-background/40 rounded-lg p-4 mb-5 max-h-60 overflow-y-auto">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                      Your saved guess history
+                    </p>
+                    <div className="space-y-1.5">
+                      {myGuesses.map((g, i) => (
+                        <div
+                          key={g.id}
+                          className="flex items-center justify-between gap-2 text-sm"
+                        >
+                          <span className="text-muted-foreground font-mono">#{i + 1}</span>
+                          <span
+                            className={`font-mono uppercase tracking-widest flex-1 text-left pl-3 ${
+                              g.is_correct ? "text-emerald-300 font-bold" : "text-foreground/80"
+                            }`}
+                          >
+                            {g.guess}
+                          </span>
+                          <CountChip count={g.green_count} variant="green" />
+                          <CountChip count={g.yellow_count} variant="yellow" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    size="lg"
+                    onClick={() => setVictoryDismissed(true)}
+                    className="w-full"
+                  >
+                    Exit & keep watching the carnage
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
+};
+
+const ordinal = (n: number) => {
+  if (n <= 0) return "";
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
 };
 
 const GuessRow = ({
