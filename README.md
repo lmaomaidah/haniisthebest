@@ -36,6 +36,7 @@ New users must register and receive admin approval before gaining full access to
 | **Shrine Wall** | Dedicated profile pages with Pinterest-style mood boards, bios, and custom headers |
 | **Leaderboard** | Top-scoring ships, public tier list history, and community rankings |
 | **Venn Diagrams** | Build custom Venn diagrams placing classmates into overlapping categories |
+| **Wordle** | Host-driven word-guessing game with unlimited guesses, escalating insults, win/lose theatrics, and a personal letter-cutting board |
 | **Classifications** | Tag and classify classmates into custom categories |
 | **Comments** | Threaded commenting available across ships, tier lists, profiles, and leaderboard entries |
 | **Real-time Presence** | See who else is online and active on the platform |
