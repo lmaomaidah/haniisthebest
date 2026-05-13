@@ -108,6 +108,20 @@ Both sections support threaded comments. Admins can remove entries.
 ### Venn Diagrams (`/venn-diagram`)
 Create custom Venn diagrams with labelled circles and place classmate images into overlapping regions.
 
+### Wordle (`/wordle`)
+A host-vs-room word-guessing battle with **unlimited guesses** — but the more you flop, the meaner the game gets.
+
+- **Hosting** — Any approved user can start a round by submitting a secret word (2–15 letters). Starting a new round automatically ends the previous one. Hosts and admins get a dedicated host panel showing live round stats (players, winners, round age) and can end the round at any time.
+- **Guessing** — Players type a guess of the exact word length. Instead of revealing per-letter colours like classic Wordle, the game tells you only **how many letters are green** (correct letter, correct position) and **how many are yellow** (correct letter, wrong position) via two coloured circles next to each guess. The actual positions remain hidden.
+- **Letter board** — A side panel listing A–Z. **Click** a letter to cut it (red diagonal strike), **right-click** to remove it from the board entirely. The board state is saved per-round in your browser so you can deduce as you go.
+- **Insults** — From your third wrong guess onward, the game starts dropping increasingly scathing one-liners. Hosts and admins can see all guesses; everyone else sees other players' attempts masked as dots.
+- **Victory** — When you crack the word, the screen explodes with confetti, a triumphant fanfare plays, and you get a backhanded compliment alongside your full saved guess history. The overlay lingers until you dismiss it yourself.
+- **Defeat** — If the host ends the round before you guess, the screen fills with falling loser horns, oversized "L" graphics, a sad-trombone sound, and a mocking write-up of your tragic guess history. Like the win screen, it stays put until you exit.
+- **Sound** — A volume toggle at the top mutes all SFX. Audio is generated client-side via the Web Audio API, so no external assets are loaded.
+- **Live activity** — A real-time sidebar shows every guess across the room as it happens.
+
+Credit for inventing this twist on Wordle goes to **GTA Hani**.
+
 ---
 
 ## User Roles & Permissions
